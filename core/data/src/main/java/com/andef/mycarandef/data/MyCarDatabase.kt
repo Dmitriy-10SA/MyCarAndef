@@ -4,9 +4,13 @@ import android.app.Application
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.andef.mycarandef.car.data.dao.CarDao
+import com.andef.mycarandef.car.data.dbo.CarDbo
 
-@Database(entities = [], exportSchema = false, version = 1)
+@Database(entities = [CarDbo::class], exportSchema = false, version = 1)
 abstract class MyCarDatabase : RoomDatabase() {
+    abstract val carDao: CarDao
+
     companion object {
         private const val DB_NAME = "my-car-db"
 
