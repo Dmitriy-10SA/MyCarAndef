@@ -1,4 +1,4 @@
-package com.andef.mycarandef.di.shprefs
+package com.andef.mycarandef.start.di
 
 import android.app.Application
 import android.content.Context
