@@ -42,6 +42,9 @@ dependencies {
     //feature:expense:domain
     implementation(project(":feature:expense:domain"))
 
+    //feature:car:data
+    implementation(project(":feature:car:data"))
+
     //Dagger 2
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
