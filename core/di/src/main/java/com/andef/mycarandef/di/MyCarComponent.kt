@@ -7,6 +7,7 @@ import com.andef.mycarandef.di.shprefs.ShPrefsModule
 import com.andef.mycarandef.expense.di.ExpenseRepositoryModule
 import com.andef.mycarandef.map.di.MapRepositoryModule
 import com.andef.mycarandef.start.di.StartRepositoryModule
+import com.andef.mycarandef.work.di.WorkRepositoryModule
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -18,7 +19,8 @@ import javax.inject.Singleton
         StartRepositoryModule::class,
         CarRepositoryModule::class,
         ExpenseRepositoryModule::class,
-        MapRepositoryModule::class
+        MapRepositoryModule::class,
+        WorkRepositoryModule::class
     ]
 )
 interface MyCarComponent {
