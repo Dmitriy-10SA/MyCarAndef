@@ -13,7 +13,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         setContent {
-            MyCarAndefTheme {
+            //TODO ("Пока делаем светлую тему, потом темную")
+            MyCarAndefTheme(darkTheme = false) {
 
             }
         }
