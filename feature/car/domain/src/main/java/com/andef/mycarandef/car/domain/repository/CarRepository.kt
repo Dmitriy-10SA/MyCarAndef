@@ -19,4 +19,6 @@ interface CarRepository {
 
     suspend fun removeCar(id: Int)
     suspend fun addCar(car: Car)
+    fun getFavoriteCarId(): Int
+    fun setFavoriteCarId(id: Int)
 }

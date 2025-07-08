@@ -1,5 +1,7 @@
 package com.andef.mycarandef.car.data.repository
 
+import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.andef.mycarandef.car.data.dao.CarDao
 import com.andef.mycarandef.car.data.mapper.CarMapper
 import com.andef.mycarandef.car.domain.entities.Car
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CarRepositoryImpl @Inject constructor(
+    private val shPrefs: SharedPreferences,
     private val carMapper: CarMapper,
     private val carDao: CarDao
 ) : CarRepository {
@@ -52,5 +55,21 @@ class CarRepositoryImpl @Inject constructor(
 
     override suspend fun addCar(car: Car) {
         carDao.addCar(carMapper.map(car))
+    }
+
+    override fun getFavoriteCarId(): Int {
+        val id = shPrefs.getInt(FAVORITE_CAR_ID, -1)
+        return when (id) {
+            -1 -> throw IllegalArgumentException("Обязательно должна быть выбрана любимая машина!")
+            else -> id
+        }
+    }
+
+    override fun setFavoriteCarId(id: Int) {
+        shPrefs.edit { putInt(FAVORITE_CAR_ID, id) }
+    }
+
+    companion object {
+        private const val FAVORITE_CAR_ID = "favorite-car-id"
     }
 }
