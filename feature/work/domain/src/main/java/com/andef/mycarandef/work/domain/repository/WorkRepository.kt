@@ -16,5 +16,5 @@ interface WorkRepository {
 
     suspend fun removeWork(id: Long)
     suspend fun getWorkById(id: Long): Work
-    fun getWorks(): Flow<List<Work>>
+    fun getWorksByCarId(carId: Int): Flow<List<Work>>
 }

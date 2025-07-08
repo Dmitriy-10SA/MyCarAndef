@@ -36,8 +36,8 @@ class WorkRepositoryImpl @Inject constructor(
         return workMapper.map(workDao.getWorkById(id))
     }
 
-    override fun getWorks(): Flow<List<Work>> {
-        return workDao.getWorks().map { worksDbo ->
+    override fun getWorksByCarId(carId: Int): Flow<List<Work>> {
+        return workDao.getWorksByCarId(carId).map { worksDbo ->
             worksDbo.map { workDbo ->
                 workMapper.map(workDbo)
             }

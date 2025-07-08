@@ -33,6 +33,6 @@ interface WorkDao {
     @Query("SELECT * FROM work WHERE id = :id")
     suspend fun getWorkById(id: Long): WorkDbo
 
-    @Query("SELECT * FROM work")
-    fun getWorks(): Flow<List<WorkDbo>>
+    @Query("SELECT * FROM work WHERE car_id = :carId")
+    fun getWorksByCarId(carId: Int): Flow<List<WorkDbo>>
 }
