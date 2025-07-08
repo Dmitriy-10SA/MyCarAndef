@@ -6,7 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import com.andef.mycarandef.car.data.dbo.CarDbo
-import java.time.LocalDate
 
 @Entity(
     tableName = "expense",
@@ -26,7 +25,7 @@ data class ExpenseDbo(
     val amount: Double,
     val note: String?,
     val type: ExpenseType,
-    val date: LocalDate,
+    val date: Int,
     @ColumnInfo(name = "car_id")
     val carId: Int
 )
