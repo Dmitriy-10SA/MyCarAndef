@@ -1,4 +1,4 @@
-package com.andef.mycarandef.ui.theme
+package com.andef.mycarandef.design.theme
 
 import androidx.compose.ui.graphics.Color
 
