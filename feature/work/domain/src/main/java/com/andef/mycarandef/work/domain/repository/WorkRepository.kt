@@ -11,8 +11,7 @@ interface WorkRepository {
         title: String,
         note: String?,
         mileage: Int,
-        date: LocalDate,
-        carId: Int
+        date: LocalDate
     )
 
     suspend fun removeWork(id: Long)

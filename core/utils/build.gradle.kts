@@ -1,16 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-
-    //Dagger 2
-    id("kotlin-kapt")
-
-    //Room
-    id("com.google.devtools.ksp")
 }
 
 android {
-    namespace = "com.andef.mycarandef.work.data"
+    namespace = "com.andef.mycarandef.utils"
     compileSdk = 35
 
     defaultConfig {
@@ -39,24 +33,6 @@ android {
 }
 
 dependencies {
-    //feature:work:domain
-    implementation(project(":feature:work:domain"))
-
-    //feature:car:data
-    implementation(project(":feature:car:data"))
-
-    //core:utils
-    implementation(project(":core:utils"))
-
-    //Dagger 2
-    implementation(libs.dagger)
-    kapt(libs.dagger.compiler)
-
-    //Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.appcompat)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
