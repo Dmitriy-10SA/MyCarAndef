@@ -10,7 +10,6 @@ class ChangeWorkUseCase @Inject constructor(private val repository: WorkReposito
         title: String,
         note: String?,
         mileage: Int,
-        date: LocalDate,
-        carId: Int
-    ) = repository.changeWork(id, title, note, mileage, date, carId)
+        date: LocalDate
+    ) = repository.changeWork(id, title, note, mileage, date)
 }

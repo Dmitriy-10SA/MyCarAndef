@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import com.andef.mycarandef.work.data.dbo.WorkDbo
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 @Dao
 interface WorkDao {
@@ -25,7 +24,7 @@ interface WorkDao {
         title: String,
         note: String?,
         mileage: Int,
-        date: LocalDate
+        date: Int
     )
 
     @Query("DELETE FROM work WHERE id = :id")

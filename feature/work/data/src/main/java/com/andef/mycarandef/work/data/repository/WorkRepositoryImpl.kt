@@ -1,5 +1,6 @@
 package com.andef.mycarandef.work.data.repository
 
+import com.andef.mycarandef.utils.toInt
 import com.andef.mycarandef.work.data.dao.WorkDao
 import com.andef.mycarandef.work.data.mapper.WorkMapper
 import com.andef.mycarandef.work.domain.entities.Work
@@ -24,7 +25,7 @@ class WorkRepositoryImpl @Inject constructor(
         mileage: Int,
         date: LocalDate,
     ) {
-        workDao.changeWork(id, title, note, mileage, date)
+        workDao.changeWork(id, title, note, mileage, date.toInt())
     }
 
     override suspend fun removeWork(id: Long) {
