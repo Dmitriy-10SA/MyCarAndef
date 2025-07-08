@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import com.andef.mycarandef.car.data.dbo.CarDbo
+import com.andef.mycarandef.expense.domain.entities.ExpenseType
 
 @Entity(
     tableName = "expense",
@@ -29,10 +30,3 @@ data class ExpenseDbo(
     @ColumnInfo(name = "car_id")
     val carId: Int
 )
-
-enum class ExpenseType(val title: String) {
-    FUEL(title = "Бензин"),
-    WORKS(title = "Работы"),
-    WASHING(title = "Мойка"),
-    OTHER(title = "Другое")
-}
