@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
-import com.andef.mycarandef.MyCarApp
 
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
