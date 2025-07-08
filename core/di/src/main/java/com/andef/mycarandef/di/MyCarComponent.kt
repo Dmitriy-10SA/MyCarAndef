@@ -3,6 +3,7 @@ package com.andef.mycarandef.di
 import android.app.Activity
 import android.app.Application
 import com.andef.mycarandef.car.di.CarRepositoryModule
+import com.andef.mycarandef.expense.di.ExpenseDaoModule
 import com.andef.mycarandef.expense.di.ExpenseRepositoryModule
 import com.andef.mycarandef.map.di.MapRepositoryModule
 import com.andef.mycarandef.start.di.ShPrefsModule
@@ -20,6 +21,7 @@ import javax.inject.Singleton
         StartRepositoryModule::class,
         CarRepositoryModule::class,
         ExpenseRepositoryModule::class,
+        ExpenseDaoModule::class,
         MapRepositoryModule::class,
         WorkRepositoryModule::class,
         WorkDaoModule::class
