@@ -15,7 +15,7 @@ data class CarDbo(
     @ColumnInfo(name = "registration_mark")
     val registrationMark: String?,
     @ColumnInfo(name = "latitude")
-    val coordinatesLat: Double,
+    val coordinatesLat: Double?,
     @ColumnInfo(name = "longitude")
-    val coordinatesLon: Double
+    val coordinatesLon: Double?
 )

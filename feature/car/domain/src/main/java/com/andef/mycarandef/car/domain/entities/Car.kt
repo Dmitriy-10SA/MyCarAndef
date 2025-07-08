@@ -7,6 +7,6 @@ data class Car(
     val photo: String?,
     val year: Int?,
     val registrationMark: String?,
-    val coordinatesLat: Double,
-    val coordinatesLon: Double
+    val coordinatesLat: Double?,
+    val coordinatesLon: Double?
 )
