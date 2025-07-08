@@ -1,4 +1,4 @@
-package com.andef.mycarandef.start.domain
+package com.andef.mycarandef.start.domain.repository
 
 interface StartRepository {
     fun getIsFirstStart(): Boolean

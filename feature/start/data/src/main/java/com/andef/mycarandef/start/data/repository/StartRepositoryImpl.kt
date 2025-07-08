@@ -2,7 +2,7 @@ package com.andef.mycarandef.start.data.repository
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.andef.mycarandef.start.domain.StartRepository
+import com.andef.mycarandef.start.domain.repository.StartRepository
 import javax.inject.Inject
 
 class StartRepositoryImpl @Inject constructor(

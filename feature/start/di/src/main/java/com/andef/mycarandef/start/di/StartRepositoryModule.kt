@@ -1,7 +1,7 @@
 package com.andef.mycarandef.start.di
 
 import com.andef.mycarandef.start.data.repository.StartRepositoryImpl
-import com.andef.mycarandef.start.domain.StartRepository
+import com.andef.mycarandef.start.domain.repository.StartRepository
 import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton
