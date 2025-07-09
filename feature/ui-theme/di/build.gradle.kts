@@ -2,12 +2,12 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
 
-    //Room
-    id("com.google.devtools.ksp")
+    //Dagger 2
+    id("kotlin-kapt")
 }
 
 android {
-    namespace = "com.andef.mycarandef.data"
+    namespace = "com.andef.mycarandef.uitheme.di"
     compileSdk = 35
 
     defaultConfig {
@@ -36,35 +36,21 @@ android {
 }
 
 dependencies {
-    //feature:work
-    implementation(project(":feature:work:data"))
-    implementation(project(":feature:work:domain"))
-
-    //feature:expense
-    implementation(project(":feature:expense:data"))
-    implementation(project(":feature:expense:domain"))
-
-    //feature:map
-    implementation(project(":feature:map:data"))
-    implementation(project(":feature:map:domain"))
-
-    //feature:car
-    implementation(project(":feature:car:data"))
-    implementation(project(":feature:car:domain"))
-
-    //feature:start
-    implementation(project(":feature:start:data"))
-    implementation(project(":feature:start:domain"))
-
-    //feature:ui-theme
-    implementation(project(":feature:ui-theme:data"))
+    //feature:ui-theme:domain
     implementation(project(":feature:ui-theme:domain"))
 
-    //Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.appcompat)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+    //feature:ui-theme:data
+    implementation(project(":feature:ui-theme:data"))
+
+    //core:di:viewmodel
+    implementation(project(":core:di:viewmodel"))
+
+    //core:data
+    implementation(project(":core:data"))
+
+    //Dagger 2
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

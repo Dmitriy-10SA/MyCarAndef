@@ -10,6 +10,8 @@ import com.andef.mycarandef.map.di.MapRepositoryModule
 import com.andef.mycarandef.start.di.StartRepositoryModule
 import com.andef.mycarandef.start.di.StartViewModelModule
 import com.andef.mycarandef.start.domain.usecases.GetIsFirstStartUseCase
+import com.andef.mycarandef.uitheme.di.UiThemeRepositoryModule
+import com.andef.mycarandef.uitheme.domain.usecases.GetIsLightThemeUseCase
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import com.andef.mycarandef.work.di.WorkDaoModule
 import com.andef.mycarandef.work.di.WorkRepositoryModule
@@ -40,7 +42,10 @@ import javax.inject.Singleton
 
         //Work
         WorkRepositoryModule::class,
-        WorkDaoModule::class
+        WorkDaoModule::class,
+
+        //UiTheme
+        UiThemeRepositoryModule::class
     ]
 )
 interface MyCarComponent {
@@ -48,6 +53,7 @@ interface MyCarComponent {
 
     val viewModelFactory: ViewModelFactory
     val getIsFirstStartUseCase: GetIsFirstStartUseCase
+    val getIsLightThemeUseCase: GetIsLightThemeUseCase
 
     @Component.Factory
     interface Factory {

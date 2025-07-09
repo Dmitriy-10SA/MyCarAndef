@@ -49,6 +49,12 @@ dependencies {
     //feature:car:domain
     implementation(project(":feature:car:domain"))
 
+    //feature:start:domain
+    implementation(project(":feature:start:domain"))
+
+    //feature:ui-theme:domain
+    implementation(project(":feature:ui-theme:domain"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

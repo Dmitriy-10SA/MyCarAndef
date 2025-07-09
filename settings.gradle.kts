@@ -60,3 +60,8 @@ include(":feature:start:data")
 include(":feature:start:domain")
 include(":feature:start:presentation")
 include(":feature:start:di")
+
+include(":feature:ui-theme")
+include(":feature:ui-theme:data")
+include(":feature:ui-theme:domain")
+include(":feature:ui-theme:di")

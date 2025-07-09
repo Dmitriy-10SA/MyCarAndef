@@ -82,6 +82,11 @@ dependencies {
     implementation(project(":feature:work:di"))
     implementation(project(":feature:work:presentation"))
 
+    //feature:ui-theme
+    implementation(project(":feature:ui-theme:data"))
+    implementation(project(":feature:ui-theme:domain"))
+    implementation(project(":feature:ui-theme:di"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

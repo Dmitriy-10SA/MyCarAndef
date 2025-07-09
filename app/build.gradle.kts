@@ -108,6 +108,11 @@ dependencies {
     implementation(project(":feature:start:di"))
     implementation(project(":feature:start:presentation"))
 
+    //feature:ui-theme
+    implementation(project(":feature:ui-theme:data"))
+    implementation(project(":feature:ui-theme:domain"))
+    implementation(project(":feature:ui-theme:di"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
