@@ -45,6 +45,12 @@ dependencies {
     //feature:map:data
     implementation(project(":feature:map:data"))
 
+    //feature:map:presentation
+    implementation(project(":feature:map:presentation"))
+
+    //core:di:viewmodel
+    implementation(project(":core:di:viewmodel"))
+
     //core:data
     implementation(project(":core:data"))
 

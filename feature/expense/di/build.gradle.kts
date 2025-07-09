@@ -45,6 +45,12 @@ dependencies {
     //feature:expense:data
     implementation(project(":feature:expense:data"))
 
+    //feature:expense:presentation
+    implementation(project(":feature:expense:presentation"))
+
+    //core:di:viewmodel
+    implementation(project(":core:di:viewmodel"))
+
     //core:data
     implementation(project(":core:data"))
 

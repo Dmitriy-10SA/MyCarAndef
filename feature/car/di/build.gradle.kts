@@ -45,6 +45,12 @@ dependencies {
     //feature:car:data
     implementation(project(":feature:car:data"))
 
+    //feature:car:presentation
+    implementation(project(":feature:car:presentation"))
+
+    //core:di:viewmodel
+    implementation(project(":core:di:viewmodel"))
+
     //core:data
     implementation(project(":core:data"))
 
