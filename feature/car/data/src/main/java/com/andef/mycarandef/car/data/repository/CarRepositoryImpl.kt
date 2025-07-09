@@ -57,15 +57,11 @@ class CarRepositoryImpl @Inject constructor(
         carDao.addCar(carMapper.map(car))
     }
 
-    override fun getFavoriteCarId(): Int {
-        val id = shPrefs.getInt(FAVORITE_CAR_ID, -1)
-        return when (id) {
-            -1 -> throw IllegalArgumentException("Обязательно должна быть выбрана любимая машина!")
-            else -> id
-        }
+    override fun getCurrentCarId(): Int {
+        return shPrefs.getInt(FAVORITE_CAR_ID, -1)
     }
 
-    override fun setFavoriteCarId(id: Int) {
+    override fun setCurrentCarId(id: Int) {
         shPrefs.edit { putInt(FAVORITE_CAR_ID, id) }
     }
 
