@@ -8,7 +8,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
 
 class MainActivity : ComponentActivity() {
+    private val component by lazy { (application as MyCarApp).component }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()

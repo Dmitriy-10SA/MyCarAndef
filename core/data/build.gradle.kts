@@ -36,17 +36,21 @@ android {
 }
 
 dependencies {
-    //feature:work:data
+    //feature:work
     implementation(project(":feature:work:data"))
+    implementation(project(":feature:work:domain"))
 
-    //feature:expense:data
+    //feature:expense
     implementation(project(":feature:expense:data"))
+    implementation(project(":feature:expense:domain"))
 
-    //feature:map:data
+    //feature:map
     implementation(project(":feature:map:data"))
+    implementation(project(":feature:map:domain"))
 
-    //feature:car:data
+    //feature:car
     implementation(project(":feature:car:data"))
+    implementation(project(":feature:car:domain"))
 
     //Room
     implementation(libs.androidx.room.runtime)
