@@ -19,7 +19,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-        //TODO ("Пока делаем светлую тему, потом темную")
         setContent {
             val navHostController = rememberNavController()
             MyCarAndefTheme(darkTheme = false) {
@@ -27,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     navHostController = navHostController,
                     viewModelFactory = component.viewModelFactory,
                     paddingValues = PaddingValues(0.dp),
-                    isFirstStart = component.getIsFirstStartUseCase.invoke()
+                    isFirstStart = component.getIsFirstStartUseCase()
                 )
             }
         }
