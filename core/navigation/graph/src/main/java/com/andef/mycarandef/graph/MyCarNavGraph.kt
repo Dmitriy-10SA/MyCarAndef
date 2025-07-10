@@ -7,8 +7,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.andef.mycarandef.di.viewmodel.ViewModelFactory
 import com.andef.mycarandef.routes.Screen
+import com.andef.mycarandef.viewmodel.ViewModelFactory
 
 @Composable
 fun MyCarNavGraph(

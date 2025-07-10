@@ -72,7 +72,8 @@ dependencies {
     implementation(project(":core:data"))
 
     //core:di
-    implementation(project(":core:di"))
+    implementation(project(":core:di:common"))
+    implementation(project(":core:di:viewmodel"))
 
     //core:navigation:graph
     implementation(project(":core:navigation:graph"))
@@ -100,6 +101,17 @@ dependencies {
     implementation(project(":feature:car:domain"))
     implementation(project(":feature:car:di"))
     implementation(project(":feature:car:presentation"))
+
+    //feature:start
+    implementation(project(":feature:start:data"))
+    implementation(project(":feature:start:domain"))
+    implementation(project(":feature:start:di"))
+    implementation(project(":feature:start:presentation"))
+
+    //feature:ui-theme
+    implementation(project(":feature:ui-theme:data"))
+    implementation(project(":feature:ui-theme:domain"))
+    implementation(project(":feature:ui-theme:di"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -5,8 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.andef.mycarandef.di.viewmodel.ViewModelFactory
 import com.andef.mycarandef.routes.Screen
+import com.andef.mycarandef.viewmodel.ViewModelFactory
 
 fun NavGraphBuilder.mainScreensGraph(
     navHostController: NavHostController,

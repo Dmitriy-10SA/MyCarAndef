@@ -49,8 +49,8 @@ dependencies {
     //feature:car:presentation
     implementation(project(":feature:car:presentation"))
 
-    //core:di
-    implementation(project(":core:di"))
+    //core:di:viewmodel
+    implementation(project(":core:di:viewmodel"))
 
     //core:navigation:routes
     implementation(project(":core:navigation:routes"))

@@ -52,6 +52,14 @@ dependencies {
     implementation(project(":feature:car:data"))
     implementation(project(":feature:car:domain"))
 
+    //feature:start
+    implementation(project(":feature:start:data"))
+    implementation(project(":feature:start:domain"))
+
+    //feature:ui-theme
+    implementation(project(":feature:ui-theme:data"))
+    implementation(project(":feature:ui-theme:domain"))
+
     //Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.appcompat)
