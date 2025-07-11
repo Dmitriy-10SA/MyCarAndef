@@ -80,7 +80,7 @@ private fun MainContent(
                     Text(
                         text = title,
                         maxLines = 1,
-                        fontSize = 22.sp,
+                        fontSize = 20.sp,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
@@ -107,7 +107,7 @@ private fun MainContent(
                 Text(
                     text = title,
                     maxLines = 1,
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     overflow = TextOverflow.Ellipsis
                 )
             },

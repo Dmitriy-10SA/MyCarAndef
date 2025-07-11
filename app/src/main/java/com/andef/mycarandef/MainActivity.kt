@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.chooser.ui.UiChooser
+import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
+import com.andef.mycarandef.design.navigationbar.ui.UiBottomBar
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.DarkGray
@@ -88,6 +91,7 @@ private fun MainContent(
 //        )
         var value1 by rememberSaveable { mutableStateOf("") }
         var value2 by rememberSaveable { mutableStateOf("") }
+        var route by rememberSaveable { mutableStateOf("1") }
         UiScaffold(
             isLightTheme = isLightTheme,
             topBar = {
@@ -104,6 +108,39 @@ private fun MainContent(
                             )
                         }
                     }
+                )
+            },
+            bottomBar = {
+                UiBottomBar(
+                    isLightTheme = isLightTheme,
+                    itemSelected = { item -> item.route == route },
+                    onItemClick = { item -> route = item.route },
+                    items = listOf(
+                        UiNavigationBarItem(
+                            icon = painterResource(com.andef.mycarandef.design.R.drawable.works),
+                            contentDescription = "",
+                            route = "1",
+                            title = "Работы"
+                        ),
+                        UiNavigationBarItem(
+                            icon = painterResource(com.andef.mycarandef.design.R.drawable.ruble),
+                            contentDescription = "",
+                            route = "2",
+                            title = "Траты"
+                        ),
+                        UiNavigationBarItem(
+                            icon = painterResource(com.andef.mycarandef.design.R.drawable.location),
+                            contentDescription = "",
+                            route = "3",
+                            title = "Карта"
+                        ),
+                        UiNavigationBarItem(
+                            icon = painterResource(com.andef.mycarandef.design.R.drawable.car),
+                            contentDescription = "",
+                            route = "4",
+                            title = "Гараж"
+                        )
+                    )
                 )
             }
         ) {
@@ -126,7 +163,6 @@ private fun MainContent(
                     contentDescription = "",
                     leadingIcon = painterResource(com.andef.mycarandef.design.R.drawable.person)
                 )
-                val context = LocalContext.current
                 UiChooser(
                     onClick = {
                         value2 = "image-12r4124123124-wefsdsf12=3=124124dsf"
