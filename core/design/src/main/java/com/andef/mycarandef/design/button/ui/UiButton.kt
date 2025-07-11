@@ -19,19 +19,17 @@ fun UiButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    isLightTheme: Boolean
+    enabled: Boolean = true
 ) {
     Surface(modifier = modifier, shape = shape) {
         Button(
-            modifier = modifier,
             onClick = onClick,
             enabled = enabled,
             shape = shape,
             colors = colors()
         ) {
             Text(
-                modifier = Modifier.padding(horizontal = 2.dp, vertical = 12.dp),
+                modifier = Modifier.padding(horizontal = 2.dp, vertical = 11.dp),
                 text = text,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp
