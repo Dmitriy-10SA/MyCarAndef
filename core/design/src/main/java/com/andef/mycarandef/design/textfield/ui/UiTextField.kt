@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andef.mycarandef.design.theme.Black
@@ -39,7 +40,14 @@ fun UiTextField(
         modifier = modifier,
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(text = placeholderText, fontSize = 16.sp) },
+        placeholder = {
+            Text(
+                text = placeholderText,
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
         leadingIcon = { Icon(painter = leadingIcon, contentDescription = contentDescription) },
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
