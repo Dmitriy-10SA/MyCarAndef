@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,19 +21,21 @@ fun UiButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    Button(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shape = shape,
-        colors = colors()
-    ) {
-        Text(
-            modifier = Modifier.padding(horizontal = 2.dp, vertical = 12.dp),
-            text = text,
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp
-        )
+    Surface(modifier = modifier, shape = shape) {
+        Button(
+            modifier = modifier,
+            onClick = onClick,
+            enabled = enabled,
+            shape = shape,
+            colors = colors()
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 2.dp, vertical = 12.dp),
+                text = text,
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp
+            )
+        }
     }
 }
 

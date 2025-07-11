@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +51,7 @@ private fun MainContent(navHostController: NavHostController, component: MyCarCo
 //            paddingValues = PaddingValues(0.dp),
 //            isFirstStart = component.getIsFirstStartUseCase()
 //        )
-        var enabled by remember { mutableStateOf(true) }
+        var enabled by rememberSaveable { mutableStateOf(true) }
         Scaffold {
             Column(
                 modifier = Modifier
@@ -63,7 +64,7 @@ private fun MainContent(navHostController: NavHostController, component: MyCarCo
                     text = "Продолжить",
                     onClick = { enabled = !enabled },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        //.fillMaxWidth()
                         .padding(horizontal = 12.dp),
                     enabled = enabled
                 )
