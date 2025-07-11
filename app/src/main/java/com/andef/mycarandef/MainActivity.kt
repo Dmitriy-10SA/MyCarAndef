@@ -1,7 +1,6 @@
 package com.andef.mycarandef
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,8 @@ import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
 import com.andef.mycarandef.design.theme.White
+import com.andef.mycarandef.design.topbar.type.UiTopBarType
+import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -85,7 +88,25 @@ private fun MainContent(
 //        )
         var value1 by rememberSaveable { mutableStateOf("") }
         var value2 by rememberSaveable { mutableStateOf("") }
-        UiScaffold(isLightTheme = isLightTheme) {
+        UiScaffold(
+            isLightTheme = isLightTheme,
+            topBar = {
+                UiTopBar(
+                    isLightTheme = isLightTheme,
+                    type = UiTopBarType.NotCenter,
+                    title = "Привет, Дмитрий!",
+                    navigationIcon = painterResource(com.andef.mycarandef.design.R.drawable.menu),
+                    actions = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                painter = painterResource(com.andef.mycarandef.design.R.drawable.attach),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            }
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
