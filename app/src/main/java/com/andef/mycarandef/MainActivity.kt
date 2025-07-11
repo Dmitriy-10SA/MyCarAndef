@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,13 +16,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.andef.mycarandef.common.MyCarComponent
-import com.andef.mycarandef.design.button.ui.UiButton
+import com.andef.mycarandef.design.scaffold.ui.UiScaffold
+import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
+import com.andef.mycarandef.design.theme.White
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
@@ -34,15 +36,38 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         setContent {
+            val isLightTheme = component.getIsLightThemeUseCase(isSystemInDarkTheme())
+            val systemUiController = rememberSystemUiController()
             val navHostController = rememberNavController()
-            MainContent(navHostController = navHostController, component = component)
+            SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
+            MainContent(
+                navHostController = navHostController,
+                component = component,
+                isLightTheme = isLightTheme
+            )
         }
     }
 }
 
 @Composable
-private fun MainContent(navHostController: NavHostController, component: MyCarComponent) {
-    MyCarAndefTheme(darkTheme = !component.getIsLightThemeUseCase(isSystemInDarkTheme())) {
+private fun SystemUiSettings(systemUiController: SystemUiController, isLightTheme: Boolean) {
+    with(systemUiController) {
+        val color = when (isLightTheme) {
+            true -> White
+            false -> DarkGray
+        }
+        setNavigationBarColor(color = color, darkIcons = isLightTheme)
+        setStatusBarColor(color = color, darkIcons = isLightTheme)
+    }
+}
+
+@Composable
+private fun MainContent(
+    navHostController: NavHostController,
+    component: MyCarComponent,
+    isLightTheme: Boolean
+) {
+    MyCarAndefTheme(darkTheme = !isLightTheme) {
 //        MyCarNavGraph(
 //            navHostController = navHostController,
 //            viewModelFactory = component.viewModelFactory,
@@ -50,7 +75,7 @@ private fun MainContent(navHostController: NavHostController, component: MyCarCo
 //            isFirstStart = component.getIsFirstStartUseCase()
 //        )
         var enabled by rememberSaveable { mutableStateOf(true) }
-        Scaffold {
+        UiScaffold(isLightTheme = isLightTheme) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -58,14 +83,7 @@ private fun MainContent(navHostController: NavHostController, component: MyCarCo
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                UiButton(
-                    text = "Продолжить",
-                    onClick = { enabled = !enabled },
-                    modifier = Modifier
-                        //.fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    enabled = enabled
-                )
+
             }
         }
     }

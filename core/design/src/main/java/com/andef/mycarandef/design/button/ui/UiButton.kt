@@ -19,7 +19,8 @@ fun UiButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    isLightTheme: Boolean
 ) {
     Surface(modifier = modifier, shape = shape) {
         Button(
