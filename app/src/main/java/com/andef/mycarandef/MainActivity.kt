@@ -4,15 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -22,14 +24,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.common.MyCarComponent
-import com.andef.mycarandef.design.card.date.ui.UiDateCard
-import com.andef.mycarandef.design.card.expense.ui.UiExpenseCard
+import com.andef.mycarandef.design.card.car.ui.UiCarCard
 import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiBottomBar
@@ -39,11 +43,8 @@ import com.andef.mycarandef.design.theme.MyCarAndefTheme
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
-import com.andef.mycarandef.expense.domain.entities.Expense
-import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
@@ -102,12 +103,18 @@ private fun MainContent(
                 UiTopBar(
                     isLightTheme = isLightTheme,
                     type = UiTopBarType.NotCenter,
-                    title = "Привет, Дмитрий!",
+                    title = "Nissan Primera P12",
                     navigationIcon = painterResource(com.andef.mycarandef.design.R.drawable.menu),
                     actions = {
+                        Image(
+                            modifier = Modifier.size(36.dp).clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            painter = painterResource(com.andef.mycarandef.design.R.drawable.car_wo_photo),
+                            contentDescription = null
+                        )
                         IconButton(onClick = { navVisible = !navVisible }) {
                             Icon(
-                                painter = painterResource(com.andef.mycarandef.design.R.drawable.attach),
+                                painter = painterResource(com.andef.mycarandef.design.R.drawable.keyboard_arrow_down),
                                 contentDescription = null
                             )
                         }
@@ -156,72 +163,6 @@ private fun MainContent(
                 )
             }
         ) {
-            val items = listOf<Expense>(
-                Expense(
-                    id = 1L,
-                    note = null,
-                    amount = 21353.0021,
-                    type = ExpenseType.FUEL,
-                    date = LocalDate.of(2025, 1, 21),
-                    carId = 0
-                ),
-                Expense(
-                    id = 2L,
-                    note = null,
-                    amount = 121.31,
-                    type = ExpenseType.WORKS,
-                    date = LocalDate.of(2025, 1, 21),
-                    carId = 0
-                ),
-                Expense(
-                    id = 3L,
-                    note = null,
-                    amount = 10004.0021,
-                    type = ExpenseType.WASHING,
-                    date = LocalDate.of(2025, 1, 16),
-                    carId = 0
-                ),
-                Expense(
-                    id = 4L,
-                    note = "Очень-очень-очень-очень длинное примечание",
-                    amount = 1030109414.1231,
-                    type = ExpenseType.OTHER,
-                    date = LocalDate.of(2025, 1, 13),
-                    carId = 0
-                )
-            )
-            var lastDate by rememberSaveable { mutableStateOf(LocalDate.MIN) }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .imePadding(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(items = items, key = { it.id }) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (it.date != lastDate || items[0] == it) {
-                            lastDate = it.date
-                            UiDateCard(
-                                isLightTheme = isLightTheme,
-                                date = it.date
-                            )
-                        }
-                        UiExpenseCard(
-                            isLightTheme = isLightTheme,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            expense = it,
-                            onClick = {}
-                        )
-                    }
-                }
-            }
         }
     }
 }
