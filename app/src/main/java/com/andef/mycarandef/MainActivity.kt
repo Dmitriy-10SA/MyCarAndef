@@ -92,16 +92,18 @@ private fun MainContent(
         var value1 by rememberSaveable { mutableStateOf("") }
         var value2 by rememberSaveable { mutableStateOf("") }
         var route by rememberSaveable { mutableStateOf("1") }
+        var navVisible by rememberSaveable { mutableStateOf(true) }
         UiScaffold(
             isLightTheme = isLightTheme,
             topBar = {
                 UiTopBar(
+                    isVisible = navVisible && route == "1",
                     isLightTheme = isLightTheme,
                     type = UiTopBarType.NotCenter,
                     title = "Привет, Дмитрий!",
                     navigationIcon = painterResource(com.andef.mycarandef.design.R.drawable.menu),
                     actions = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = { navVisible = !navVisible }) {
                             Icon(
                                 painter = painterResource(com.andef.mycarandef.design.R.drawable.attach),
                                 contentDescription = null
@@ -112,6 +114,7 @@ private fun MainContent(
             },
             bottomBar = {
                 UiBottomBar(
+                    isVisible = navVisible,
                     isLightTheme = isLightTheme,
                     itemSelected = { item -> item.route == route },
                     onItemClick = { item -> route = item.route },

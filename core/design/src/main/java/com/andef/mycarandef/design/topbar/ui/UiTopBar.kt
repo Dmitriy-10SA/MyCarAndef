@@ -34,27 +34,30 @@ fun UiTopBar(
     navigationIconContentDescription: String? = null,
     onNavigationIconClick: () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
+    isVisible: Boolean = true,
     expandedHeight: Dp = TopAppBarDefaults.TopAppBarExpandedHeight,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets
 ) {
-    Column {
-        MainContent(
-            modifier = Modifier.fillMaxWidth(),
-            isLightTheme = isLightTheme,
-            title = title,
-            navigationIcon = navigationIcon,
-            navigationIconContentDescription = navigationIconContentDescription,
-            type = type,
-            onNavigationIconClick = onNavigationIconClick,
-            actions = actions,
-            expandedHeight = expandedHeight,
-            windowInsets = windowInsets
-        )
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
-        )
+    if (isVisible) {
+        Column {
+            MainContent(
+                modifier = Modifier.fillMaxWidth(),
+                isLightTheme = isLightTheme,
+                title = title,
+                navigationIcon = navigationIcon,
+                navigationIconContentDescription = navigationIconContentDescription,
+                type = type,
+                onNavigationIconClick = onNavigationIconClick,
+                actions = actions,
+                expandedHeight = expandedHeight,
+                windowInsets = windowInsets
+            )
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+            )
+        }
     }
 }
 

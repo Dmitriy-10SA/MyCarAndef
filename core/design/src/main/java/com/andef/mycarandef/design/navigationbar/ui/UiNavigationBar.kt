@@ -24,21 +24,24 @@ fun UiBottomBar(
     isLightTheme: Boolean,
     itemSelected: (UiNavigationBarItem) -> Boolean,
     onItemClick: (UiNavigationBarItem) -> Unit,
-    items: List<UiNavigationBarItem>
+    items: List<UiNavigationBarItem>,
+    isVisible: Boolean = true
 ) {
-    Column {
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
-        )
-        MainContent(
-            modifier = Modifier.fillMaxWidth(),
-            isLightTheme = isLightTheme,
-            itemSelected = itemSelected,
-            onItemClick = onItemClick,
-            items = items
-        )
+    if (isVisible) {
+        Column {
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+            )
+            MainContent(
+                modifier = Modifier.fillMaxWidth(),
+                isLightTheme = isLightTheme,
+                itemSelected = itemSelected,
+                onItemClick = onItemClick,
+                items = items
+            )
+        }
     }
 }
 
