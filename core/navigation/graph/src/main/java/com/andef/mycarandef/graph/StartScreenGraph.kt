@@ -11,7 +11,8 @@ import com.andef.mycarandef.viewmodel.ViewModelFactory
 fun NavGraphBuilder.startScreenGraph(
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    isLightTheme: Boolean
 ) {
     navigation(
         route = Screen.StartScreens.route,

@@ -15,7 +15,8 @@ fun MyCarNavGraph(
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
-    isFirstStart: Boolean
+    isFirstStart: Boolean,
+    isLightTheme: Boolean
 ) {
     NavHost(
         navController = navHostController,
@@ -27,12 +28,14 @@ fun MyCarNavGraph(
         startScreenGraph(
             navHostController = navHostController,
             viewModelFactory = viewModelFactory,
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
+            isLightTheme = isLightTheme
         )
         mainScreensGraph(
             navHostController = navHostController,
             viewModelFactory = viewModelFactory,
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
+            isLightTheme = isLightTheme
         )
         composable(
             route = Screen.WorkScreen.route,
