@@ -49,6 +49,9 @@ dependencies {
     //feature:car:presentation
     implementation(project(":feature:car:presentation"))
 
+    //feature:start:presentation
+    implementation(project(":feature:start:presentation"))
+
     //core:di:viewmodel
     implementation(project(":core:di:viewmodel"))
 

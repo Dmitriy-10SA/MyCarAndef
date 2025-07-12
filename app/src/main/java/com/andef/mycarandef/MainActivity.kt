@@ -5,13 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.andef.mycarandef.common.MyCarComponent
+import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
 import com.andef.mycarandef.design.theme.White
@@ -60,12 +59,14 @@ private fun MainContent(
     isLightTheme: Boolean
 ) {
     MyCarAndefTheme(darkTheme = !isLightTheme) {
-        MyCarNavGraph(
-            navHostController = navHostController,
-            viewModelFactory = component.viewModelFactory,
-            paddingValues = PaddingValues(0.dp),
-            isFirstStart = component.getIsFirstStartUseCase(),
-            isLightTheme = isLightTheme
-        )
+        UiScaffold(isLightTheme = isLightTheme) { paddingValues ->
+            MyCarNavGraph(
+                navHostController = navHostController,
+                viewModelFactory = component.viewModelFactory,
+                paddingValues = paddingValues,
+                isFirstStart = component.getIsFirstStartUseCase(),
+                isLightTheme = isLightTheme
+            )
+        }
     }
 }
