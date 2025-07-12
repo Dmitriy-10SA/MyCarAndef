@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.andef.mycarandef.routes.Screen
-import com.andef.mycarandef.start.presentation.UsernameInputScreen
+import com.andef.mycarandef.start.presentation.usernameinput.UsernameInputScreen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 
 fun NavGraphBuilder.startScreenGraph(
