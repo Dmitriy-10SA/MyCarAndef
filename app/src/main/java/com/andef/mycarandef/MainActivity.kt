@@ -29,6 +29,7 @@ import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.chooser.ui.UiChooser
 import com.andef.mycarandef.design.fab.ui.UiFAB
+import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiBottomBar
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
@@ -146,6 +147,7 @@ private fun MainContent(
                 UiFAB(
                     onClick = {},
                     icon = painterResource(com.andef.mycarandef.design.R.drawable.add),
+                    isVisible = route == "2",
                     iconContentDescription = ""
                 )
             }
@@ -192,6 +194,7 @@ private fun MainContent(
                         .padding(vertical = 8.dp, horizontal = 16.dp)
                 )
             }
+            UiLoading(isVisible = route == "1", paddingValues = it, isLightTheme = isLightTheme)
         }
     }
 }

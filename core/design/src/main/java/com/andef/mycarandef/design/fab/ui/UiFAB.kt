@@ -1,5 +1,9 @@
 package com.andef.mycarandef.design.fab.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -14,19 +18,26 @@ fun UiFAB(
     onClick: () -> Unit,
     icon: Painter,
     iconContentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isVisible: Boolean = true,
 ) {
-    FloatingActionButton(
-        onClick = onClick,
-        modifier = modifier,
-        shape = shape,
-        containerColor = Blue,
-        contentColor = White
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = scaleIn(tween(700)),
+        exit = scaleOut(tween(700))
     ) {
-        Icon(
-            painter = icon,
-            contentDescription = iconContentDescription
-        )
+        FloatingActionButton(
+            onClick = onClick,
+            modifier = modifier,
+            shape = shape,
+            containerColor = Blue,
+            contentColor = White
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = iconContentDescription
+            )
+        }
     }
 }
 
