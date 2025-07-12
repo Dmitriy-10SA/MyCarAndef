@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -26,21 +28,22 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.andef.mycarandef.common.MyCarComponent
-import com.andef.mycarandef.design.button.ui.UiButton
-import com.andef.mycarandef.design.chooser.ui.UiChooser
+import com.andef.mycarandef.design.card.date.ui.UiDateCard
+import com.andef.mycarandef.design.card.expense.ui.UiExpenseCard
 import com.andef.mycarandef.design.fab.ui.UiFAB
-import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiBottomBar
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
-import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.expense.domain.entities.Expense
+import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
@@ -97,7 +100,6 @@ private fun MainContent(
             isLightTheme = isLightTheme,
             topBar = {
                 UiTopBar(
-                    isVisible = navVisible && route == "1",
                     isLightTheme = isLightTheme,
                     type = UiTopBarType.NotCenter,
                     title = "Привет, Дмитрий!",
@@ -114,7 +116,6 @@ private fun MainContent(
             },
             bottomBar = {
                 UiBottomBar(
-                    isVisible = navVisible,
                     isLightTheme = isLightTheme,
                     itemSelected = { item -> item.route == route },
                     onItemClick = { item -> route = item.route },
@@ -150,12 +151,47 @@ private fun MainContent(
                 UiFAB(
                     onClick = {},
                     icon = painterResource(com.andef.mycarandef.design.R.drawable.add),
-                    isVisible = route == "2",
+                    isVisible = route == "2" || route == "1" || route == "4",
                     iconContentDescription = ""
                 )
             }
         ) {
-            Column(
+            val items = listOf<Expense>(
+                Expense(
+                    id = 1L,
+                    note = null,
+                    amount = 21353.0021,
+                    type = ExpenseType.FUEL,
+                    date = LocalDate.of(2025, 1, 21),
+                    carId = 0
+                ),
+                Expense(
+                    id = 2L,
+                    note = null,
+                    amount = 121.31,
+                    type = ExpenseType.WORKS,
+                    date = LocalDate.of(2025, 1, 21),
+                    carId = 0
+                ),
+                Expense(
+                    id = 3L,
+                    note = null,
+                    amount = 10004.0021,
+                    type = ExpenseType.WASHING,
+                    date = LocalDate.of(2025, 1, 16),
+                    carId = 0
+                ),
+                Expense(
+                    id = 4L,
+                    note = "Очень-очень-очень-очень длинное примечание",
+                    amount = 1030109414.1231,
+                    type = ExpenseType.OTHER,
+                    date = LocalDate.of(2025, 1, 13),
+                    carId = 0
+                )
+            )
+            var lastDate by rememberSaveable { mutableStateOf(LocalDate.MIN) }
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
@@ -163,41 +199,29 @@ private fun MainContent(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                UiTextField(
-                    isLightTheme = isLightTheme,
-                    value = value1,
-                    onValueChange = { value1 = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    placeholderText = "Ваше имя",
-                    contentDescription = "",
-                    leadingIcon = painterResource(com.andef.mycarandef.design.R.drawable.person)
-                )
-                UiChooser(
-                    onClick = {
-                        value2 = "image-12r4124123124-wefsdsf12=3=124124dsf"
-                    },
-                    isLightTheme = isLightTheme,
-                    value = value2,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    placeholderText = "Ваше имя",
-                    leadingIconContentDescription = "",
-                    leadingIcon = painterResource(com.andef.mycarandef.design.R.drawable.image),
-                    trailingIcon = painterResource(com.andef.mycarandef.design.R.drawable.attach),
-                    trailingIconContentDescription = ""
-                )
-                UiButton(
-                    text = "Продолжить",
-                    onClick = {},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 16.dp)
-                )
+                items(items = items, key = { it.id }) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (it.date != lastDate || items[0] == it) {
+                            lastDate = it.date
+                            UiDateCard(
+                                isLightTheme = isLightTheme,
+                                date = it.date
+                            )
+                        }
+                        UiExpenseCard(
+                            isLightTheme = isLightTheme,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            expense = it,
+                            onClick = {}
+                        )
+                    }
+                }
             }
-            UiLoading(isVisible = route == "1", paddingValues = it, isLightTheme = isLightTheme)
         }
     }
 }
