@@ -28,5 +28,5 @@ data class ExpenseDbo(
     val type: ExpenseType,
     val date: Int,
     @ColumnInfo(name = "car_id")
-    val carId: Int
+    val carId: Long
 )

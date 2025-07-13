@@ -13,7 +13,7 @@ interface CarDao {
     fun getAllCars(): Flow<List<CarDbo>>
 
     @Query("SELECT * FROM car WHERE id = :id")
-    suspend fun getCarById(id: Int): CarDbo
+    suspend fun getCarById(id: Long): CarDbo
 
     @Query(
         """
@@ -25,7 +25,7 @@ interface CarDao {
         """
     )
     suspend fun changeCar(
-        id: Int,
+        id: Long,
         brand: String,
         model: String,
         photo: String?,
@@ -36,8 +36,8 @@ interface CarDao {
     )
 
     @Query("DELETE FROM car WHERE id = :id")
-    suspend fun removeCar(id: Int)
+    suspend fun removeCar(id: Long)
 
     @Insert(onConflict = REPLACE)
-    suspend fun addCar(carDbo: CarDbo)
+    suspend fun addCar(carDbo: CarDbo): Long
 }

@@ -1,7 +1,7 @@
 package com.andef.mycarandef.car.domain.entities
 
 data class Car(
-    val id: Int,
+    val id: Long,
     val brand: String,
     val model: String,
     val photo: String?,

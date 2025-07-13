@@ -1,4 +1,4 @@
-package com.andef.mycarandef.start.presentation
+package com.andef.mycarandef.start.presentation.usernameinput
 
 data class UsernameInputState(
     val username: String = "",

@@ -1,4 +1,4 @@
-package com.andef.mycarandef.start.presentation
+package com.andef.mycarandef.start.presentation.usernameinput
 
 import androidx.lifecycle.ViewModel
 import com.andef.mycarandef.routes.Screen
@@ -16,13 +16,20 @@ class UsernameInputViewModel @Inject constructor(
     fun send(intent: UsernameInputIntent) {
         when (intent) {
             is UsernameInputIntent.UsernameChange -> changeInput(username = intent.username)
-            is UsernameInputIntent.NextClick -> nextClick(onSuccess = intent.onSuccess)
+            is UsernameInputIntent.NextClick -> nextClick(
+                onSuccess = intent.onSuccess,
+                onError = intent.onError
+            )
         }
     }
 
-    private fun nextClick(onSuccess: (String) -> Unit) {
-        setUsernameUseCase.invoke(state.value.username)
-        onSuccess(Screen.StartScreens.CarInputScreen.route)
+    private fun nextClick(onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+        try {
+            setUsernameUseCase.invoke(state.value.username)
+            onSuccess(Screen.StartScreens.CarInputScreen.route)
+        } catch (_: Exception) {
+            onError("Ошибка! Попробуйте ещё раз!")
+        }
     }
 
     private fun changeInput(username: String = _state.value.username) {

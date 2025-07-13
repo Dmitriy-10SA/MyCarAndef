@@ -4,5 +4,5 @@ import com.andef.mycarandef.car.domain.repository.CarRepository
 import javax.inject.Inject
 
 class SetCurrentCarIdUseCase @Inject constructor(private val repository: CarRepository) {
-    operator fun invoke(id: Int) = repository.setCurrentCarId(id)
+    operator fun invoke(id: Long) = repository.setCurrentCarId(id)
 }

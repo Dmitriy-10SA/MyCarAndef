@@ -8,5 +8,5 @@ data class Work(
     val note: String?,
     val mileage: Int,
     val date: LocalDate,
-    val carId: Int
+    val carId: Long
 )

@@ -1,14 +1,15 @@
 package com.andef.mycarandef.design.button.ui
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andef.mycarandef.design.theme.Blue
@@ -19,22 +20,22 @@ fun UiButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    buttonHeight: Dp = 56.dp
 ) {
-    Surface(modifier = modifier, shape = shape) {
-        Button(
-            onClick = onClick,
-            enabled = enabled,
-            shape = shape,
-            colors = colors()
-        ) {
-            Text(
-                modifier = Modifier.padding(horizontal = 2.dp, vertical = 11.dp),
-                text = text,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp
-            )
-        }
+    Button(
+        modifier = modifier.height(buttonHeight),
+        onClick = onClick,
+        enabled = enabled,
+        shape = shape,
+        colors = colors()
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 2.dp, vertical = 11.dp),
+            text = text,
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp
+        )
     }
 }
 

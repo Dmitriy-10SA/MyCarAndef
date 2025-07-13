@@ -23,12 +23,12 @@ class CarRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCarById(id: Int): Car {
+    override suspend fun getCarById(id: Long): Car {
         return carMapper.map(carDao.getCarById(id))
     }
 
     override suspend fun changeCar(
-        id: Int,
+        id: Long,
         brand: String,
         model: String,
         photo: String?,
@@ -49,23 +49,32 @@ class CarRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun removeCar(id: Int) {
+    override suspend fun removeCar(id: Long) {
         carDao.removeCar(id)
     }
 
-    override suspend fun addCar(car: Car) {
-        carDao.addCar(carMapper.map(car))
+    override suspend fun addCar(car: Car): Long {
+        return carDao.addCar(carMapper.map(car))
     }
 
-    override fun getCurrentCarId(): Int {
-        return shPrefs.getInt(FAVORITE_CAR_ID, -1)
+    override fun getCurrentCarId(): Long {
+        return shPrefs.getLong(CURRENT_CAR_ID, -1)
     }
 
-    override fun setCurrentCarId(id: Int) {
-        shPrefs.edit { putInt(FAVORITE_CAR_ID, id) }
+    override fun setCurrentCarId(id: Long) {
+        shPrefs.edit { putLong(CURRENT_CAR_ID, id) }
+    }
+
+    override fun setCurrentCarName(name: String) {
+        shPrefs.edit { putString(CURRENT_CAR_NAME, name) }
+    }
+
+    override fun getCurrentCarName(): String {
+        return shPrefs.getString(CURRENT_CAR_NAME, "").toString()
     }
 
     companion object {
-        private const val FAVORITE_CAR_ID = "favorite-car-id"
+        private const val CURRENT_CAR_NAME = "current-car-name"
+        private const val CURRENT_CAR_ID = "current-car-id"
     }
 }

@@ -19,6 +19,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,11 +33,22 @@ import com.andef.mycarandef.design.theme.Black
 import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.White
+import kotlinx.coroutines.delay
 
 @Composable
 fun UiLoading(isVisible: Boolean, paddingValues: PaddingValues, isLightTheme: Boolean) {
+    var visible by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            delay(500)
+            visible = isVisible
+        } else {
+            visible = false
+        }
+    }
+
     AnimatedVisibility(
-        visible = isVisible,
+        visible = visible,
         enter = fadeIn(tween(700)),
         exit = fadeOut(tween(700))
     ) {

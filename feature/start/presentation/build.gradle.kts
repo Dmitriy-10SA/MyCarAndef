@@ -40,8 +40,14 @@ android {
 }
 
 dependencies {
+    //Coil
+    implementation(libs.coil.compose)
+
     //feature:start:domain
     implementation(project(":feature:start:domain"))
+
+    //feature:car:domain
+    implementation(project(":feature:car:domain"))
 
     //Dagger 2
     implementation(libs.dagger)
