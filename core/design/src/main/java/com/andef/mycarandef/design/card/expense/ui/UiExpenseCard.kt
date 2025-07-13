@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -61,6 +62,7 @@ fun UiExpenseCard(
             Image(
                 modifier = Modifier.size(45.dp).clip(CircleShape),
                 painter = getImageForExpense(expense.type),
+                contentScale = ContentScale.Crop,
                 contentDescription = "Фото для категории траты"
             )
             Spacer(modifier = Modifier.width(16.dp))
