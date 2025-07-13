@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    //Coil
+    implementation(libs.coil.compose)
+
     //feature:expense:domain
     implementation(project(":feature:expense:domain"))
 

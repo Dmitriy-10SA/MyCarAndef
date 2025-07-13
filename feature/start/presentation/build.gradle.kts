@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    //Coil
+    implementation(libs.coil.compose)
+
     //feature:start:domain
     implementation(project(":feature:start:domain"))
 

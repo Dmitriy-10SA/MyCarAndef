@@ -46,6 +46,9 @@ android {
 }
 
 dependencies {
+    //Coil
+    implementation(libs.coil.compose)
+
     //Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.appcompat)
