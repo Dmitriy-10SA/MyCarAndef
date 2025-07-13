@@ -5,9 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface CarRepository {
     fun getAllCars(): Flow<List<Car>>
-    suspend fun getCarById(id: Int): Car
+    suspend fun getCarById(id: Long): Car
     suspend fun changeCar(
-        id: Int,
+        id: Long,
         brand: String,
         model: String,
         photo: String?,
@@ -17,8 +17,10 @@ interface CarRepository {
         coordinatesLon: Double?
     )
 
-    suspend fun removeCar(id: Int)
-    suspend fun addCar(car: Car)
-    fun getCurrentCarId(): Int
-    fun setCurrentCarId(id: Int)
+    suspend fun removeCar(id: Long)
+    suspend fun addCar(car: Car): Long
+    fun getCurrentCarId(): Long
+    fun setCurrentCarId(id: Long)
+    fun setCurrentCarName(name: String)
+    fun getCurrentCarName(): String
 }

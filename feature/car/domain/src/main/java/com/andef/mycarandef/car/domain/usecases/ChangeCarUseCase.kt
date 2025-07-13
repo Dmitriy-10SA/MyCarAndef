@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 class ChangeCarUseCase @Inject constructor(private val repository: CarRepository) {
     suspend operator fun invoke(
-        id: Int,
+        id: Long,
         brand: String,
         model: String,
         photo: String?,

@@ -54,6 +54,7 @@ import coil.request.ImageRequest
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.chooser.ui.UiChooser
+import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
@@ -143,6 +144,11 @@ fun CarInputScreen(
             )
         }
     }
+    UiLoading(
+        isVisible = state.value.isLoading,
+        paddingValues = paddingValues,
+        isLightTheme = isLightTheme
+    )
 }
 
 @Composable

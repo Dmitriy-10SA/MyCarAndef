@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.domain.usecases.AddCarUseCase
+import com.andef.mycarandef.car.domain.usecases.SetCurrentCarIdUseCase
+import com.andef.mycarandef.car.domain.usecases.SetCurrentCarNameUseCase
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.start.domain.usecases.GetUsernameUseCase
 import com.andef.mycarandef.start.domain.usecases.SetIsFirstStartUseCase
@@ -11,11 +13,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CarInputViewModel @Inject constructor(
     private val getUsernameUseCase: GetUsernameUseCase,
     private val setIsFirstStartUseCase: SetIsFirstStartUseCase,
+    private val setCurrentCarIdUseCase: SetCurrentCarIdUseCase,
+    private val setCurrentCarNameUseCase: SetCurrentCarNameUseCase,
     private val addCarUseCase: AddCarUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(CarInputState())
@@ -34,7 +39,12 @@ class CarInputViewModel @Inject constructor(
             is CarInputIntent.ChangeYear -> changeInput(year = intent.year)
             is CarInputIntent.NextClick -> nextClick(
                 onSuccess = intent.onSuccess,
-                onError = intent.onError
+                onError = intent.onError,
+                brand = _state.value.brand,
+                model = _state.value.model,
+                photo = _state.value.photo,
+                year = _state.value.year,
+                registrationMark = _state.value.registrationMark
             )
         }
     }
@@ -44,23 +54,35 @@ class CarInputViewModel @Inject constructor(
         _state.value = _state.value.copy(username = username)
     }
 
-    private fun nextClick(onSuccess: (String) -> Unit, onError: (String) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+    private fun nextClick(
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit,
+        brand: String,
+        model: String,
+        photo: String?,
+        year: Int?,
+        registrationMark: String?
+    ) {
+        viewModelScope.launch {
             try {
                 _state.value = _state.value.copy(isLoading = true)
-                addCarUseCase.invoke(
-                    Car(
-                        id = 0,
-                        brand = _state.value.brand,
-                        model = _state.value.model,
-                        photo = _state.value.photo,
-                        year = _state.value.year,
-                        registrationMark = _state.value.registrationMark,
-                        coordinatesLon = null,
-                        coordinatesLat = null
+                val id = withContext(Dispatchers.IO) {
+                    addCarUseCase.invoke(
+                        Car(
+                            id = 0,
+                            brand = brand,
+                            model = model,
+                            photo = photo,
+                            year = year,
+                            registrationMark = registrationMark,
+                            coordinatesLon = null,
+                            coordinatesLat = null
+                        )
                     )
-                )
+                }
                 setIsFirstStartUseCase.invoke(false)
+                setCurrentCarIdUseCase.invoke(id)
+                setCurrentCarNameUseCase.invoke("$brand $model")
                 onSuccess(Screen.MainScreens.route)
             } catch (_: Exception) {
                 onError("Ошибка! Попробуйте ещё раз!")

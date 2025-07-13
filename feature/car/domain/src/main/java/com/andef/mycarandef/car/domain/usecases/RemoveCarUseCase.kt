@@ -4,5 +4,5 @@ import com.andef.mycarandef.car.domain.repository.CarRepository
 import javax.inject.Inject
 
 class RemoveCarUseCase @Inject constructor(private val repository: CarRepository) {
-    suspend operator fun invoke(id: Int) = repository.removeCar(id)
+    suspend operator fun invoke(id: Long) = repository.removeCar(id)
 }

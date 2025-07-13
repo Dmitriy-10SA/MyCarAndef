@@ -5,5 +5,5 @@ import com.andef.mycarandef.car.domain.repository.CarRepository
 import javax.inject.Inject
 
 class GetCarByIdUseCase @Inject constructor(private val repository: CarRepository) {
-    suspend operator fun invoke(id: Int): Car = repository.getCarById(id)
+    suspend operator fun invoke(id: Long): Car = repository.getCarById(id)
 }

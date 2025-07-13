@@ -8,7 +8,7 @@ data class Expense(
     val note: String?,
     val type: ExpenseType,
     val date: LocalDate,
-    val carId: Int
+    val carId: Long
 )
 
 enum class ExpenseType(val title: String) {
