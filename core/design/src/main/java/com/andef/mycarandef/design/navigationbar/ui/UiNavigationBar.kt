@@ -20,7 +20,7 @@ import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.White
 
 @Composable
-fun UiBottomBar(
+fun UiNavigationBar(
     isLightTheme: Boolean,
     itemSelected: (UiNavigationBarItem) -> Boolean,
     onItemClick: (UiNavigationBarItem) -> Unit,

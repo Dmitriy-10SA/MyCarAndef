@@ -86,7 +86,7 @@ class CarInputViewModel @Inject constructor(
                 setCurrentCarIdUseCase.invoke(id)
                 setCurrentCarNameUseCase.invoke("$brand $model")
                 setCurrentCarImageUri.invoke(photo)
-                onSuccess(Screen.MainScreens.route)
+                onSuccess(Screen.MainScreens.WorksMainScreen.route)
             } catch (_: Exception) {
                 onError("Ошибка! Попробуйте ещё раз!")
             } finally {
