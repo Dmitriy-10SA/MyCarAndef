@@ -73,7 +73,16 @@ class CarRepositoryImpl @Inject constructor(
         return shPrefs.getString(CURRENT_CAR_NAME, "").toString()
     }
 
+    override fun getCurrentCarImageUri(): String? {
+        return shPrefs.getString(CURRENT_CAR_IMAGE_URI, null)
+    }
+
+    override fun setCurrentCarImageUri(uri: String?) {
+        shPrefs.edit { putString(CURRENT_CAR_IMAGE_URI, uri) }
+    }
+
     companion object {
+        private const val CURRENT_CAR_IMAGE_URI = "current-car-image-uri"
         private const val CURRENT_CAR_NAME = "current-car-name"
         private const val CURRENT_CAR_ID = "current-car-id"
     }

@@ -23,4 +23,6 @@ interface CarRepository {
     fun setCurrentCarId(id: Long)
     fun setCurrentCarName(name: String)
     fun getCurrentCarName(): String
+    fun getCurrentCarImageUri(): String?
+    fun setCurrentCarImageUri(uri: String?)
 }
