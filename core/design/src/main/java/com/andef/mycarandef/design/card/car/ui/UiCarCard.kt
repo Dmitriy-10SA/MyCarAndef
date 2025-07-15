@@ -1,8 +1,10 @@
 package com.andef.mycarandef.design.card.car.ui
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +23,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.theme.Black
@@ -33,7 +37,8 @@ fun UiCarCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     isLightTheme: Boolean,
-    car: Car
+    car: Car,
+    context: Context
 ) {
     Card(
         modifier = modifier,
@@ -50,12 +55,7 @@ fun UiCarCard(
         )
     ) {
         Box {
-            Image(
-                painter = painterResource(R.drawable.car_wo_photo),
-                contentDescription = "Car Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.height(180.dp)
-            )
+            CarPhoto(car = car, context = context)
             Text(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -70,6 +70,30 @@ fun UiCarCard(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+@Composable
+private fun BoxScope.CarPhoto(car: Car, context: Context) {
+    if (!car.photo.isNullOrBlank()) {
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(car.photo)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(R.drawable.car_wo_photo),
+            error = painterResource(R.drawable.car_wo_photo),
+            modifier = Modifier.height(160.dp),
+            contentScale = ContentScale.Crop,
+            contentDescription = "Фото машины"
+        )
+    } else {
+        Image(
+            painter = painterResource(R.drawable.car_wo_photo),
+            contentDescription = "Фото машины из гаража без фото",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.height(160.dp)
+        )
     }
 }
 

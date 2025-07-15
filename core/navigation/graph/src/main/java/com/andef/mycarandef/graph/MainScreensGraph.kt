@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.andef.mycarandef.car.presentation.carmain.CarMainScreen
 import com.andef.mycarandef.expense.presentation.expensemain.ExpenseMainScreen
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
@@ -51,7 +52,12 @@ fun NavGraphBuilder.mainScreensGraph(
         }
         composable(route = Screen.MainScreens.CarsMainScreen.route) {
             if (mainContentIsVisible) {
-
+                CarMainScreen(
+                    navHostController = navHostController,
+                    viewModelFactory = viewModelFactory,
+                    paddingValues = paddingValues,
+                    isLightTheme = isLightTheme
+                )
             }
         }
     }

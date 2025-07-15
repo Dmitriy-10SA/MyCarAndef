@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import com.andef.mycarandef.car.di.CarDaoModule
 import com.andef.mycarandef.car.di.CarRepositoryModule
+import com.andef.mycarandef.car.di.CarViewModelModule
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdAsFlowUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarImageUriAsFlowUseCase
@@ -43,6 +44,7 @@ import javax.inject.Singleton
         //Car
         CarRepositoryModule::class,
         CarDaoModule::class,
+        CarViewModelModule::class,
 
         //Expense
         ExpenseRepositoryModule::class,
