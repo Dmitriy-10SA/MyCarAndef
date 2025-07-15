@@ -1,4 +1,4 @@
-package com.andef.mycarandef.work.presentation.workmain
+package com.andef.mycarandef.expense.presentation.expensemain
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,24 +17,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.andef.mycarandef.design.card.work.ui.UiWorkCard
+import com.andef.mycarandef.design.card.expense.ui.UiExpenseCard
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
-import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 
 @Composable
-fun WorkMainScreen(
+fun ExpenseMainScreen(
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isLightTheme: Boolean,
     currentCarId: Long
 ) {
-    val viewModel: WorkMainViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: ExpenseMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
+    LaunchedEffect(Unit) { viewModel.send(ExpenseMainIntent.SubscribeForExpenses(currentCarId)) }
 
     LazyColumn(
         modifier = Modifier
@@ -45,12 +44,12 @@ fun WorkMainScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item { Spacer(modifier = Modifier.height(0.dp)) }
-        items(items = state.value.works, key = { it.id }) { work ->
-            UiWorkCard(
+        items(items = state.value.works, key = { it.id }) { expense ->
+            UiExpenseCard(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { TODO() },
                 isLightTheme = isLightTheme,
-                work = work
+                expense = expense
             )
         }
         item { Spacer(modifier = Modifier.height(0.dp)) }
@@ -64,6 +63,6 @@ fun WorkMainScreen(
         isVisible = state.value.isError,
         paddingValues = paddingValues,
         isLightTheme = isLightTheme,
-        onRetry = { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
+        onRetry = { viewModel.send(ExpenseMainIntent.SubscribeForExpenses(currentCarId)) }
     )
 }

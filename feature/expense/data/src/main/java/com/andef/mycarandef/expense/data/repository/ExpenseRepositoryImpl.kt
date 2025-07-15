@@ -37,7 +37,7 @@ class ExpenseRepositoryImpl @Inject constructor(
         return expenseMapper.map(expenseDao.getExpenseById(id))
     }
 
-    override fun getExpensesByCarId(carId: Int): Flow<List<Expense>> {
+    override fun getExpensesByCarId(carId: Long): Flow<List<Expense>> {
         return expenseDao.getExpensesByCarId(carId).map { expensesDbo ->
             expensesDbo.map { expenseDbo ->
                 expenseMapper.map(expenseDbo)
