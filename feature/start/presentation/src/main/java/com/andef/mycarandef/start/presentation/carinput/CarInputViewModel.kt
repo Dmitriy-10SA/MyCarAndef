@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.domain.usecases.AddCarUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarIdUseCase
+import com.andef.mycarandef.car.domain.usecases.SetCurrentCarImageUriUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarNameUseCase
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.start.domain.usecases.GetUsernameUseCase
@@ -21,6 +22,7 @@ class CarInputViewModel @Inject constructor(
     private val setIsFirstStartUseCase: SetIsFirstStartUseCase,
     private val setCurrentCarIdUseCase: SetCurrentCarIdUseCase,
     private val setCurrentCarNameUseCase: SetCurrentCarNameUseCase,
+    private val setCurrentCarImageUriUseCase: SetCurrentCarImageUriUseCase,
     private val addCarUseCase: AddCarUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(CarInputState())
@@ -83,7 +85,8 @@ class CarInputViewModel @Inject constructor(
                 setIsFirstStartUseCase.invoke(false)
                 setCurrentCarIdUseCase.invoke(id)
                 setCurrentCarNameUseCase.invoke("$brand $model")
-                onSuccess(Screen.MainScreens.route)
+                setCurrentCarImageUriUseCase.invoke(photo)
+                onSuccess(Screen.MainScreens.WorksMainScreen.route)
             } catch (_: Exception) {
                 onError("Ошибка! Попробуйте ещё раз!")
             } finally {

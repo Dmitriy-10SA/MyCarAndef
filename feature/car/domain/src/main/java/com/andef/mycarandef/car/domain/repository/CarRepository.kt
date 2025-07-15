@@ -23,4 +23,9 @@ interface CarRepository {
     fun setCurrentCarId(id: Long)
     fun setCurrentCarName(name: String)
     fun getCurrentCarName(): String
+    fun getCurrentCarImageUri(): String?
+    fun setCurrentCarImageUri(uri: String?)
+    fun getCurrentCarNameAsFlow(): Flow<String>
+    fun getCurrentCarIdAsFlow(): Flow<Long>
+    fun getCurrentCarImageUriAsFlow(): Flow<String?>
 }

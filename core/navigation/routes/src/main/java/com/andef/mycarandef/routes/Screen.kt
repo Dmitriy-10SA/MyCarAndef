@@ -19,6 +19,13 @@ sealed class Screen(val route: String) {
         private const val EXPENSES_MAIN_SCREEN = "expenses-main-screen"
         private const val MAPS_MAIN_SCREEN = "maps-main-screen"
         private const val CARS_MAIN_SCREEN = "cars-main-screen"
+
+        val allRoutes = listOf(
+            WORKS_MAIN_SCREEN,
+            EXPENSES_MAIN_SCREEN,
+            MAPS_MAIN_SCREEN,
+            CARS_MAIN_SCREEN,
+        )
     }
 
     data object WorkScreen : Screen("$WORK_SCREEN/{$ID_PARAM}") {

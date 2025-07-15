@@ -14,7 +14,7 @@ interface ExpenseDao {
     suspend fun getExpenseById(id: Long): ExpenseDbo
 
     @Query("SELECT * FROM expense WHERE car_id = :carId ORDER BY date DESC")
-    fun getExpensesByCarId(carId: Int): Flow<List<ExpenseDbo>>
+    fun getExpensesByCarId(carId: Long): Flow<List<ExpenseDbo>>
 
     @Insert(onConflict = REPLACE)
     suspend fun addExpense(expenseDbo: ExpenseDbo)

@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetExpensesByCarIdUseCase @Inject constructor(private val repository: ExpenseRepository) {
-    operator fun invoke(carId: Int): Flow<List<Expense>> = repository.getExpensesByCarId(carId)
+    operator fun invoke(carId: Long): Flow<List<Expense>> = repository.getExpensesByCarId(carId)
 }

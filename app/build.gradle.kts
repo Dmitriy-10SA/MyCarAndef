@@ -78,8 +78,9 @@ dependencies {
     implementation(project(":core:di:common"))
     implementation(project(":core:di:viewmodel"))
 
-    //core:navigation:graph
+    //core:navigation
     implementation(project(":core:navigation:graph"))
+    implementation(project(":core:navigation:routes"))
 
     //feature:work
     implementation(project(":feature:work:data"))
