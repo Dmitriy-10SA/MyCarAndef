@@ -3,6 +3,6 @@ package com.andef.mycarandef.car.domain.usecases
 import com.andef.mycarandef.car.domain.repository.CarRepository
 import javax.inject.Inject
 
-class GetCurrentCarImageUri @Inject constructor(private val repository: CarRepository) {
+class GetCurrentCarImageUriUseCase @Inject constructor(private val repository: CarRepository) {
     operator fun invoke() = repository.getCurrentCarImageUri()
 }

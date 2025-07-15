@@ -191,10 +191,10 @@ private fun MainTopBar(
 
 @Composable
 private fun CarPhoto(component: MyCarComponent, isLightTheme: Boolean, context: Context) {
-    if (!component.getCurrentCarImageUri.invoke().isNullOrBlank()) {
+    if (!component.getCurrentCarImageUriUseCase.invoke().isNullOrBlank()) {
         AsyncImage(
             model = ImageRequest.Builder(context)
-                .data(component.getCurrentCarImageUri.invoke())
+                .data(component.getCurrentCarImageUriUseCase.invoke())
                 .crossfade(true)
                 .build(),
             placeholder = painterResource(R.drawable.car_wo_photo),
