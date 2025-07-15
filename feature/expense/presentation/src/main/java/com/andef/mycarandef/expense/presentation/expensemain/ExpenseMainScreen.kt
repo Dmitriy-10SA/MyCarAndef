@@ -44,7 +44,7 @@ fun ExpenseMainScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item { Spacer(modifier = Modifier.height(0.dp)) }
-        items(items = state.value.works, key = { it.id }) { expense ->
+        items(items = state.value.expenses, key = { it.id }) { expense ->
             UiExpenseCard(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { TODO() },

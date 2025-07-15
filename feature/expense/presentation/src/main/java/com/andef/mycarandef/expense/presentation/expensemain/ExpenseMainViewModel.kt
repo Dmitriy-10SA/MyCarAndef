@@ -32,7 +32,7 @@ class ExpenseMainViewModel @Inject constructor(
             getExpensesByCarIdUseCase.invoke(currentCarId)
                 .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
                 .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect { _state.value = _state.value.copy(isLoading = false, works = it) }
+                .collect { _state.value = _state.value.copy(isLoading = false, expenses = it) }
         }
     }
 }
