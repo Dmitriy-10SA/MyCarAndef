@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 class WorkMainViewModel @Inject constructor(
@@ -24,13 +25,26 @@ class WorkMainViewModel @Inject constructor(
             )
 
             is WorkMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
-                isVisible = intent.isVisible
+                isVisible = intent.isVisible,
+                workTitle = intent.workTitle,
+                workDate = intent.workDate,
+                workId = intent.workId
             )
         }
     }
 
-    private fun changeBottomSheetVisible(isVisible: Boolean) {
-        _state.value = _state.value.copy(showBottomSheet = isVisible)
+    private fun changeBottomSheetVisible(
+        isVisible: Boolean,
+        workTitle: String? = null,
+        workDate: LocalDate? = null,
+        workId: Long? = null
+    ) {
+        _state.value = _state.value.copy(
+            showBottomSheet = isVisible,
+            workIdInBottomSheet = workId,
+            workTitleInBottomSheet = workTitle,
+            workDateInBottomSheet = workDate
+        )
     }
 
     private var job: Job? = null
