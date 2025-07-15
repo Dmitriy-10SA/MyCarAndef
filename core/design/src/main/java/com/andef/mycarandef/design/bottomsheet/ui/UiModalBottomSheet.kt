@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.andef.mycarandef.design.theme.Black
-import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.White
 
