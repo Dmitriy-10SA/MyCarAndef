@@ -28,8 +28,14 @@ sealed class Screen(val route: String) {
         )
     }
 
-    data object WorkScreen : Screen("$WORK_SCREEN/{$ID_PARAM}") {
-        fun passId(id: Long): String = "$WORK_SCREEN/$id"
+    data object WorkAddScreen : Screen(WORK_ADD_SCREEN)
+
+    data object ExpenseAddScreen : Screen(EXPENSE_ADD_SCREEN)
+
+    data object CarAddScreen : Screen(CAR_ADD_SCREEN)
+
+    data object WorkScreen : Screen("$WORK_SCREEN/{$ID_PARAM}/{$CAR_ID_PARAM}") {
+        fun passId(id: Long, carId: Long): String = "$WORK_SCREEN/$id/$carId"
     }
 
     data object ExpenseScreen : Screen("$EXPENSE_SCREEN/{$ID_PARAM}") {
@@ -37,16 +43,20 @@ sealed class Screen(val route: String) {
     }
 
     data object CarScreen : Screen("$CAR_SCREEN/{$ID_PARAM}") {
-        fun passId(id: Int): String = "$CAR_SCREEN/$id"
+        fun passId(id: Long): String = "$CAR_SCREEN/$id"
     }
 
     companion object {
         private const val START_SCREENS = "start-screens"
         private const val MAIN_SCREENS = "main-screens"
         private const val WORK_SCREEN = "work-screen"
+        private const val WORK_ADD_SCREEN = "work-add-screen"
         private const val EXPENSE_SCREEN = "expense-screen"
+        private const val EXPENSE_ADD_SCREEN = "expense-add-screen"
         private const val CAR_SCREEN = "car-screen"
+        private const val CAR_ADD_SCREEN = "car-add-screen"
 
         const val ID_PARAM = "id-param"
+        const val CAR_ID_PARAM = "car-id-param"
     }
 }

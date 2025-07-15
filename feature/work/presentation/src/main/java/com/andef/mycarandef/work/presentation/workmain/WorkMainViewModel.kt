@@ -22,7 +22,15 @@ class WorkMainViewModel @Inject constructor(
             is WorkMainIntent.SubscribeForWorks -> subscribeForWorks(
                 currentCarId = intent.currentCarId
             )
+
+            is WorkMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
+                isVisible = intent.isVisible
+            )
         }
+    }
+
+    private fun changeBottomSheetVisible(isVisible: Boolean) {
+        _state.value = _state.value.copy(showBottomSheet = isVisible)
     }
 
     private var job: Job? = null
