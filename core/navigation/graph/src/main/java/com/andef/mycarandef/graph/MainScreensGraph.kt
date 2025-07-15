@@ -31,13 +31,19 @@ fun NavGraphBuilder.mainScreensGraph(
             }
         }
         composable(route = Screen.MainScreens.ExpensesMainScreen.route) {
+            if (mainContentIsVisible) {
 
+            }
         }
         composable(route = Screen.MainScreens.MapsMainScreen.route) {
+            if (mainContentIsVisible) {
 
+            }
         }
         composable(route = Screen.MainScreens.CarsMainScreen.route) {
+            if (mainContentIsVisible) {
 
+            }
         }
     }
 }
