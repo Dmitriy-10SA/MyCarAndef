@@ -1,9 +1,5 @@
 package com.andef.mycarandef.design.fab.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -21,11 +17,7 @@ fun UiFAB(
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
 ) {
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = scaleIn(tween(700)),
-        exit = scaleOut(tween(700))
-    ) {
+    if (isVisible) {
         FloatingActionButton(
             onClick = onClick,
             modifier = modifier,

@@ -16,7 +16,8 @@ fun MyCarNavGraph(
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isFirstStart: Boolean,
-    isLightTheme: Boolean
+    isLightTheme: Boolean,
+    mainContentIsVisible: Boolean
 ) {
     NavHost(
         navController = navHostController,
@@ -35,7 +36,8 @@ fun MyCarNavGraph(
             navHostController = navHostController,
             viewModelFactory = viewModelFactory,
             paddingValues = paddingValues,
-            isLightTheme = isLightTheme
+            isLightTheme = isLightTheme,
+            mainContentIsVisible = mainContentIsVisible
         )
         composable(
             route = Screen.WorkScreen.route,

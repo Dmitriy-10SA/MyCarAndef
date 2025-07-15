@@ -18,6 +18,7 @@ import com.andef.mycarandef.uitheme.domain.usecases.GetIsLightThemeUseCase
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import com.andef.mycarandef.work.di.WorkDaoModule
 import com.andef.mycarandef.work.di.WorkRepositoryModule
+import com.andef.mycarandef.work.di.WorkViewModelModule
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -46,6 +47,7 @@ import javax.inject.Singleton
         //Work
         WorkRepositoryModule::class,
         WorkDaoModule::class,
+        WorkViewModelModule::class,
 
         //UiTheme
         UiThemeRepositoryModule::class

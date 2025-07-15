@@ -147,7 +147,8 @@ fun CarInputScreen(
     UiLoading(
         isVisible = state.value.isLoading,
         paddingValues = paddingValues,
-        isLightTheme = isLightTheme
+        isLightTheme = isLightTheme,
+        withTouch = false
     )
 }
 
@@ -363,7 +364,7 @@ private fun ColumnScope.DownButton(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
                 .imePadding(),
-            enabled = state.value.nextButtonEnabled
+            enabled = state.value.nextButtonEnabled && !state.value.isLoading
         )
         Spacer(modifier = Modifier.height(8.dp))
     }

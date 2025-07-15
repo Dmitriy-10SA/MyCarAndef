@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiNavigationBar
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
@@ -109,17 +110,49 @@ private fun MainContent(
                     component = component,
                     context = context
                 )
-            }
+            },
+            floatingActionButton = { MainFAB(navBackStackEntry = navBackStackEntry) }
         ) { paddingValues ->
             MyCarNavGraph(
                 navHostController = navHostController,
                 viewModelFactory = component.viewModelFactory,
                 paddingValues = paddingValues,
                 isFirstStart = component.getIsFirstStartUseCase(),
-                isLightTheme = isLightTheme
+                isLightTheme = isLightTheme,
+                mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
             )
         }
     }
+}
+
+@Composable
+private fun MainFAB(navBackStackEntry: NavBackStackEntry?) {
+    val currentRoute = navBackStackEntry?.destination?.route
+    val allRoutesForMainFAB = listOf(
+        Screen.MainScreens.WorksMainScreen.route,
+        Screen.MainScreens.ExpensesMainScreen.route,
+        Screen.MainScreens.CarsMainScreen.route
+    )
+    UiFAB(
+        isVisible = currentRoute in allRoutesForMainFAB,
+        icon = painterResource(R.drawable.add),
+        iconContentDescription = "Крестик добавить",
+        onClick = {
+            when (currentRoute) {
+                Screen.MainScreens.WorksMainScreen.route -> {
+                    TODO()
+                }
+
+                Screen.MainScreens.ExpensesMainScreen.route -> {
+                    TODO()
+                }
+
+                Screen.MainScreens.CarsMainScreen.route -> {
+                    TODO()
+                }
+            }
+        }
+    )
 }
 
 @Composable
