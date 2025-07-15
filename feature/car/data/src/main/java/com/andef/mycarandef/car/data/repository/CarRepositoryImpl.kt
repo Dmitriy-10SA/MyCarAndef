@@ -7,6 +7,8 @@ import com.andef.mycarandef.car.data.mapper.CarMapper
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.domain.repository.CarRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -15,6 +17,16 @@ class CarRepositoryImpl @Inject constructor(
     private val carMapper: CarMapper,
     private val carDao: CarDao
 ) : CarRepository {
+    private val currentCarIdAsFlow = MutableStateFlow(getCurrentCarId())
+    private val currentCarNameAsFlow = MutableStateFlow(getCurrentCarName())
+    private val currentCarImageUriAsFlow = MutableStateFlow(getCurrentCarImageUri())
+
+    override fun getCurrentCarIdAsFlow(): Flow<Long> = currentCarIdAsFlow.asStateFlow()
+
+    override fun getCurrentCarImageUriAsFlow(): Flow<String?> = currentCarImageUriAsFlow.asStateFlow()
+
+    override fun getCurrentCarNameAsFlow(): Flow<String> = currentCarNameAsFlow.asStateFlow()
+
     override fun getAllCars(): Flow<List<Car>> {
         return carDao.getAllCars().map { carsDbo ->
             carsDbo.map { carDbo ->
@@ -63,10 +75,12 @@ class CarRepositoryImpl @Inject constructor(
 
     override fun setCurrentCarId(id: Long) {
         shPrefs.edit { putLong(CURRENT_CAR_ID, id) }
+        currentCarIdAsFlow.value = id
     }
 
     override fun setCurrentCarName(name: String) {
         shPrefs.edit { putString(CURRENT_CAR_NAME, name) }
+        currentCarNameAsFlow.value = name
     }
 
     override fun getCurrentCarName(): String {
@@ -79,6 +93,7 @@ class CarRepositoryImpl @Inject constructor(
 
     override fun setCurrentCarImageUri(uri: String?) {
         shPrefs.edit { putString(CURRENT_CAR_IMAGE_URI, uri) }
+        currentCarImageUriAsFlow.value = uri
     }
 
     companion object {

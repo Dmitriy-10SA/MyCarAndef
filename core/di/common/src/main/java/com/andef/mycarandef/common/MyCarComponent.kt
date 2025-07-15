@@ -4,8 +4,11 @@ import android.app.Activity
 import android.app.Application
 import com.andef.mycarandef.car.di.CarDaoModule
 import com.andef.mycarandef.car.di.CarRepositoryModule
+import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdAsFlowUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdUseCase
+import com.andef.mycarandef.car.domain.usecases.GetCurrentCarImageUriAsFlowUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarImageUriUseCase
+import com.andef.mycarandef.car.domain.usecases.GetCurrentCarNameAsFlowUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarNameUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarIdUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarImageUriUseCase
@@ -62,9 +65,12 @@ interface MyCarComponent {
     val viewModelFactory: ViewModelFactory
     val getIsFirstStartUseCase: GetIsFirstStartUseCase
     val getIsLightThemeUseCase: GetIsLightThemeUseCase
-    val getCurrentCarImageUriUseCase: GetCurrentCarImageUriUseCase
     val getCurrentCarIdUseCase: GetCurrentCarIdUseCase
     val getCurrentCarNameUseCase: GetCurrentCarNameUseCase
+    val getCurrentCarImageUriUseCase: GetCurrentCarImageUriUseCase
+    val getCurrentCarImageUriAsFlowUseCase: GetCurrentCarImageUriAsFlowUseCase
+    val getCurrentCarIdAsFlowUseCase: GetCurrentCarIdAsFlowUseCase
+    val getCurrentCarNameAsFlowUseCase: GetCurrentCarNameAsFlowUseCase
     val setCurrentCarIdUseCase: SetCurrentCarIdUseCase
     val setCurrentCarImageUriUseCase: SetCurrentCarImageUriUseCase
     val setCurrentCarNameUseCase: SetCurrentCarNameUseCase
