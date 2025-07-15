@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.andef.mycarandef.design.theme.Black
+import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.White
 
@@ -20,6 +21,7 @@ import com.andef.mycarandef.design.theme.White
 @Composable
 fun UiModalBottomSheet(
     isLightTheme: Boolean,
+    isVisible: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState,
@@ -27,17 +29,19 @@ fun UiModalBottomSheet(
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        sheetState = sheetState,
-        shape = shape,
-        containerColor = if (isLightTheme) White else DarkGray,
-        contentColor = if (isLightTheme) Black else White,
-        properties = properties,
-        contentWindowInsets = contentWindowInsets,
-        content = content
-    )
+    if (isVisible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismissRequest,
+            modifier = modifier,
+            sheetState = sheetState,
+            shape = shape,
+            containerColor = if (isLightTheme) White else DarkGray,
+            contentColor = if (isLightTheme) Black else White,
+            properties = properties,
+            contentWindowInsets = contentWindowInsets,
+            content = content
+        )
+    }
 }
 
 private val shape = RoundedCornerShape(

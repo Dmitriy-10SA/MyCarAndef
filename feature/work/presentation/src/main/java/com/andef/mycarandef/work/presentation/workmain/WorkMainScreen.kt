@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -51,14 +50,13 @@ fun WorkMainScreen(
         isLightTheme = isLightTheme,
         currentCarId = currentCarId
     )
-    if (state.value.showBottomSheet) {
-        BottomSheet(
-            navHostController = navHostController,
-            viewModel = viewModel,
-            sheetState = sheetState,
-            isLightTheme = isLightTheme
-        )
-    }
+    BottomSheet(
+        navHostController = navHostController,
+        viewModel = viewModel,
+        sheetState = sheetState,
+        isLightTheme = isLightTheme,
+        state = state
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,12 +65,14 @@ private fun BottomSheet(
     navHostController: NavHostController,
     viewModel: WorkMainViewModel,
     sheetState: SheetState,
-    isLightTheme: Boolean
+    isLightTheme: Boolean,
+    state: State<WorkMainState>
 ) {
-    UiModalBottomSheet (
+    UiModalBottomSheet(
         onDismissRequest = { viewModel.send(WorkMainIntent.BottomSheetVisibleChange(false)) },
         sheetState = sheetState,
-        isLightTheme = isLightTheme
+        isLightTheme = isLightTheme,
+        isVisible = state.value.showBottomSheet
     ) {
 
     }

@@ -14,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -128,7 +127,12 @@ private fun MainContent(
                     currentCarName = currentCarName
                 )
             },
-            floatingActionButton = { MainFAB(navBackStackEntry = navBackStackEntry) }
+            floatingActionButton = {
+                MainFAB(
+                    navBackStackEntry = navBackStackEntry,
+                    navHostController = navHostController
+                )
+            }
         ) { paddingValues ->
             MyCarNavGraph(
                 navHostController = navHostController,
@@ -144,7 +148,7 @@ private fun MainContent(
 }
 
 @Composable
-private fun MainFAB(navBackStackEntry: NavBackStackEntry?) {
+private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: NavHostController) {
     val currentRoute = navBackStackEntry?.destination?.route
     val allRoutesForMainFAB = listOf(
         Screen.MainScreens.WorksMainScreen.route,
@@ -158,7 +162,7 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?) {
         onClick = {
             when (currentRoute) {
                 Screen.MainScreens.WorksMainScreen.route -> {
-                    TODO()
+                    navHostController.navigate(Screen.WorkAddScreen.route)
                 }
 
                 Screen.MainScreens.ExpensesMainScreen.route -> {

@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
+import com.andef.mycarandef.work.presentation.workadd.WorkAddScreen
 
 @Composable
 fun MyCarNavGraph(
@@ -43,21 +44,42 @@ fun MyCarNavGraph(
         )
         composable(
             route = Screen.WorkScreen.route,
-            arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })
+            arguments = listOf(
+                navArgument(Screen.ID_PARAM) { type = NavType.LongType },
+                navArgument(Screen.CAR_ID_PARAM) { type = NavType.LongType }
+            )
         ) {
-            val id = it.arguments?.getInt(Screen.ID_PARAM)
+            val id = it.arguments?.getLong(Screen.ID_PARAM) ?: throw IllegalArgumentException()
+            val carId = it.arguments?.getLong(Screen.CAR_ID_PARAM) ?: throw IllegalArgumentException()
+
+        }
+        composable(route = Screen.WorkAddScreen.route) {
+            WorkAddScreen(
+                workId = null,
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId
+            )
         }
         composable(
             route = Screen.ExpenseScreen.route,
             arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })
         ) {
-            val id = it.arguments?.getInt(Screen.ID_PARAM)
+            val id = it.arguments?.getLong(Screen.ID_PARAM) ?: throw IllegalArgumentException()
+        }
+        composable(route = Screen.ExpenseAddScreen.route) {
+
         }
         composable(
             route = Screen.CarScreen.route,
-            arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.IntType })
+            arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })
         ) {
-            val id = it.arguments?.getInt(Screen.ID_PARAM)
+            val id = it.arguments?.getLong(Screen.ID_PARAM) ?: throw IllegalArgumentException()
+        }
+        composable(route = Screen.CarAddScreen.route) {
+
         }
     }
 }
