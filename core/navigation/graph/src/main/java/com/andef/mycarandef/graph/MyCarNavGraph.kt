@@ -17,7 +17,8 @@ fun MyCarNavGraph(
     paddingValues: PaddingValues,
     isFirstStart: Boolean,
     isLightTheme: Boolean,
-    mainContentIsVisible: Boolean
+    mainContentIsVisible: Boolean,
+    currentCarId: Long
 ) {
     NavHost(
         navController = navHostController,
@@ -37,7 +38,8 @@ fun MyCarNavGraph(
             viewModelFactory = viewModelFactory,
             paddingValues = paddingValues,
             isLightTheme = isLightTheme,
-            mainContentIsVisible = mainContentIsVisible
+            mainContentIsVisible = mainContentIsVisible,
+            currentCarId = currentCarId
         )
         composable(
             route = Screen.WorkScreen.route,

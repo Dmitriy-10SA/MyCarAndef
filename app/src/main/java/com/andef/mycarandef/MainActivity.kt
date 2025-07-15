@@ -14,6 +14,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -61,13 +65,25 @@ class MainActivity : ComponentActivity() {
             val navHostController = rememberNavController()
             val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
             val context = LocalContext.current
+            val currentCarId = rememberSaveable {
+                mutableLongStateOf(component.getCurrentCarIdUseCase.invoke())
+            }
+            val currentCarName = rememberSaveable {
+                mutableStateOf(component.getCurrentCarNameUseCase.invoke())
+            }
+            val currentCarImageUri = rememberSaveable {
+                mutableStateOf(component.getCurrentCarImageUriUseCase.invoke())
+            }
             SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
             MainContent(
                 navBackStackEntry = navBackStackEntry,
                 navHostController = navHostController,
                 component = component,
                 isLightTheme = isLightTheme,
-                context = context
+                context = context,
+                currentCarName = currentCarName,
+                currentCarId = currentCarId,
+                currentCarImageUri = currentCarImageUri
             )
         }
     }
@@ -91,7 +107,10 @@ private fun MainContent(
     navHostController: NavHostController,
     component: MyCarComponent,
     isLightTheme: Boolean,
-    context: Context
+    context: Context,
+    currentCarId: MutableState<Long>,
+    currentCarImageUri: MutableState<String?>,
+    currentCarName: MutableState<String>
 ) {
     MyCarAndefTheme(darkTheme = !isLightTheme) {
         UiScaffold(
@@ -107,8 +126,9 @@ private fun MainContent(
                 MainTopBar(
                     isLightTheme = isLightTheme,
                     navBackStackEntry = navBackStackEntry,
-                    component = component,
-                    context = context
+                    currentCarImageUri = currentCarImageUri,
+                    context = context,
+                    currentCarName = currentCarName
                 )
             },
             floatingActionButton = { MainFAB(navBackStackEntry = navBackStackEntry) }
@@ -119,7 +139,8 @@ private fun MainContent(
                 paddingValues = paddingValues,
                 isFirstStart = component.getIsFirstStartUseCase(),
                 isLightTheme = isLightTheme,
-                mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
+                mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
+                currentCarId = currentCarId.value
             )
         }
     }
@@ -159,18 +180,23 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?) {
 private fun MainTopBar(
     isLightTheme: Boolean,
     navBackStackEntry: NavBackStackEntry?,
-    component: MyCarComponent,
-    context: Context
+    context: Context,
+    currentCarName: MutableState<String>,
+    currentCarImageUri: MutableState<String?>,
 ) {
     UiTopBar(
         isLightTheme = isLightTheme,
         type = UiTopBarType.NotCenter,
-        title = component.getCurrentCarNameUseCase.invoke(),
+        title = currentCarName.value,
         navigationIcon = painterResource(com.andef.mycarandef.design.R.drawable.menu),
         navigationIconContentDescription = "Меню",
         onNavigationIconClick = { TODO() },
         actions = {
-            CarPhoto(component = component, isLightTheme = isLightTheme, context = context)
+            CarPhoto(
+                currentCarImageUri = currentCarImageUri,
+                isLightTheme = isLightTheme,
+                context = context
+            )
             IconButton(
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Transparent,
@@ -190,11 +216,15 @@ private fun MainTopBar(
 }
 
 @Composable
-private fun CarPhoto(component: MyCarComponent, isLightTheme: Boolean, context: Context) {
-    if (!component.getCurrentCarImageUriUseCase.invoke().isNullOrBlank()) {
+private fun CarPhoto(
+    currentCarImageUri: MutableState<String?>,
+    isLightTheme: Boolean,
+    context: Context
+) {
+    if (!currentCarImageUri.value.isNullOrBlank()) {
         AsyncImage(
             model = ImageRequest.Builder(context)
-                .data(component.getCurrentCarImageUriUseCase.invoke())
+                .data(currentCarImageUri.value)
                 .crossfade(true)
                 .build(),
             placeholder = painterResource(R.drawable.car_wo_photo),

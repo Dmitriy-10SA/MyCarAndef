@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,10 +28,13 @@ fun WorkMainScreen(
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
-    isLightTheme: Boolean
+    isLightTheme: Boolean,
+    currentCarId: Long
 ) {
     val viewModel: WorkMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
 
     LazyColumn(
         modifier = Modifier
@@ -60,6 +64,6 @@ fun WorkMainScreen(
         isVisible = state.value.isError,
         paddingValues = paddingValues,
         isLightTheme = isLightTheme,
-        onRetry = { viewModel.send(WorkMainIntent.SubscribeForWorks) }
+        onRetry = { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
     )
 }

@@ -14,7 +14,8 @@ fun NavGraphBuilder.mainScreensGraph(
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isLightTheme: Boolean,
-    mainContentIsVisible: Boolean
+    mainContentIsVisible: Boolean,
+    currentCarId: Long
 ) {
     navigation(
         route = Screen.MainScreens.route,
@@ -26,7 +27,8 @@ fun NavGraphBuilder.mainScreensGraph(
                     navHostController = navHostController,
                     viewModelFactory = viewModelFactory,
                     paddingValues = paddingValues,
-                    isLightTheme = isLightTheme
+                    isLightTheme = isLightTheme,
+                    currentCarId = currentCarId
                 )
             }
         }
