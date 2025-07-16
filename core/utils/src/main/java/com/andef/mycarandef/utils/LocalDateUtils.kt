@@ -14,6 +14,8 @@ fun Int.toLocalDate(): LocalDate {
 }
 
 fun formatLocalDate(date: LocalDate): String {
+    if (date == LocalDate.now()) return "Сегодня"
+    else if (date == LocalDate.now().minusDays(1)) return "Вчера"
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
     return date.format(formatter)
 }

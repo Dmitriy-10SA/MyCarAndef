@@ -46,7 +46,9 @@ fun ExpenseMainScreen(
         item { Spacer(modifier = Modifier.height(0.dp)) }
         items(items = state.value.expenses, key = { it.id }) { expense ->
             UiExpenseCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateItem(),
                 onClick = { TODO() },
                 isLightTheme = isLightTheme,
                 expense = expense

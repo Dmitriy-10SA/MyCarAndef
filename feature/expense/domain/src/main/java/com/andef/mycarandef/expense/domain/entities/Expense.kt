@@ -13,7 +13,13 @@ data class Expense(
     val type: ExpenseType,
     val date: LocalDate,
     val carId: Long
-) {
+) : Comparable<Expense> {
+    override fun compareTo(other: Expense): Int {
+        return if (this.date > other.date) -1
+        else if (this.date == other.date) 0
+        else 1
+    }
+
     companion object {
         val allExpenseTypes = listOf<ExpenseType>(FUEL, WORKS, WASHING, OTHER)
     }
