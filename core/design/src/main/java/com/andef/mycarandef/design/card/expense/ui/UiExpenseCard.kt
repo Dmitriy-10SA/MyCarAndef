@@ -99,7 +99,7 @@ fun UiExpenseCard(
 private val shape = RoundedCornerShape(16.dp)
 
 @Composable
-private fun getImageForExpense(type: ExpenseType): Painter {
+fun getImageForExpense(type: ExpenseType): Painter {
     return painterResource(
         when (type) {
             ExpenseType.FUEL -> R.drawable.fuel_photo

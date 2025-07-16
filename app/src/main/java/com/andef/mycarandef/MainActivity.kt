@@ -166,7 +166,7 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
                 }
 
                 Screen.MainScreens.ExpensesMainScreen.route -> {
-                    TODO()
+                    navHostController.navigate(Screen.ExpenseAddScreen.route)
                 }
 
                 Screen.MainScreens.CarsMainScreen.route -> {
