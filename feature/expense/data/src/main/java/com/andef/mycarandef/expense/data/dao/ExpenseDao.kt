@@ -22,7 +22,7 @@ interface ExpenseDao {
     @Query(
         """
         UPDATE expense
-        SET amount = :amount AND note = :note AND type = :type AND date = :date
+        SET amount = :amount, note = :note, type = :type, date = :date
         WHERE id = :id
         """
     )

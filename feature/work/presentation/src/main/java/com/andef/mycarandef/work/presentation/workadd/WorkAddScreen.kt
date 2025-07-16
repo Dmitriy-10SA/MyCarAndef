@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -82,6 +83,26 @@ fun WorkAddScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val datePickerState = rememberDatePickerState()
+
+    LaunchedEffect(Unit) {
+        workId?.let {
+            viewModel.send(
+                WorkAddIntent.InitWorkByLateWork(
+                    workId = workId,
+                    onError = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true
+                            )
+                            navHostController.popBackStack()
+                        }
+                    }
+                )
+            )
+        }
+    }
 
     UiScaffold(
         isLightTheme = isLightTheme,

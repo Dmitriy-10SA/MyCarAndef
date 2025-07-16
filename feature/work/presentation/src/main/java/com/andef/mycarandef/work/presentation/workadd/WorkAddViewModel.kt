@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.work.domain.entities.Work
 import com.andef.mycarandef.work.domain.usecases.AddWorkUseCase
+import com.andef.mycarandef.work.domain.usecases.ChangeWorkUseCase
+import com.andef.mycarandef.work.domain.usecases.GetWorkByIdUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +15,8 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class WorkAddViewModel @Inject constructor(
+    private val getWorkByIdUseCase: GetWorkByIdUseCase,
+    private val changeWorkUseCase: ChangeWorkUseCase,
     private val addWorkUseCase: AddWorkUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(WorkAddState())
@@ -37,6 +41,31 @@ class WorkAddViewModel @Inject constructor(
             is WorkAddIntent.ChangeDatePickerVisible -> changeDatePickerVisible(
                 isVisible = intent.isVisible
             )
+
+            is WorkAddIntent.InitWorkByLateWork -> initWorkByLateWork(
+                workId = intent.workId,
+                onError = intent.onError
+            )
+        }
+    }
+
+    private fun initWorkByLateWork(workId: Long, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isLoading = true)
+                val work = withContext(Dispatchers.IO) { getWorkByIdUseCase.invoke(workId) }
+                changeInput(
+                    workTitle = work.title,
+                    mileage = work.mileage,
+                    note = work.note,
+                    date = work.date
+                )
+                _state.value = _state.value.copy(isAdd = false, workId = workId)
+            } catch (_: Exception) {
+                onError("Ошибка! Попробуйте ещё раз!")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
         }
     }
 
@@ -56,17 +85,29 @@ class WorkAddViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _state.value = _state.value.copy(isLoading = true)
+                val isAdd = _state.value.isAdd
+                val workId = _state.value.workId
                 withContext(Dispatchers.IO) {
-                    addWorkUseCase.invoke(
-                        Work(
-                            id = 0,
+                    if (isAdd) {
+                        addWorkUseCase.invoke(
+                            Work(
+                                id = 0,
+                                title = workTitle,
+                                note = note,
+                                mileage = mileage,
+                                date = date,
+                                carId = carId
+                            )
+                        )
+                    } else {
+                        changeWorkUseCase.invoke(
+                            id = workId ?: throw IllegalArgumentException(),
                             title = workTitle,
                             note = note,
-                            mileage = mileage,
                             date = date,
-                            carId = carId
+                            mileage = mileage
                         )
-                    )
+                    }
                 }
                 onSuccess()
             } catch (_: Exception) {
