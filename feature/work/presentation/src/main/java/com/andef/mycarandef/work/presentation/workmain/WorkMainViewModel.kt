@@ -30,6 +30,7 @@ class WorkMainViewModel @Inject constructor(
 
             is WorkMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
                 isVisible = intent.isVisible,
+                workMileage = intent.workMileage,
                 workTitle = intent.workTitle,
                 workDate = intent.workDate,
                 workId = intent.workId,
@@ -68,6 +69,7 @@ class WorkMainViewModel @Inject constructor(
         isVisible: Boolean,
         workTitle: String? = null,
         workDate: LocalDate? = null,
+        workMileage: Int? = null,
         workId: Long? = null,
         carId: Long? = null
     ) {
@@ -75,6 +77,7 @@ class WorkMainViewModel @Inject constructor(
             showBottomSheet = isVisible,
             workIdInBottomSheet = workId,
             workTitleInBottomSheet = workTitle,
+            mileageInBottomSheet = workMileage,
             workDateInBottomSheet = workDate,
             carIdForWorkBottomSheet = carId
         )
@@ -87,7 +90,10 @@ class WorkMainViewModel @Inject constructor(
             getWorksByCarIdUseCase.invoke(currentCarId)
                 .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
                 .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect { _state.value = _state.value.copy(isLoading = false, works = it) }
+                .collect {
+                    val works = it.sortedBy { it.title.lowercase() }
+                    _state.value = _state.value.copy(isLoading = false, works = works)
+                }
         }
     }
 }

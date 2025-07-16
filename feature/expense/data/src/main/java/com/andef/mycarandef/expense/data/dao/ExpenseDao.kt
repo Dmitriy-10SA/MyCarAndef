@@ -13,7 +13,7 @@ interface ExpenseDao {
     @Query("SELECT * FROM expense WHERE id = :id")
     suspend fun getExpenseById(id: Long): ExpenseDbo
 
-    @Query("SELECT * FROM expense WHERE car_id = :carId ORDER BY date DESC")
+    @Query("SELECT * FROM expense WHERE car_id = :carId")
     fun getExpensesByCarId(carId: Long): Flow<List<ExpenseDbo>>
 
     @Insert(onConflict = REPLACE)
@@ -22,7 +22,7 @@ interface ExpenseDao {
     @Query(
         """
         UPDATE expense
-        SET amount = :amount AND note = :note AND type = :type AND date = :date
+        SET amount = :amount, note = :note, type = :type, date = :date
         WHERE id = :id
         """
     )

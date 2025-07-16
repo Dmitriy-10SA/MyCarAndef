@@ -13,4 +13,6 @@ sealed class WorkAddIntent {
         val onSuccess: () -> Unit,
         val onError: (String) -> Unit
     ) : WorkAddIntent()
+
+    data class InitWorkByLateWork(val workId: Long, val onError: (String) -> Unit) : WorkAddIntent()
 }

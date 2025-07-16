@@ -32,6 +32,7 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
+import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatPriceRuble
 
 @Composable
@@ -87,11 +88,21 @@ fun UiExpenseCard(
                 )
             }
             Spacer(modifier = Modifier.width(3.dp))
-            Text(
-                text = formatPriceRuble(expense.amount),
-                fontSize = 16.sp,
-                color = if (isLightTheme) Black else White
-            )
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = formatPriceRuble(expense.amount),
+                    fontSize = 16.sp,
+                    color = if (isLightTheme) Black else White
+                )
+                Text(
+                    text = formatLocalDate(expense.date),
+                    fontSize = 14.sp,
+                    color = if (isLightTheme) GrayForLight else GrayForDark
+                )
+            }
         }
     }
 }
@@ -99,7 +110,7 @@ fun UiExpenseCard(
 private val shape = RoundedCornerShape(16.dp)
 
 @Composable
-private fun getImageForExpense(type: ExpenseType): Painter {
+fun getImageForExpense(type: ExpenseType): Painter {
     return painterResource(
         when (type) {
             ExpenseType.FUEL -> R.drawable.fuel_photo

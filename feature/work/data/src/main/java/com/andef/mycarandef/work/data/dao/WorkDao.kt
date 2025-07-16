@@ -15,7 +15,7 @@ interface WorkDao {
     @Query(
         """
         UPDATE work
-        SET title = :title AND note = :note AND mileage = :mileage AND date = :date
+        SET title = :title, note = :note, mileage = :mileage, date = :date
         WHERE id = :id
         """
     )

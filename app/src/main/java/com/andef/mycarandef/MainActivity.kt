@@ -166,7 +166,7 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
                 }
 
                 Screen.MainScreens.ExpensesMainScreen.route -> {
-                    TODO()
+                    navHostController.navigate(Screen.ExpenseAddScreen.route)
                 }
 
                 Screen.MainScreens.CarsMainScreen.route -> {
@@ -306,25 +306,25 @@ private fun onMainScreenItemClick(
 @Composable
 private fun mainScreenItems() = listOf(
     UiNavigationBarItem(
-        icon = painterResource(com.andef.mycarandef.design.R.drawable.works),
+        icon = painterResource(R.drawable.works),
         contentDescription = "Иконка работы",
         title = "Работы",
         route = Screen.MainScreens.WorksMainScreen.route
     ),
     UiNavigationBarItem(
-        icon = painterResource(com.andef.mycarandef.design.R.drawable.ruble),
+        icon = painterResource(R.drawable.ruble),
         contentDescription = "Иконка рубля",
         title = "Траты",
         Screen.MainScreens.ExpensesMainScreen.route
     ),
     UiNavigationBarItem(
-        icon = painterResource(com.andef.mycarandef.design.R.drawable.location),
+        icon = painterResource(R.drawable.location),
         contentDescription = "Иконка локация значок",
         title = "Карта",
         Screen.MainScreens.MapsMainScreen.route
     ),
     UiNavigationBarItem(
-        icon = painterResource(com.andef.mycarandef.design.R.drawable.car),
+        icon = painterResource(R.drawable.car),
         contentDescription = "Иконка машины",
         title = "Гараж",
         Screen.MainScreens.CarsMainScreen.route

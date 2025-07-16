@@ -49,6 +49,7 @@ import com.andef.mycarandef.design.theme.Red
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.formatMileage
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -109,44 +110,47 @@ private fun BottomSheetWithDeleteDialog(
     state.value.workIdInBottomSheet?.let { workId ->
         state.value.workTitleInBottomSheet?.let { workTitle ->
             state.value.workDateInBottomSheet?.let { workDate ->
-                state.value.carIdForWorkBottomSheet?.let { carId ->
-                    UiModalBottomSheet(
-                        onDismissRequest = {
-                            viewModel.send(
-                                WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
-                            )
-                        },
-                        sheetState = sheetState,
-                        isLightTheme = isLightTheme,
-                        isVisible = state.value.showBottomSheet
-                    ) {
-                        BottomSheetContent(
-                            isLightTheme = isLightTheme,
-                            workTitle = workTitle,
-                            workDate = workDate,
-                            onDeleteClick = {
-                                viewModel.send(
-                                    WorkMainIntent.ChangeDeleteDialogVisible(isVisible = true)
-                                )
-                            },
-                            onEditClick = {
+                state.value.mileageInBottomSheet?.let { workMileage ->
+                    state.value.carIdForWorkBottomSheet?.let { carId ->
+                        UiModalBottomSheet(
+                            onDismissRequest = {
                                 viewModel.send(
                                     WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
                                 )
-                                navHostController.navigate(
-                                    Screen.WorkScreen.passId(id = workId, carId = carId)
-                                )
-                            }
+                            },
+                            sheetState = sheetState,
+                            isLightTheme = isLightTheme,
+                            isVisible = state.value.showBottomSheet
+                        ) {
+                            BottomSheetContent(
+                                isLightTheme = isLightTheme,
+                                workTitle = workTitle,
+                                workDate = workDate,
+                                onDeleteClick = {
+                                    viewModel.send(
+                                        WorkMainIntent.ChangeDeleteDialogVisible(isVisible = true)
+                                    )
+                                },
+                                mileage = workMileage,
+                                onEditClick = {
+                                    viewModel.send(
+                                        WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
+                                    )
+                                    navHostController.navigate(
+                                        Screen.WorkScreen.passId(id = workId, carId = carId)
+                                    )
+                                }
+                            )
+                        }
+                        DeleteDialog(
+                            isLightTheme = isLightTheme,
+                            workId = workId,
+                            viewModel = viewModel,
+                            scope = scope,
+                            state = state,
+                            snackbarHostState = snackbarHostState
                         )
                     }
-                    DeleteDialog(
-                        isLightTheme = isLightTheme,
-                        workId = workId,
-                        viewModel = viewModel,
-                        scope = scope,
-                        state = state,
-                        snackbarHostState = snackbarHostState
-                    )
                 }
             }
         }
@@ -206,6 +210,7 @@ private fun BottomSheetContent(
     isLightTheme: Boolean,
     workTitle: String,
     workDate: LocalDate,
+    mileage: Int,
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -220,7 +225,7 @@ private fun BottomSheetContent(
         Column {
             Text(text = workTitle, fontSize = 16.sp, color = if (isLightTheme) Black else White)
             Text(
-                text = formatLocalDate(workDate),
+                text = "${formatLocalDate(workDate)} - ${formatMileage(mileage)}",
                 fontSize = 14.sp,
                 color = if (isLightTheme) GrayForLight else GrayForDark
             )
@@ -281,6 +286,7 @@ private fun MainContent(
                         WorkMainIntent.BottomSheetVisibleChange(
                             isVisible = true,
                             workTitle = work.title,
+                            workMileage = work.mileage,
                             workDate = work.date,
                             workId = work.id,
                             carId = work.carId

@@ -1,4 +1,4 @@
-package com.andef.mycarandef.work.presentation.workadd
+package com.andef.mycarandef.expense.presentation.expenseadd
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -29,8 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,9 +50,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.button.ui.UiButton
+import com.andef.mycarandef.design.card.expense.ui.getImageForExpense
 import com.andef.mycarandef.design.chooser.ui.UiChooser
 import com.andef.mycarandef.design.datepicker.ui.UiDatePickerDialog
 import com.andef.mycarandef.design.loading.ui.UiLoading
+import com.andef.mycarandef.design.menu.ui.UiMenu
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
@@ -60,6 +65,10 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.expense.domain.entities.Expense
+import com.andef.mycarandef.utils.RubleAmountVisualTransformation
+import com.andef.mycarandef.utils.clampToTwoDecimals
+import com.andef.mycarandef.utils.formatAmountForEdit
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -67,15 +76,15 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkAddScreen(
-    workId: Long?,
+fun ExpenseAddScreen(
+    expenseId: Long?,
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isLightTheme: Boolean,
     carId: Long
 ) {
-    val viewModel: WorkAddViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: ExpenseAddViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
 
     val keyboard = LocalSoftwareKeyboardController.current
@@ -85,10 +94,10 @@ fun WorkAddScreen(
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(Unit) {
-        workId?.let {
+        expenseId?.let {
             viewModel.send(
-                WorkAddIntent.InitWorkByLateWork(
-                    workId = workId,
+                ExpenseAddIntent.InitExpenseByLateExpense(
+                    expenseId = expenseId,
                     onError = { msg ->
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
@@ -110,7 +119,7 @@ fun WorkAddScreen(
             UiTopBar(
                 isLightTheme = isLightTheme,
                 type = UiTopBarType.Center,
-                title = "Работы",
+                title = "Траты",
                 navigationIcon = painterResource(R.drawable.arrow_back),
                 navigationIconContentDescription = "Назад",
                 onNavigationIconClick = {
@@ -161,23 +170,28 @@ fun WorkAddScreen(
         isVisible = state.value.datePickerVisible,
         isLightTheme = isLightTheme,
         datePickerState = datePickerState,
-        onDismissRequest = { viewModel.send(WorkAddIntent.ChangeDatePickerVisible(false)) },
-        onCancelClick = { viewModel.send(WorkAddIntent.ChangeDatePickerVisible(false)) },
+        onDismissRequest = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(false)) },
+        onCancelClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(false)) },
         onOkClick = { date ->
-            viewModel.send(WorkAddIntent.ChangeDate(date))
-            viewModel.send(WorkAddIntent.ChangeDatePickerVisible(false))
+            viewModel.send(ExpenseAddIntent.ChangeDate(date))
+            viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(false))
         }
     )
     BackHandler { if (!state.value.isLoading) navHostController.popBackStack() }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.MainContent(
     isLightTheme: Boolean,
     scrollState: ScrollState,
-    state: State<WorkAddState>,
-    viewModel: WorkAddViewModel
+    state: State<ExpenseAddState>,
+    viewModel: ExpenseAddViewModel
 ) {
+    var localAmount by remember(state.value.amount) {
+        mutableStateOf(state.value.amount?.let { formatAmountForEdit(it) } ?: "")
+    }
+    var typeExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .weight(1f)
@@ -202,8 +216,8 @@ private fun ColumnScope.MainContent(
                     }
                 ),
             contentScale = ContentScale.Crop,
-            painter = painterResource(R.drawable.clipboard_works),
-            contentDescription = "Иконка блокнот"
+            painter = painterResource(R.drawable.piechart_expenses),
+            contentDescription = "Иконка траты диаграмма круговая"
         )
         Spacer(modifier = Modifier.height(28.dp))
         Text(
@@ -216,43 +230,56 @@ private fun ColumnScope.MainContent(
         Spacer(modifier = Modifier.height(8.dp))
         UiTextField(
             isLightTheme = isLightTheme,
-            value = state.value.workTitle,
-            onValueChange = { viewModel.send(WorkAddIntent.ChangeWorkTitle(it)) },
-            modifier = Modifier.fillMaxWidth(),
-            placeholderText = "Выполненная работа",
-            leadingIcon = painterResource(R.drawable.works),
-            contentDescription = "Значок работы",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        UiTextField(
-            isLightTheme = isLightTheme,
-            value = state.value.mileage?.toString() ?: "",
-            onValueChange = {
-                try {
-                    val mileage = it.toInt()
-                    viewModel.send(WorkAddIntent.ChangeMileage(mileage))
-                } catch (_: Exception) {
-                    viewModel.send(WorkAddIntent.ChangeMileage(null))
-                }
+            value = localAmount,
+            onValueChange = { newText ->
+                val filtered = newText.filter { it.isDigit() || it == ',' || it == '.' }
+                val clamped = clampToTwoDecimals(filtered)
+                localAmount = clamped
+                val parsed = clamped.replace(',', '.').toDoubleOrNull()
+                viewModel.send(ExpenseAddIntent.ChangeAmount(parsed))
             },
             modifier = Modifier.fillMaxWidth(),
-            placeholderText = "Пробег (км)",
-            leadingIcon = painterResource(R.drawable.car),
-            contentDescription = "Значок машины",
+            placeholderText = "Сумма (₽)",
+            leadingIcon = painterResource(R.drawable.ruble),
+            contentDescription = "Значок рубля",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
-            )
+            ),
+            visualTransformation = RubleAmountVisualTransformation()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        UiMenu(
+            items = Expense.allExpenseTypes,
+            modifier = Modifier.fillMaxWidth(),
+            itemToString = { item -> item.title },
+            itemToLeadingIcon = { item ->
+                Image(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                    painter = getImageForExpense(item),
+                    contentDescription = "Значок для типа траты"
+                )
+            },
+            isLightTheme = isLightTheme,
+            value = state.value.type?.title ?: "",
+            placeholderText = "Тип",
+            textFieldLeadingIcon = painterResource(R.drawable.more_horiz),
+            textFieldLeadingIconContentDescription = "Три горизонтальные точки",
+            onItemClick = { item ->
+                typeExpanded = false
+                viewModel.send(ExpenseAddIntent.ChangeType(item))
+            },
+            onExpandedChange = { typeExpanded = it },
+            expanded = typeExpanded,
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiChooser(
             isLightTheme = isLightTheme,
             value = state.value.date?.let { formatLocalDate(it) } ?: "",
-            onClick = { viewModel.send(WorkAddIntent.ChangeDatePickerVisible(true)) },
+            onClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(true)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Дата",
             leadingIcon = painterResource(R.drawable.schedule),
@@ -272,7 +299,7 @@ private fun ColumnScope.MainContent(
         UiTextField(
             isLightTheme = isLightTheme,
             value = state.value.note?.toString() ?: "",
-            onValueChange = { viewModel.send(WorkAddIntent.ChangeNote(it)) },
+            onValueChange = { viewModel.send(ExpenseAddIntent.ChangeNote(it)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
@@ -292,11 +319,11 @@ private fun ColumnScope.MainContent(
 private fun ColumnScope.DownButton(
     isLightTheme: Boolean,
     keyboard: SoftwareKeyboardController?,
-    viewModel: WorkAddViewModel,
+    viewModel: ExpenseAddViewModel,
     navHostController: NavHostController,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    state: State<WorkAddState>,
+    state: State<ExpenseAddState>,
     carId: Long
 ) {
     Column {
@@ -311,7 +338,7 @@ private fun ColumnScope.DownButton(
             onClick = {
                 keyboard?.hide()
                 viewModel.send(
-                    WorkAddIntent.SaveClick(
+                    ExpenseAddIntent.SaveClick(
                         onSuccess = navHostController::popBackStack,
                         onError = { msg ->
                             scope.launch {

@@ -18,9 +18,9 @@ interface CarDao {
     @Query(
         """
         UPDATE car
-        SET brand = :brand AND model = :model AND photo = :photo AND year = :year
-            AND registration_mark = :registrationMark AND latitude = :coordinatesLat
-            AND longitude = :coordinatesLon
+        SET brand = :brand, model = :model, photo = :photo, year = :year, 
+        registration_mark = :registrationMark, latitude = :coordinatesLat, 
+        longitude = :coordinatesLon
         WHERE id = :id
         """
     )

@@ -6,6 +6,7 @@ import java.time.LocalDate
 data class WorkMainState(
     val works: List<Work> = listOf(),
     val showBottomSheet: Boolean = false,
+    val mileageInBottomSheet: Int? = null,
     val workTitleInBottomSheet: String? = null,
     val workDateInBottomSheet: LocalDate? = null,
     val workIdInBottomSheet: Long? = null,
