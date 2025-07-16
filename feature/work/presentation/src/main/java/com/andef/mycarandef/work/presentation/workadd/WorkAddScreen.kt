@@ -60,6 +60,7 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.utils.MileageVisualTransformation
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -246,7 +247,8 @@ private fun ColumnScope.MainContent(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
-            )
+            ),
+            visualTransformation = MileageVisualTransformation()
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiChooser(
