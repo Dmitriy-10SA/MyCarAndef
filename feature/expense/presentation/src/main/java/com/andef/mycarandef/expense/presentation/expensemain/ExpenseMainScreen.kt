@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.alertdialog.ui.UiAlertDialog
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
+import com.andef.mycarandef.design.card.date.ui.UiDateCard
 import com.andef.mycarandef.design.card.expense.ui.UiExpenseCard
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
@@ -50,6 +51,7 @@ import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.formatPriceRuble
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -109,45 +111,48 @@ private fun BottomSheetWithDeleteDialog(
 ) {
     state.value.expenseIdInBottomSheet?.let { expenseId ->
         state.value.expenseTypeInBottomSheet?.let { expenseType ->
-            state.value.expenseDateInBottomSheet?.let { expenseDate ->
-                state.value.carIdForExpenseBottomSheet?.let { carId ->
-                    UiModalBottomSheet(
-                        onDismissRequest = {
-                            viewModel.send(
-                                ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
-                            )
-                        },
-                        sheetState = sheetState,
-                        isLightTheme = isLightTheme,
-                        isVisible = state.value.showBottomSheet
-                    ) {
-                        BottomSheetContent(
-                            isLightTheme = isLightTheme,
-                            expenseType = expenseType,
-                            expenseDate = expenseDate,
-                            onDeleteClick = {
-                                viewModel.send(
-                                    ExpenseMainIntent.ChangeDeleteDialogVisible(isVisible = true)
-                                )
-                            },
-                            onEditClick = {
+            state.value.expenseAmountInBottomSheet?.let { expenseAmount ->
+                state.value.expenseDateInBottomSheet?.let { expenseDate ->
+                    state.value.carIdForExpenseBottomSheet?.let { carId ->
+                        UiModalBottomSheet(
+                            onDismissRequest = {
                                 viewModel.send(
                                     ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
                                 )
-                                navHostController.navigate(
-                                    Screen.ExpenseScreen.passId(id = expenseId, carId = carId)
-                                )
-                            }
+                            },
+                            sheetState = sheetState,
+                            isLightTheme = isLightTheme,
+                            isVisible = state.value.showBottomSheet
+                        ) {
+                            BottomSheetContent(
+                                isLightTheme = isLightTheme,
+                                expenseType = expenseType,
+                                expenseAmount = expenseAmount,
+                                onDeleteClick = {
+                                    viewModel.send(
+                                        ExpenseMainIntent.ChangeDeleteDialogVisible(isVisible = true)
+                                    )
+                                },
+                                expenseDate = expenseDate,
+                                onEditClick = {
+                                    viewModel.send(
+                                        ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
+                                    )
+                                    navHostController.navigate(
+                                        Screen.ExpenseScreen.passId(id = expenseId, carId = carId)
+                                    )
+                                }
+                            )
+                        }
+                        DeleteDialog(
+                            isLightTheme = isLightTheme,
+                            expenseId = expenseId,
+                            viewModel = viewModel,
+                            scope = scope,
+                            state = state,
+                            snackbarHostState = snackbarHostState
                         )
                     }
-                    DeleteDialog(
-                        isLightTheme = isLightTheme,
-                        expenseId = expenseId,
-                        viewModel = viewModel,
-                        scope = scope,
-                        state = state,
-                        snackbarHostState = snackbarHostState
-                    )
                 }
             }
         }
@@ -207,6 +212,7 @@ private fun BottomSheetContent(
     isLightTheme: Boolean,
     expenseType: ExpenseType,
     expenseDate: LocalDate,
+    expenseAmount: Double,
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -225,7 +231,7 @@ private fun BottomSheetContent(
                 color = if (isLightTheme) Black else White
             )
             Text(
-                text = formatLocalDate(expenseDate),
+                text = "${formatLocalDate(expenseDate)} - ${formatPriceRuble(expenseAmount)}",
                 fontSize = 14.sp,
                 color = if (isLightTheme) GrayForLight else GrayForDark
             )
@@ -272,31 +278,44 @@ private fun MainContent(
             .fillMaxSize()
             .padding(paddingValues)
             .padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item { Spacer(modifier = Modifier.height(0.dp)) }
-        items(items = state.value.expenses, key = { it.id }) { expense ->
-            UiExpenseCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateItem(),
-                onClick = {
-                    viewModel.send(
-                        ExpenseMainIntent.BottomSheetVisibleChange(
-                            isVisible = true,
-                            expenseType = expense.type,
-                            expenseDate = expense.date,
-                            expenseId = expense.id,
-                            carId = expense.carId
+        item { Spacer(modifier = Modifier.height(6.dp)) }
+        val expensesDays = state.value.expensesDays
+        expensesDays.forEach { expenseDay ->
+            item(key = "date-${expenseDay.date}") {
+                Spacer(modifier = Modifier.height(6.dp))
+                UiDateCard(
+                    isLightTheme = isLightTheme,
+                    modifier = Modifier.animateItem(),
+                    date = expenseDay.date
+                )
+            }
+            items(items = expenseDay.items, key = { it.id }) { expense ->
+                UiExpenseCard(
+                    onClick = {
+                        viewModel.send(
+                            ExpenseMainIntent.BottomSheetVisibleChange(
+                                isVisible = true,
+                                expenseType = expense.type,
+                                expenseAmount = expense.amount,
+                                expenseId = expense.id,
+                                expenseDate = expense.date,
+                                carId = expense.carId
+                            )
                         )
-                    )
-                },
-                isLightTheme = isLightTheme,
-                expense = expense
-            )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .animateItem(),
+                    isLightTheme = isLightTheme,
+                    expense = expense
+                )
+            }
         }
-        item { Spacer(modifier = Modifier.height(0.dp)) }
+        item { Spacer(modifier = Modifier.height(12.dp)) }
     }
     UiLoading(
         isVisible = state.value.isLoading,

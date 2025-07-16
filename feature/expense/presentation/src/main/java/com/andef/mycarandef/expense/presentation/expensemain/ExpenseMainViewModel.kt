@@ -2,6 +2,7 @@ package com.andef.mycarandef.expense.presentation.expensemain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.andef.mycarandef.expense.domain.entities.ExpenseDay
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.expense.domain.usecases.GetExpensesByCarIdUseCase
 import com.andef.mycarandef.expense.domain.usecases.RemoveExpenseUseCase
@@ -31,8 +32,9 @@ class ExpenseMainViewModel @Inject constructor(
 
             is ExpenseMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
                 isVisible = intent.isVisible,
-                expenseType = intent.expenseType,
                 expenseDate = intent.expenseDate,
+                expenseType = intent.expenseType,
+                expenseAmount = intent.expenseAmount,
                 expenseId = intent.expenseId,
                 carId = intent.carId
             )
@@ -68,15 +70,17 @@ class ExpenseMainViewModel @Inject constructor(
     private fun changeBottomSheetVisible(
         isVisible: Boolean,
         expenseType: ExpenseType? = null,
-        expenseDate: LocalDate? = null,
+        expenseAmount: Double? = null,
         expenseId: Long? = null,
+        expenseDate: LocalDate? = null,
         carId: Long? = null
     ) {
         _state.value = _state.value.copy(
             showBottomSheet = isVisible,
             expenseIdInBottomSheet = expenseId,
-            expenseTypeInBottomSheet = expenseType,
             expenseDateInBottomSheet = expenseDate,
+            expenseTypeInBottomSheet = expenseType,
+            expenseAmountInBottomSheet = expenseAmount,
             carIdForExpenseBottomSheet = carId
         )
     }
@@ -88,7 +92,13 @@ class ExpenseMainViewModel @Inject constructor(
             getExpensesByCarIdUseCase.invoke(currentCarId)
                 .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
                 .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect { _state.value = _state.value.copy(isLoading = false, expenses = it) }
+                .collect {
+                    val expenses = it
+                        .groupBy { it.date }
+                        .toSortedMap(compareByDescending { it })
+                        .map { (date, items) -> ExpenseDay(date, items) }
+                    _state.value = _state.value.copy(isLoading = false, expensesDays = expenses)
+                }
         }
     }
 }

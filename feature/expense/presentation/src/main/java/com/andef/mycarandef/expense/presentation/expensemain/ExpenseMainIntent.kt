@@ -7,8 +7,9 @@ sealed class ExpenseMainIntent {
     data class SubscribeForExpenses(val currentCarId: Long) : ExpenseMainIntent()
     data class BottomSheetVisibleChange(
         val isVisible: Boolean,
-        val expenseType: ExpenseType? = null,
         val expenseDate: LocalDate? = null,
+        val expenseType: ExpenseType? = null,
+        val expenseAmount: Double? = null,
         val expenseId: Long? = null,
         val carId: Long? = null
     ) : ExpenseMainIntent()
