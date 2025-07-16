@@ -2,17 +2,23 @@ package com.andef.mycarandef.expense.presentation.expensemain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.expense.domain.usecases.GetExpensesByCarIdUseCase
+import com.andef.mycarandef.expense.domain.usecases.RemoveExpenseUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import javax.inject.Inject
 
 class ExpenseMainViewModel @Inject constructor(
-    private val getExpensesByCarIdUseCase: GetExpensesByCarIdUseCase
+    private val getExpensesByCarIdUseCase: GetExpensesByCarIdUseCase,
+    private val removeExpenseUseCase: RemoveExpenseUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExpenseMainState())
     val state: StateFlow<ExpenseMainState> = _state
@@ -22,7 +28,57 @@ class ExpenseMainViewModel @Inject constructor(
             is ExpenseMainIntent.SubscribeForExpenses -> subscribeForExpenses(
                 currentCarId = intent.currentCarId
             )
+
+            is ExpenseMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
+                isVisible = intent.isVisible,
+                expenseType = intent.expenseType,
+                expenseDate = intent.expenseDate,
+                expenseId = intent.expenseId,
+                carId = intent.carId
+            )
+
+            is ExpenseMainIntent.ChangeDeleteDialogVisible -> changeDeleteDialogVisible(
+                isVisible = intent.isVisible
+            )
+
+            is ExpenseMainIntent.DeleteExpense -> deleteExpense(
+                expenseId = intent.expenseId,
+                onError = intent.onError
+            )
         }
+    }
+
+    private fun changeDeleteDialogVisible(isVisible: Boolean) {
+        _state.value = _state.value.copy(deleteDialogVisible = isVisible)
+    }
+
+    private fun deleteExpense(expenseId: Long, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isLoading = true)
+                withContext(Dispatchers.IO) { removeExpenseUseCase.invoke(expenseId) }
+            } catch (_: Exception) {
+                onError("Ошибка! Попробуйте ещё раз!")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    private fun changeBottomSheetVisible(
+        isVisible: Boolean,
+        expenseType: ExpenseType? = null,
+        expenseDate: LocalDate? = null,
+        expenseId: Long? = null,
+        carId: Long? = null
+    ) {
+        _state.value = _state.value.copy(
+            showBottomSheet = isVisible,
+            expenseIdInBottomSheet = expenseId,
+            expenseTypeInBottomSheet = expenseType,
+            expenseDateInBottomSheet = expenseDate,
+            carIdForExpenseBottomSheet = carId
+        )
     }
 
     private var job: Job? = null
