@@ -90,10 +90,7 @@ class WorkMainViewModel @Inject constructor(
             getWorksByCarIdUseCase.invoke(currentCarId)
                 .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
                 .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect {
-                    val works = it.sortedBy { it.title.lowercase() }
-                    _state.value = _state.value.copy(isLoading = false, works = works)
-                }
+                .collect { _state.value = _state.value.copy(isLoading = false, works = it) }
         }
     }
 }
