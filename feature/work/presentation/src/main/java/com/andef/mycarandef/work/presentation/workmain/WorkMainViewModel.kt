@@ -3,16 +3,21 @@ package com.andef.mycarandef.work.presentation.workmain
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.work.domain.usecases.GetWorksByCarIdUseCase
+import com.andef.mycarandef.work.domain.usecases.RemoveWorkUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import javax.inject.Inject
 
 class WorkMainViewModel @Inject constructor(
-    private val getWorksByCarIdUseCase: GetWorksByCarIdUseCase
+    private val getWorksByCarIdUseCase: GetWorksByCarIdUseCase,
+    private val removeWorkUseCase: RemoveWorkUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(WorkMainState())
     val state: StateFlow<WorkMainState> = _state
@@ -24,13 +29,55 @@ class WorkMainViewModel @Inject constructor(
             )
 
             is WorkMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
+                isVisible = intent.isVisible,
+                workTitle = intent.workTitle,
+                workDate = intent.workDate,
+                workId = intent.workId,
+                carId = intent.carId
+            )
+
+            is WorkMainIntent.DeleteWork -> deleteWork(
+                workId = intent.workId,
+                onError = intent.onError
+            )
+
+            is WorkMainIntent.ChangeDeleteDialogVisible -> changeDeleteDialogVisible(
                 isVisible = intent.isVisible
             )
         }
     }
 
-    private fun changeBottomSheetVisible(isVisible: Boolean) {
-        _state.value = _state.value.copy(showBottomSheet = isVisible)
+    private fun changeDeleteDialogVisible(isVisible: Boolean) {
+        _state.value = _state.value.copy(deleteDialogVisible = isVisible)
+    }
+
+    private fun deleteWork(workId: Long, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isLoading = true)
+                withContext(Dispatchers.IO) { removeWorkUseCase.invoke(workId) }
+            } catch (_: Exception) {
+                onError("Ошибка! Попробуйте ещё раз!")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    private fun changeBottomSheetVisible(
+        isVisible: Boolean,
+        workTitle: String? = null,
+        workDate: LocalDate? = null,
+        workId: Long? = null,
+        carId: Long? = null
+    ) {
+        _state.value = _state.value.copy(
+            showBottomSheet = isVisible,
+            workIdInBottomSheet = workId,
+            workTitleInBottomSheet = workTitle,
+            workDateInBottomSheet = workDate,
+            carIdForWorkBottomSheet = carId
+        )
     }
 
     private var job: Job? = null

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.work.domain.entities.Work
 import com.andef.mycarandef.work.domain.usecases.AddWorkUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -34,6 +33,7 @@ class WorkAddViewModel @Inject constructor(
                 note = _state.value.note,
                 date = _state.value.date ?: throw IllegalArgumentException()
             )
+
             is WorkAddIntent.ChangeDatePickerVisible -> changeDatePickerVisible(
                 isVisible = intent.isVisible
             )
