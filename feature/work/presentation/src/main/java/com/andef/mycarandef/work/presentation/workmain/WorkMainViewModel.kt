@@ -36,15 +36,31 @@ class WorkMainViewModel @Inject constructor(
                 carId = intent.carId
             )
 
-            is WorkMainIntent.DeleteWork -> deleteWork(workId = intent.workId)
+            is WorkMainIntent.DeleteWork -> deleteWork(
+                workId = intent.workId,
+                onError = intent.onError
+            )
+
+            is WorkMainIntent.ChangeDeleteDialogVisible -> changeDeleteDialogVisible(
+                isVisible = intent.isVisible
+            )
         }
     }
 
-    private fun deleteWork(workId: Long) {
+    private fun changeDeleteDialogVisible(isVisible: Boolean) {
+        _state.value = _state.value.copy(deleteDialogVisible = isVisible)
+    }
+
+    private fun deleteWork(workId: Long, onError: (String) -> Unit) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            withContext(Dispatchers.IO) { removeWorkUseCase.invoke(workId) }
-            _state.value = _state.value.copy(isLoading = false)
+            try {
+                _state.value = _state.value.copy(isLoading = true)
+                withContext(Dispatchers.IO) { removeWorkUseCase.invoke(workId) }
+            } catch (_: Exception) {
+                onError("Ошибка! Попробуйте ещё раз!")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
         }
     }
 

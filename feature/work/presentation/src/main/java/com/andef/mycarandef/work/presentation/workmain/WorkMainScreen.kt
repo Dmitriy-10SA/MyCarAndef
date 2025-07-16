@@ -17,12 +17,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,10 +35,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.alertdialog.ui.UiAlertDialog
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.work.ui.UiWorkCard
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
+import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
+import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.theme.Black
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
@@ -44,6 +50,8 @@ import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.viewmodel.ViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +67,8 @@ fun WorkMainScreen(
     val state = viewModel.state.collectAsState()
 
     val sheetState = rememberModalBottomSheetState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
 
@@ -69,23 +79,32 @@ fun WorkMainScreen(
         isLightTheme = isLightTheme,
         currentCarId = currentCarId
     )
-    BottomSheet(
+    BottomSheetWithDeleteDialog(
         navHostController = navHostController,
         viewModel = viewModel,
         sheetState = sheetState,
         isLightTheme = isLightTheme,
-        state = state
+        state = state,
+        scope = scope,
+        snackbarHostState = snackbarHostState
+    )
+    UiSnackbar(
+        paddingValues = paddingValues,
+        snackbarHostState = snackbarHostState,
+        type = UiSnackbarType.Error
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BottomSheet(
+private fun BottomSheetWithDeleteDialog(
     navHostController: NavHostController,
     viewModel: WorkMainViewModel,
     sheetState: SheetState,
     isLightTheme: Boolean,
-    state: State<WorkMainState>
+    state: State<WorkMainState>,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
 ) {
     state.value.workIdInBottomSheet?.let { workId ->
         state.value.workTitleInBottomSheet?.let { workTitle ->
@@ -107,9 +126,8 @@ private fun BottomSheet(
                             workDate = workDate,
                             onDeleteClick = {
                                 viewModel.send(
-                                    WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
+                                    WorkMainIntent.ChangeDeleteDialogVisible(isVisible = true)
                                 )
-                                viewModel.send(WorkMainIntent.DeleteWork(workId))
                             },
                             onEditClick = {
                                 viewModel.send(
@@ -121,10 +139,66 @@ private fun BottomSheet(
                             }
                         )
                     }
+                    DeleteDialog(
+                        isLightTheme = isLightTheme,
+                        workId = workId,
+                        viewModel = viewModel,
+                        scope = scope,
+                        state = state,
+                        snackbarHostState = snackbarHostState
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DeleteDialog(
+    workId: Long,
+    isLightTheme: Boolean,
+    viewModel: WorkMainViewModel,
+    state: State<WorkMainState>,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    UiAlertDialog(
+        isLightTheme = isLightTheme,
+        title = "Вы уверены?",
+        onDismissRequest = {
+            viewModel.send(
+                WorkMainIntent.ChangeDeleteDialogVisible(isVisible = false)
+            )
+        },
+        onYesClick = {
+            viewModel.send(
+                WorkMainIntent.ChangeDeleteDialogVisible(isVisible = false)
+            )
+            viewModel.send(
+                WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
+            )
+            viewModel.send(
+                WorkMainIntent.DeleteWork(
+                    workId = workId,
+                    onError = { msg ->
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true
+                            )
+                        }
+                    }
+                )
+            )
+        },
+        onCancelClick = {
+            viewModel.send(
+                WorkMainIntent.ChangeDeleteDialogVisible(isVisible = false)
+            )
+        },
+        isVisible = state.value.deleteDialogVisible
+    )
 }
 
 @Composable
@@ -144,11 +218,7 @@ private fun BottomSheetContent(
         horizontalAlignment = Alignment.Start
     ) {
         Column {
-            Text(
-                text = workTitle,
-                fontSize = 16.sp,
-                color = if (isLightTheme) Black else White
-            )
+            Text(text = workTitle, fontSize = 16.sp, color = if (isLightTheme) Black else White)
             Text(
                 text = formatLocalDate(workDate),
                 fontSize = 14.sp,
@@ -166,11 +236,7 @@ private fun BottomSheetContent(
                 contentDescription = "Карандаш (изменить)"
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "Изменить",
-                color = if (isLightTheme) Black else White,
-                fontSize = 16.sp
-            )
+            Text(text = "Изменить", color = if (isLightTheme) Black else White, fontSize = 16.sp)
         }
         Row(
             modifier = Modifier
@@ -207,7 +273,9 @@ private fun MainContent(
         item { Spacer(modifier = Modifier.height(0.dp)) }
         items(items = state.value.works, key = { it.id }) { work ->
             UiWorkCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateItem(),
                 onClick = {
                     viewModel.send(
                         WorkMainIntent.BottomSheetVisibleChange(

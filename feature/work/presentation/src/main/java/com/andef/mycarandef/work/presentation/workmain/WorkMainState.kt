@@ -10,6 +10,7 @@ data class WorkMainState(
     val workDateInBottomSheet: LocalDate? = null,
     val workIdInBottomSheet: Long? = null,
     val carIdForWorkBottomSheet: Long? = null,
+    val deleteDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val isError: Boolean = false
 )

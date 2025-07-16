@@ -11,5 +11,7 @@ sealed class WorkMainIntent {
         val workId: Long? = null,
         val carId: Long? = null
     ) : WorkMainIntent()
-    data class DeleteWork(val workId: Long) : WorkMainIntent()
+
+    data class DeleteWork(val workId: Long, val onError: (String) -> Unit) : WorkMainIntent()
+    data class ChangeDeleteDialogVisible(val isVisible: Boolean) : WorkMainIntent()
 }
