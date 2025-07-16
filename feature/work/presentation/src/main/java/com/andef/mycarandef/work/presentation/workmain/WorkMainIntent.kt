@@ -8,6 +8,8 @@ sealed class WorkMainIntent {
         val isVisible: Boolean,
         val workTitle: String? = null,
         val workDate: LocalDate? = null,
-        val workId: Long? = null
+        val workId: Long? = null,
+        val carId: Long? = null
     ) : WorkMainIntent()
+    data class DeleteWork(val workId: Long) : WorkMainIntent()
 }

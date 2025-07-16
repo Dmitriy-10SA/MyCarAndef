@@ -41,6 +41,7 @@ import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.Red
 import com.andef.mycarandef.design.theme.White
+import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import java.time.LocalDate
@@ -89,21 +90,37 @@ private fun BottomSheet(
     state.value.workIdInBottomSheet?.let { workId ->
         state.value.workTitleInBottomSheet?.let { workTitle ->
             state.value.workDateInBottomSheet?.let { workDate ->
-                UiModalBottomSheet(
-                    onDismissRequest = {
-                        viewModel.send(WorkMainIntent.BottomSheetVisibleChange(isVisible = false))
-                    },
-                    sheetState = sheetState,
-                    isLightTheme = isLightTheme,
-                    isVisible = state.value.showBottomSheet
-                ) {
-                    BottomSheetContent(
+                state.value.carIdForWorkBottomSheet?.let { carId ->
+                    UiModalBottomSheet(
+                        onDismissRequest = {
+                            viewModel.send(
+                                WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
+                            )
+                        },
+                        sheetState = sheetState,
                         isLightTheme = isLightTheme,
-                        workTitle = workTitle,
-                        workDate = workDate,
-                        onDeleteClick = { TODO() },
-                        onEditClick = { TODO() }
-                    )
+                        isVisible = state.value.showBottomSheet
+                    ) {
+                        BottomSheetContent(
+                            isLightTheme = isLightTheme,
+                            workTitle = workTitle,
+                            workDate = workDate,
+                            onDeleteClick = {
+                                viewModel.send(
+                                    WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
+                                )
+                                viewModel.send(WorkMainIntent.DeleteWork(workId))
+                            },
+                            onEditClick = {
+                                viewModel.send(
+                                    WorkMainIntent.BottomSheetVisibleChange(isVisible = false)
+                                )
+                                navHostController.navigate(
+                                    Screen.WorkScreen.passId(id = workId, carId = carId)
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -197,7 +214,8 @@ private fun MainContent(
                             isVisible = true,
                             workTitle = work.title,
                             workDate = work.date,
-                            workId = work.id
+                            workId = work.id,
+                            carId = work.carId
                         )
                     )
                 },

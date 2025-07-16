@@ -3,17 +3,21 @@ package com.andef.mycarandef.work.presentation.workmain
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.work.domain.usecases.GetWorksByCarIdUseCase
+import com.andef.mycarandef.work.domain.usecases.RemoveWorkUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 
 class WorkMainViewModel @Inject constructor(
-    private val getWorksByCarIdUseCase: GetWorksByCarIdUseCase
+    private val getWorksByCarIdUseCase: GetWorksByCarIdUseCase,
+    private val removeWorkUseCase: RemoveWorkUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(WorkMainState())
     val state: StateFlow<WorkMainState> = _state
@@ -28,8 +32,19 @@ class WorkMainViewModel @Inject constructor(
                 isVisible = intent.isVisible,
                 workTitle = intent.workTitle,
                 workDate = intent.workDate,
-                workId = intent.workId
+                workId = intent.workId,
+                carId = intent.carId
             )
+
+            is WorkMainIntent.DeleteWork -> deleteWork(workId = intent.workId)
+        }
+    }
+
+    private fun deleteWork(workId: Long) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            withContext(Dispatchers.IO) { removeWorkUseCase.invoke(workId) }
+            _state.value = _state.value.copy(isLoading = false)
         }
     }
 
@@ -37,13 +52,15 @@ class WorkMainViewModel @Inject constructor(
         isVisible: Boolean,
         workTitle: String? = null,
         workDate: LocalDate? = null,
-        workId: Long? = null
+        workId: Long? = null,
+        carId: Long? = null
     ) {
         _state.value = _state.value.copy(
             showBottomSheet = isVisible,
             workIdInBottomSheet = workId,
             workTitleInBottomSheet = workTitle,
-            workDateInBottomSheet = workDate
+            workDateInBottomSheet = workDate,
+            carIdForWorkBottomSheet = carId
         )
     }
 

@@ -9,6 +9,7 @@ data class WorkMainState(
     val workTitleInBottomSheet: String? = null,
     val workDateInBottomSheet: LocalDate? = null,
     val workIdInBottomSheet: Long? = null,
+    val carIdForWorkBottomSheet: Long? = null,
     val isLoading: Boolean = false,
     val isError: Boolean = false
 )
