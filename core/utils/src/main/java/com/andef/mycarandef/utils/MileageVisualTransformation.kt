@@ -17,15 +17,13 @@ class MileageVisualTransformation : VisualTransformation {
         if (original.isEmpty()) {
             return TransformedText(AnnotatedString(""), OffsetMapping.Identity)
         }
-
         val number = original.toLongOrNull() ?: 0L
         val formatted = formatter.format(number)
-        val transformedText = "${formatted}км"   // <-- без пробела
+        val transformedText = "${formatted}км"
 
         val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {
                 val coreLen = formatted.length
-                // курсор остаётся в пределах числа; не даём зайти в суффикс "км"
                 val mapped = mapOriginalToFormatted(offset, original.length, formatted)
                 return mapped.coerceAtMost(coreLen)
             }
@@ -40,16 +38,11 @@ class MileageVisualTransformation : VisualTransformation {
         return TransformedText(AnnotatedString(transformedText), offsetMapping)
     }
 
-    /**
-     * Считает позицию курсора: сколько цифр было введено в исходном тексте ->
-     * где это место в форматированной строке (учитывая разделители).
-     */
     private fun mapOriginalToFormatted(
         originalOffset: Int,
         originalLen: Int,
         formatted: String
     ): Int {
-        // количество цифр в formatted == originalLen (мы форматируем только число)
         if (originalOffset <= 0) return 0
         if (originalOffset >= originalLen) return formatted.length
         var digitsSeen = 0
@@ -57,7 +50,6 @@ class MileageVisualTransformation : VisualTransformation {
             if (ch.isDigit()) {
                 digitsSeen++
                 if (digitsSeen == originalOffset) {
-                    // позиция после этой цифры
                     return i + 1
                 }
             }
@@ -65,9 +57,6 @@ class MileageVisualTransformation : VisualTransformation {
         return formatted.length
     }
 
-    /**
-     * Обратное преобразование: позиция в форматированной строке -> индекс в исходном.
-     */
     private fun mapFormattedToOriginal(
         formattedOffset: Int,
         formatted: String,
