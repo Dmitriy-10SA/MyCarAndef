@@ -18,6 +18,10 @@ sealed class CarMainIntent {
         val carImageUri: String?
     ) : CarMainIntent()
 
-    data class DeleteCar(val carId: Long, val onError: (String) -> Unit) : CarMainIntent()
+    data class DeleteCar(
+        val carId: Long,
+        val onError: (String) -> Unit,
+        val currentCarId: Long
+    ) : CarMainIntent()
     data class ChangeDeleteDialogVisible(val isVisible: Boolean) : CarMainIntent()
 }

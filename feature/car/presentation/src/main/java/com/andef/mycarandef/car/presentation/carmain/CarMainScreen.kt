@@ -61,7 +61,8 @@ fun CarMainScreen(
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
-    isLightTheme: Boolean
+    isLightTheme: Boolean,
+    currentCarId: Long
 ) {
     val viewModel: CarMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
@@ -87,7 +88,8 @@ fun CarMainScreen(
         isLightTheme = isLightTheme,
         state = state,
         scope = scope,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        currentCarId = currentCarId
     )
     UiSnackbar(
         paddingValues = paddingValues,
@@ -105,6 +107,7 @@ private fun BottomSheetWithDeleteDialog(
     isLightTheme: Boolean,
     state: State<CarMainState>,
     scope: CoroutineScope,
+    currentCarId: Long,
     snackbarHostState: SnackbarHostState
 ) {
     state.value.carIdInBottomSheet?.let { carId ->
@@ -159,7 +162,8 @@ private fun BottomSheetWithDeleteDialog(
                     viewModel = viewModel,
                     scope = scope,
                     state = state,
-                    snackbarHostState = snackbarHostState
+                    snackbarHostState = snackbarHostState,
+                    currentCarId = currentCarId
                 )
             }
         }
@@ -173,6 +177,7 @@ private fun DeleteDialog(
     viewModel: CarMainViewModel,
     state: State<CarMainState>,
     scope: CoroutineScope,
+    currentCarId: Long,
     snackbarHostState: SnackbarHostState
 ) {
     UiAlertDialog(
@@ -193,6 +198,7 @@ private fun DeleteDialog(
             viewModel.send(
                 CarMainIntent.DeleteCar(
                     carId = carId,
+                    currentCarId = currentCarId,
                     onError = { msg ->
                         snackbarHostState.currentSnackbarData?.dismiss()
                         scope.launch {

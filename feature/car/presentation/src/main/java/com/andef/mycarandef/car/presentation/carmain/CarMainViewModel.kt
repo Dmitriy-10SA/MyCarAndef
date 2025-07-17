@@ -46,7 +46,8 @@ class CarMainViewModel @Inject constructor(
 
             is CarMainIntent.DeleteCar -> deleteCar(
                 carId = intent.carId,
-                onError = intent.onError
+                onError = intent.onError,
+                currentCarId = intent.currentCarId
             )
 
             is CarMainIntent.ChooseCurrentCar -> chooseCurrentCar(
@@ -67,7 +68,11 @@ class CarMainViewModel @Inject constructor(
         _state.value = _state.value.copy(deleteDialogVisible = isVisible)
     }
 
-    private fun deleteCar(carId: Long, onError: (String) -> Unit) {
+    private fun deleteCar(carId: Long, currentCarId: Long, onError: (String) -> Unit) {
+        if (carId == currentCarId) {
+            onError("Нельзя удалить выбранный текущим автомобиль!")
+            return
+        }
         viewModelScope.launch {
             try {
                 _state.value = _state.value.copy(isLoading = true)
