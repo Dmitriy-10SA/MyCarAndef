@@ -1,6 +1,12 @@
-package com.andef.mycarandef.expense.presentation.expenseadd
+package com.andef.mycarandef.car.presentation.caradd
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
@@ -20,24 +26,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -48,13 +50,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.button.ui.UiButton
-import com.andef.mycarandef.design.card.expense.ui.getImageForExpense
 import com.andef.mycarandef.design.chooser.ui.UiChooser
-import com.andef.mycarandef.design.datepicker.ui.UiDatePickerDialog
 import com.andef.mycarandef.design.loading.ui.UiLoading
-import com.andef.mycarandef.design.menu.ui.UiMenu
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
@@ -65,39 +66,43 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
-import com.andef.mycarandef.expense.domain.entities.Expense
-import com.andef.mycarandef.utils.RubleAmountVisualTransformation
-import com.andef.mycarandef.utils.clampToTwoDecimals
-import com.andef.mycarandef.utils.formatAmountForEdit
-import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseAddScreen(
-    expenseId: Long?,
+fun CarAddScreen(
+    carId: Long?,
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isLightTheme: Boolean,
-    carId: Long
+    currentCarId: Long
 ) {
-    val viewModel: ExpenseAddViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: CarAddViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
 
     val keyboard = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-    val datePickerState = rememberDatePickerState()
+    val context = LocalContext.current
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            if (uri != null) {
+                val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+                viewModel.send(CarAddIntent.ChangePhoto(uri.toString()))
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
-        expenseId?.let {
+        carId?.let {
             viewModel.send(
-                ExpenseAddIntent.InitExpenseByLateExpense(
-                    expenseId = expenseId,
+                CarAddIntent.InitCarByLateCar(
+                    carId = carId,
                     onError = { msg ->
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
@@ -119,7 +124,7 @@ fun ExpenseAddScreen(
             UiTopBar(
                 isLightTheme = isLightTheme,
                 type = UiTopBarType.Center,
-                title = "Траты",
+                title = "Гараж",
                 navigationIcon = painterResource(R.drawable.arrow_back),
                 navigationIconContentDescription = "Назад",
                 onNavigationIconClick = {
@@ -146,7 +151,9 @@ fun ExpenseAddScreen(
                 isLightTheme = isLightTheme,
                 scrollState = scrollState,
                 state = state,
-                viewModel = viewModel
+                viewModel = viewModel,
+                pickImageLauncher = pickImageLauncher,
+                context = context
             )
             DownButton(
                 isLightTheme = isLightTheme,
@@ -156,7 +163,7 @@ fun ExpenseAddScreen(
                 navHostController = navHostController,
                 scope = scope,
                 snackbarHostState = snackbarHostState,
-                carId = carId
+                currentCarId = currentCarId
             )
         }
     }
@@ -166,32 +173,18 @@ fun ExpenseAddScreen(
         isLightTheme = isLightTheme,
         withTouch = false
     )
-    UiDatePickerDialog(
-        isVisible = state.value.datePickerVisible,
-        isLightTheme = isLightTheme,
-        datePickerState = datePickerState,
-        onDismissRequest = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(false)) },
-        onCancelClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(false)) },
-        onOkClick = { date ->
-            viewModel.send(ExpenseAddIntent.ChangeDate(date))
-            viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(false))
-        }
-    )
     BackHandler { if (!state.value.isLoading) navHostController.popBackStack() }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColumnScope.MainContent(
     isLightTheme: Boolean,
     scrollState: ScrollState,
-    state: State<ExpenseAddState>,
-    viewModel: ExpenseAddViewModel
+    state: State<CarAddState>,
+    pickImageLauncher: ManagedActivityResultLauncher<Array<String>, Uri?>,
+    viewModel: CarAddViewModel,
+    context: Context
 ) {
-    var localAmount by remember(state.value.amount) {
-        mutableStateOf(state.value.amount?.let { formatAmountForEdit(it) } ?: "")
-    }
-    var typeExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .weight(1f)
@@ -201,6 +194,137 @@ private fun ColumnScope.MainContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(6.dp))
+        CarPhoto(state = state, isLightTheme = isLightTheme, context = context)
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = "Обязательные поля:",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start,
+            color = if (isLightTheme) GrayForLight else GrayForDark,
+            fontSize = 16.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        UiTextField(
+            isLightTheme = isLightTheme,
+            value = state.value.brand,
+            onValueChange = { viewModel.send(CarAddIntent.ChangeBrand(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            placeholderText = "Марка",
+            leadingIcon = painterResource(R.drawable.brand),
+            contentDescription = "Значок бренд",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        UiTextField(
+            isLightTheme = isLightTheme,
+            value = state.value.model,
+            onValueChange = { viewModel.send(CarAddIntent.ChangeModel(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            placeholderText = "Модель",
+            leadingIcon = painterResource(R.drawable.car),
+            contentDescription = "Значок авто",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            )
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = "Необязательные поля:",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start,
+            color = if (isLightTheme) GrayForLight else GrayForDark,
+            fontSize = 16.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        UiChooser(
+            isLightTheme = isLightTheme,
+            value = state.value.photo ?: "",
+            onClick = {
+                pickImageLauncher.launch(arrayOf("image/*"))
+            },
+            modifier = Modifier.fillMaxWidth(),
+            placeholderText = "Фото",
+            leadingIcon = painterResource(R.drawable.image),
+            leadingIconContentDescription = "Значок фото",
+            trailingIcon = painterResource(R.drawable.attach),
+            trailingIconContentDescription = "Значок скрепки"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        UiTextField(
+            isLightTheme = isLightTheme,
+            value = state.value.year?.toString() ?: "",
+            onValueChange = {
+                try {
+                    val year = it.toInt()
+                    viewModel.send(CarAddIntent.ChangeYear(year))
+                } catch (_: Exception) {
+                    viewModel.send(CarAddIntent.ChangeYear(null))
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            placeholderText = "Год выпуска",
+            leadingIcon = painterResource(R.drawable.schedule),
+            contentDescription = "Значок часов",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = ImeAction.Next
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        UiTextField(
+            isLightTheme = isLightTheme,
+            value = state.value.registrationMark ?: "",
+            onValueChange = { viewModel.send(CarAddIntent.ChangeRegistrationMark(it)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            placeholderText = "Госномер",
+            leadingIcon = painterResource(R.drawable.more_horiz),
+            contentDescription = "Три горизонтальные точки",
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            )
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+    }
+}
+
+@Composable
+private fun ColumnScope.CarPhoto(
+    state: State<CarAddState>,
+    isLightTheme: Boolean,
+    context: Context
+) {
+    if (!state.value.photo.isNullOrBlank()) {
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(state.value.photo)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(R.drawable.car_cars),
+            error = painterResource(R.drawable.car_cars),
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .size(130.dp)
+                .clip(CircleShape)
+                .border(
+                    shape = CircleShape,
+                    width = 1.dp,
+                    color = if (isLightTheme) {
+                        GrayForLight.copy(alpha = 0.3f)
+                    } else {
+                        GrayForDark.copy(alpha = 0.3f)
+                    }
+                ),
+            contentScale = ContentScale.Crop,
+            contentDescription = "Фото машины"
+        )
+    } else {
         Image(
             modifier = Modifier
                 .padding(top = 12.dp)
@@ -216,115 +340,23 @@ private fun ColumnScope.MainContent(
                     }
                 ),
             contentScale = ContentScale.Crop,
-            painter = painterResource(R.drawable.piechart_expenses),
-            contentDescription = "Иконка траты диаграмма круговая"
+            painter = painterResource(R.drawable.car_cars),
+            contentDescription = "Иконка машины"
         )
-        Spacer(modifier = Modifier.height(28.dp))
-        Text(
-            text = "Обязательные поля:",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Start,
-            color = if (isLightTheme) GrayForLight else GrayForDark,
-            fontSize = 16.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        UiTextField(
-            isLightTheme = isLightTheme,
-            value = localAmount,
-            onValueChange = { newText ->
-                val filtered = newText.filter { it.isDigit() || it == ',' || it == '.' }
-                val clamped = clampToTwoDecimals(filtered)
-                localAmount = clamped
-                val parsed = clamped.replace(',', '.').toDoubleOrNull()
-                viewModel.send(ExpenseAddIntent.ChangeAmount(parsed))
-            },
-            modifier = Modifier.fillMaxWidth(),
-            placeholderText = "Сумма (₽)",
-            leadingIcon = painterResource(R.drawable.ruble),
-            contentDescription = "Значок рубля",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Done
-            ),
-            visualTransformation = RubleAmountVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        UiMenu(
-            items = Expense.allExpenseTypes,
-            modifier = Modifier.fillMaxWidth(),
-            itemToString = { item -> item.title },
-            itemToLeadingIcon = { item ->
-                Image(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                    painter = getImageForExpense(item),
-                    contentDescription = "Значок для типа траты"
-                )
-            },
-            isLightTheme = isLightTheme,
-            value = state.value.type?.title ?: "",
-            placeholderText = "Тип",
-            textFieldLeadingIcon = painterResource(R.drawable.more_horiz),
-            textFieldLeadingIconContentDescription = "Три горизонтальные точки",
-            onItemClick = { item ->
-                typeExpanded = false
-                viewModel.send(ExpenseAddIntent.ChangeType(item))
-            },
-            onExpandedChange = { typeExpanded = it },
-            expanded = typeExpanded,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        UiChooser(
-            isLightTheme = isLightTheme,
-            value = state.value.date?.let { formatLocalDate(it) } ?: "",
-            onClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(true)) },
-            modifier = Modifier.fillMaxWidth(),
-            placeholderText = "Дата",
-            leadingIcon = painterResource(R.drawable.schedule),
-            leadingIconContentDescription = "Значок часов",
-            trailingIcon = painterResource(R.drawable.calendar),
-            trailingIconContentDescription = "Значок календаря"
-        )
-        Spacer(modifier = Modifier.height(28.dp))
-        Text(
-            text = "Необязательные поля:",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Start,
-            color = if (isLightTheme) GrayForLight else GrayForDark,
-            fontSize = 16.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        UiTextField(
-            isLightTheme = isLightTheme,
-            value = state.value.note?.toString() ?: "",
-            onValueChange = { viewModel.send(ExpenseAddIntent.ChangeNote(it)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            placeholderText = "Примечание",
-            leadingIcon = painterResource(R.drawable.comment),
-            contentDescription = "Значок комментария",
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
-            )
-        )
-        Spacer(modifier = Modifier.height(6.dp))
     }
 }
+
 
 @Composable
 private fun ColumnScope.DownButton(
     isLightTheme: Boolean,
     keyboard: SoftwareKeyboardController?,
-    viewModel: ExpenseAddViewModel,
+    viewModel: CarAddViewModel,
     navHostController: NavHostController,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    state: State<ExpenseAddState>,
-    carId: Long
+    state: State<CarAddState>,
+    currentCarId: Long
 ) {
     Column {
         HorizontalDivider(
@@ -338,8 +370,9 @@ private fun ColumnScope.DownButton(
             onClick = {
                 keyboard?.hide()
                 viewModel.send(
-                    ExpenseAddIntent.SaveClick(
+                    CarAddIntent.SaveClick(
                         onSuccess = navHostController::popBackStack,
+                        currentCarId = currentCarId,
                         onError = { msg ->
                             scope.launch {
                                 snackbarHostState.currentSnackbarData?.dismiss()
@@ -348,8 +381,7 @@ private fun ColumnScope.DownButton(
                                     withDismissAction = true
                                 )
                             }
-                        },
-                        carId = carId
+                        }
                     )
                 )
             },

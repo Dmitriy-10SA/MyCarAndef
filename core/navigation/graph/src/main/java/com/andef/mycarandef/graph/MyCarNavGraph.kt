@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andef.mycarandef.car.presentation.caradd.CarAddScreen
 import com.andef.mycarandef.expense.presentation.expenseadd.ExpenseAddScreen
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
@@ -103,18 +104,27 @@ fun MyCarNavGraph(
         }
         composable(
             route = Screen.CarScreen.route,
-            arguments = listOf(
-                navArgument(Screen.ID_PARAM) { type = NavType.LongType },
-                navArgument(Screen.CAR_ID_PARAM) { type = NavType.LongType }
-            )
+            arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })
         ) {
             val id = it.arguments?.getLong(Screen.ID_PARAM) ?: throw IllegalArgumentException()
-            val carId =
-                it.arguments?.getLong(Screen.CAR_ID_PARAM) ?: throw IllegalArgumentException()
-
+            CarAddScreen(
+                carId = id,
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                currentCarId = currentCarId
+            )
         }
         composable(route = Screen.CarAddScreen.route) {
-
+            CarAddScreen(
+                carId = null,
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                currentCarId = currentCarId
+            )
         }
     }
 }

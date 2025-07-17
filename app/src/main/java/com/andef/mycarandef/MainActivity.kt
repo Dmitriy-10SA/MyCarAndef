@@ -170,7 +170,7 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
                 }
 
                 Screen.MainScreens.CarsMainScreen.route -> {
-                    TODO()
+                    navHostController.navigate(Screen.CarAddScreen.route)
                 }
             }
         }
@@ -189,7 +189,7 @@ private fun MainTopBar(
         isLightTheme = isLightTheme,
         type = UiTopBarType.NotCenter,
         title = currentCarName.value,
-        navigationIcon = painterResource(com.andef.mycarandef.design.R.drawable.menu),
+        navigationIcon = painterResource(R.drawable.menu),
         navigationIconContentDescription = "Меню",
         onNavigationIconClick = { TODO() },
         actions = {

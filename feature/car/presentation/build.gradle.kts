@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    //core:utils
+    implementation(project(":core:utils"))
+
     //Coil
     implementation(libs.coil.compose)
 

@@ -56,7 +56,8 @@ fun NavGraphBuilder.mainScreensGraph(
                     navHostController = navHostController,
                     viewModelFactory = viewModelFactory,
                     paddingValues = paddingValues,
-                    isLightTheme = isLightTheme
+                    isLightTheme = isLightTheme,
+                    currentCarId = currentCarId
                 )
             }
         }
