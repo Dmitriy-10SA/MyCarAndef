@@ -42,8 +42,8 @@ sealed class Screen(val route: String) {
         fun passId(id: Long, carId: Long): String = "$EXPENSE_SCREEN/$id/$carId"
     }
 
-    data object CarScreen : Screen("$CAR_SCREEN/{$ID_PARAM}/{$CAR_ID_PARAM}") {
-        fun passId(id: Long, carId: Long): String = "$CAR_SCREEN/$id/$carId"
+    data object CarScreen : Screen("$CAR_SCREEN/{$ID_PARAM}") {
+        fun passId(id: Long): String = "$CAR_SCREEN/$id"
     }
 
     companion object {

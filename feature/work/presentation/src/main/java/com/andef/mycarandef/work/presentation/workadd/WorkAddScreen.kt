@@ -309,7 +309,7 @@ private fun ColumnScope.DownButton(
         )
         Spacer(modifier = Modifier.height(8.dp))
         UiButton(
-            text = "Продолжить",
+            text = "Сохранить",
             onClick = {
                 keyboard?.hide()
                 viewModel.send(
