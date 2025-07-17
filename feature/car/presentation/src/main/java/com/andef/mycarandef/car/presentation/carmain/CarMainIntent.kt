@@ -23,5 +23,6 @@ sealed class CarMainIntent {
         val onError: (String) -> Unit,
         val currentCarId: Long
     ) : CarMainIntent()
+
     data class ChangeDeleteDialogVisible(val isVisible: Boolean) : CarMainIntent()
 }
