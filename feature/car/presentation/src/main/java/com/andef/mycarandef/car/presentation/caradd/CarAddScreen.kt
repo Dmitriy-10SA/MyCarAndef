@@ -66,6 +66,7 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.utils.YearVisualTransformation
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -259,7 +260,7 @@ private fun ColumnScope.MainContent(
             value = state.value.year?.toString() ?: "",
             onValueChange = {
                 try {
-                    val year = it.toInt()
+                    val year = it.filter { it.isDigit() }.take(4).toInt()
                     viewModel.send(CarAddIntent.ChangeYear(year))
                 } catch (_: Exception) {
                     viewModel.send(CarAddIntent.ChangeYear(null))
@@ -272,7 +273,8 @@ private fun ColumnScope.MainContent(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Next
-            )
+            ),
+            visualTransformation = YearVisualTransformation()
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiTextField(
