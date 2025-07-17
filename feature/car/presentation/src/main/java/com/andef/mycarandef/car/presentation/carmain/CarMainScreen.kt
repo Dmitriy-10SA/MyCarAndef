@@ -239,23 +239,21 @@ private fun BottomSheetContent(
                 fontSize = 16.sp,
                 color = if (isLightTheme) Black else White
             )
-            if (registrationMark != null) {
-                val text = year?.let { "$registrationMark (${year}г.)" }
-                    ?: "$registrationMark (год не указан)"
-                Text(
-                    text = text,
-                    fontSize = 14.sp,
-                    color = if (isLightTheme) GrayForLight else GrayForDark
-                )
-            } else {
-                val text =
-                    year?.let { "Номер не указан (${year}г.)" } ?: "Номер не указан (год не указан)"
-                Text(
-                    text = text,
-                    fontSize = 14.sp,
-                    color = if (isLightTheme) GrayForLight else GrayForDark
-                )
-            }
+            val text = buildString {
+                if (registrationMark.isNullOrBlank()) {
+                    append("Номер не указан")
+                } else {
+                    append(registrationMark)
+                }
+                year?.let {
+                    append(" (${it}г.)")
+                } ?: append(" (год не указан)")
+            }.toString()
+            Text(
+                text = text,
+                fontSize = 14.sp,
+                color = if (isLightTheme) GrayForLight else GrayForDark
+            )
         }
         Row(
             modifier = Modifier

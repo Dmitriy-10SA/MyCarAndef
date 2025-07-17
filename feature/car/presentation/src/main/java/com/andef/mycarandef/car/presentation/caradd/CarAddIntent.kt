@@ -7,6 +7,7 @@ sealed class CarAddIntent {
     data class ChangeYear(val year: Int?) : CarAddIntent()
     data class ChangeRegistrationMark(val registrationMark: String?) : CarAddIntent()
     data class SaveClick(
+        val currentCarId: Long,
         val onSuccess: () -> Unit,
         val onError: (String) -> Unit
     ) : CarAddIntent()

@@ -76,7 +76,8 @@ fun CarAddScreen(
     navHostController: NavHostController,
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
-    isLightTheme: Boolean
+    isLightTheme: Boolean,
+    currentCarId: Long
 ) {
     val viewModel: CarAddViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
@@ -161,7 +162,8 @@ fun CarAddScreen(
                 state = state,
                 navHostController = navHostController,
                 scope = scope,
-                snackbarHostState = snackbarHostState
+                snackbarHostState = snackbarHostState,
+                currentCarId = currentCarId
             )
         }
     }
@@ -353,7 +355,8 @@ private fun ColumnScope.DownButton(
     navHostController: NavHostController,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    state: State<CarAddState>
+    state: State<CarAddState>,
+    currentCarId: Long
 ) {
     Column {
         HorizontalDivider(
@@ -369,6 +372,7 @@ private fun ColumnScope.DownButton(
                 viewModel.send(
                     CarAddIntent.SaveClick(
                         onSuccess = navHostController::popBackStack,
+                        currentCarId = currentCarId,
                         onError = { msg ->
                             scope.launch {
                                 snackbarHostState.currentSnackbarData?.dismiss()

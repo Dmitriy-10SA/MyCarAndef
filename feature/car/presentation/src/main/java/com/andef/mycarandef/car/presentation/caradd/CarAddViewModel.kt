@@ -6,6 +6,8 @@ import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.domain.usecases.AddCarUseCase
 import com.andef.mycarandef.car.domain.usecases.ChangeCarUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCarByIdUseCase
+import com.andef.mycarandef.car.domain.usecases.SetCurrentCarImageUriUseCase
+import com.andef.mycarandef.car.domain.usecases.SetCurrentCarNameUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,9 @@ import javax.inject.Inject
 class CarAddViewModel @Inject constructor(
     private val getCarByIdUseCase: GetCarByIdUseCase,
     private val addCarUseCase: AddCarUseCase,
-    private val changeCarUseCase: ChangeCarUseCase
+    private val changeCarUseCase: ChangeCarUseCase,
+    private val setCurrentCarNameUseCase: SetCurrentCarNameUseCase,
+    private val setCurrentCarImageUriUseCase: SetCurrentCarImageUriUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(CarAddState())
     val state: StateFlow<CarAddState> = _state
@@ -40,7 +44,8 @@ class CarAddViewModel @Inject constructor(
                 year = _state.value.year,
                 registrationMark = _state.value.registrationMark,
                 coordinatesLat = _state.value.coordinatesLat,
-                coordinatesLon = _state.value.coordinatesLon
+                coordinatesLon = _state.value.coordinatesLon,
+                currentCarId = intent.currentCarId
             )
 
             is CarAddIntent.InitCarByLateCar -> initCarByLateCar(
@@ -76,6 +81,7 @@ class CarAddViewModel @Inject constructor(
     private fun saveClick(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
+        currentCarId: Long,
         brand: String,
         model: String,
         photo: String?,
@@ -114,6 +120,10 @@ class CarAddViewModel @Inject constructor(
                             coordinatesLat = coordinatesLat,
                             coordinatesLon = coordinatesLon
                         )
+                        if (carId == currentCarId) {
+                            setCurrentCarNameUseCase.invoke("$brand $model")
+                            setCurrentCarImageUriUseCase.invoke(photo)
+                        }
                     }
                 }
                 onSuccess()

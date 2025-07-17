@@ -112,7 +112,8 @@ fun MyCarNavGraph(
                 navHostController = navHostController,
                 viewModelFactory = viewModelFactory,
                 paddingValues = paddingValues,
-                isLightTheme = isLightTheme
+                isLightTheme = isLightTheme,
+                currentCarId = currentCarId
             )
         }
         composable(route = Screen.CarAddScreen.route) {
@@ -121,7 +122,8 @@ fun MyCarNavGraph(
                 navHostController = navHostController,
                 viewModelFactory = viewModelFactory,
                 paddingValues = paddingValues,
-                isLightTheme = isLightTheme
+                isLightTheme = isLightTheme,
+                currentCarId = currentCarId
             )
         }
     }
