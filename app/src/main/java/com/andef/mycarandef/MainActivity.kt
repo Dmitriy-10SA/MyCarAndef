@@ -72,6 +72,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val isLightTheme = component.getIsLightThemeUseCase(isSystemInDarkTheme())
+            val isLightThemeAsFlow = component.getIsLightThemeAsFlowUseCase
+                .invoke()
+                .collectAsState(isLightTheme)
             val systemUiController = rememberSystemUiController()
             val navHostController = rememberNavController()
             val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
@@ -90,13 +93,19 @@ class MainActivity : ComponentActivity() {
             val allCars = component.getAllCarsUseCase.invoke().collectAsState(listOf())
             val drawerState = rememberDrawerState(DrawerValue.Closed)
             val scope = rememberCoroutineScope()
+            val username = component.getUsernameAsFlowUseCase
+                .invoke()
+                .collectAsState(component.getUsernameUseCase.invoke())
 
-            SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
+            SystemUiSettings(
+                systemUiController = systemUiController,
+                isLightTheme = isLightThemeAsFlow.value
+            )
             MainContent(
                 navBackStackEntry = navBackStackEntry,
                 navHostController = navHostController,
                 component = component,
-                isLightTheme = isLightTheme,
+                isLightTheme = isLightThemeAsFlow.value,
                 context = context,
                 currentCarName = currentCarName,
                 currentCarId = currentCarId,
@@ -105,7 +114,8 @@ class MainActivity : ComponentActivity() {
                 sheetVisible = sheetVisible,
                 allCars = allCars.value,
                 drawerState = drawerState,
-                scope = scope
+                scope = scope,
+                username = username.value
             )
         }
     }
@@ -135,6 +145,7 @@ private fun MainContent(
     context: Context,
     sheetState: SheetState,
     allCars: List<Car>,
+    username: String?,
     sheetVisible: MutableState<Boolean>,
     currentCarId: androidx.compose.runtime.State<Long>,
     currentCarImageUri: androidx.compose.runtime.State<String?>,
@@ -145,6 +156,7 @@ private fun MainContent(
             drawerState = drawerState,
             drawerContent = {
                 MainModalDrawerSheetContent(
+                    username = username,
                     drawerState = drawerState,
                     scope = scope,
                     component = component,
