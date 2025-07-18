@@ -6,36 +6,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,16 +42,12 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.fab.ui.UiFAB
-import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
-import com.andef.mycarandef.design.navigationbar.ui.UiNavigationBar
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.theme.Black
 import com.andef.mycarandef.design.theme.DarkGray
@@ -64,12 +55,11 @@ import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.MyCarAndefTheme
 import com.andef.mycarandef.design.theme.White
-import com.andef.mycarandef.design.topbar.type.UiTopBarType
-import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.graph.MyCarNavGraph
 import com.andef.mycarandef.routes.Screen
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
@@ -82,6 +72,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val isLightTheme = component.getIsLightThemeUseCase(isSystemInDarkTheme())
+            val isLightThemeAsFlow = component.getIsLightThemeAsFlowUseCase
+                .invoke()
+                .collectAsState(isLightTheme)
             val systemUiController = rememberSystemUiController()
             val navHostController = rememberNavController()
             val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
@@ -98,20 +91,31 @@ class MainActivity : ComponentActivity() {
             val sheetState = rememberModalBottomSheetState()
             val sheetVisible = rememberSaveable { mutableStateOf(false) }
             val allCars = component.getAllCarsUseCase.invoke().collectAsState(listOf())
+            val drawerState = rememberDrawerState(DrawerValue.Closed)
+            val scope = rememberCoroutineScope()
+            val username = component.getUsernameAsFlowUseCase
+                .invoke()
+                .collectAsState(component.getUsernameUseCase.invoke())
 
-            SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
+            SystemUiSettings(
+                systemUiController = systemUiController,
+                isLightTheme = isLightThemeAsFlow.value
+            )
             MainContent(
                 navBackStackEntry = navBackStackEntry,
                 navHostController = navHostController,
                 component = component,
-                isLightTheme = isLightTheme,
+                isLightTheme = isLightThemeAsFlow.value,
                 context = context,
                 currentCarName = currentCarName,
                 currentCarId = currentCarId,
                 currentCarImageUri = currentCarImageUri,
                 sheetState = sheetState,
                 sheetVisible = sheetVisible,
-                allCars = allCars.value
+                allCars = allCars.value,
+                drawerState = drawerState,
+                scope = scope,
+                username = username.value
             )
         }
     }
@@ -132,6 +136,8 @@ private fun SystemUiSettings(systemUiController: SystemUiController, isLightThem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
     navBackStackEntry: NavBackStackEntry?,
     navHostController: NavHostController,
     component: MyCarComponent,
@@ -139,57 +145,73 @@ private fun MainContent(
     context: Context,
     sheetState: SheetState,
     allCars: List<Car>,
+    username: String?,
     sheetVisible: MutableState<Boolean>,
     currentCarId: androidx.compose.runtime.State<Long>,
     currentCarImageUri: androidx.compose.runtime.State<String?>,
     currentCarName: androidx.compose.runtime.State<String>
 ) {
     MyCarAndefTheme(darkTheme = !isLightTheme) {
-        UiScaffold(
-            isLightTheme = isLightTheme,
-            bottomBar = {
-                MainBottomBar(
-                    isLightTheme = isLightTheme,
-                    navBackStackEntry = navBackStackEntry,
-                    navHostController = navHostController
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                MainModalDrawerSheetContent(
+                    username = username,
+                    drawerState = drawerState,
+                    component = component,
+                    isLightTheme = isLightTheme
                 )
             },
-            topBar = {
-                MainTopBar(
+            content = {
+                UiScaffold(
                     isLightTheme = isLightTheme,
-                    navBackStackEntry = navBackStackEntry,
-                    currentCarImageUri = currentCarImageUri,
-                    context = context,
-                    sheetVisible = sheetVisible,
-                    currentCarName = currentCarName
-                )
-            },
-            floatingActionButton = {
-                MainFAB(
-                    navBackStackEntry = navBackStackEntry,
-                    navHostController = navHostController
-                )
+                    bottomBar = {
+                        MainBottomBar(
+                            isLightTheme = isLightTheme,
+                            navBackStackEntry = navBackStackEntry,
+                            navHostController = navHostController
+                        )
+                    },
+                    topBar = {
+                        MainTopBar(
+                            isLightTheme = isLightTheme,
+                            navBackStackEntry = navBackStackEntry,
+                            currentCarImageUri = currentCarImageUri,
+                            context = context,
+                            scope = scope,
+                            drawerState = drawerState,
+                            sheetVisible = sheetVisible,
+                            currentCarName = currentCarName
+                        )
+                    },
+                    floatingActionButton = {
+                        MainFAB(
+                            navBackStackEntry = navBackStackEntry,
+                            navHostController = navHostController
+                        )
+                    }
+                ) { paddingValues ->
+                    MyCarNavGraph(
+                        navHostController = navHostController,
+                        viewModelFactory = component.viewModelFactory,
+                        paddingValues = paddingValues,
+                        isFirstStart = component.getIsFirstStartUseCase(),
+                        isLightTheme = isLightTheme,
+                        mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
+                        currentCarId = currentCarId.value
+                    )
+                    MainBottomSheet(
+                        isLightTheme = isLightTheme,
+                        allCars = allCars,
+                        sheetState = sheetState,
+                        sheetVisible = sheetVisible,
+                        currentCarId = currentCarId.value,
+                        component = component,
+                        context = context
+                    )
+                }
             }
-        ) { paddingValues ->
-            MyCarNavGraph(
-                navHostController = navHostController,
-                viewModelFactory = component.viewModelFactory,
-                paddingValues = paddingValues,
-                isFirstStart = component.getIsFirstStartUseCase(),
-                isLightTheme = isLightTheme,
-                mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
-                currentCarId = currentCarId.value
-            )
-            MainBottomSheet(
-                isLightTheme = isLightTheme,
-                allCars = allCars,
-                sheetState = sheetState,
-                sheetVisible = sheetVisible,
-                currentCarId = currentCarId.value,
-                component = component,
-                context = context
-            )
-        }
+        )
     }
 }
 
@@ -223,47 +245,6 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MainTopBar(
-    isLightTheme: Boolean,
-    navBackStackEntry: NavBackStackEntry?,
-    context: Context,
-    sheetVisible: MutableState<Boolean>,
-    currentCarName: androidx.compose.runtime.State<String>,
-    currentCarImageUri: androidx.compose.runtime.State<String?>,
-) {
-    UiTopBar(
-        isLightTheme = isLightTheme,
-        type = UiTopBarType.NotCenter,
-        title = currentCarName.value,
-        navigationIcon = painterResource(R.drawable.menu),
-        navigationIconContentDescription = "Меню",
-        onNavigationIconClick = { TODO() },
-        actions = {
-            CarPhoto(
-                currentCarImageUri = currentCarImageUri,
-                isLightTheme = isLightTheme,
-                context = context
-            )
-            IconButton(
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = if (isLightTheme) Black else White
-                ),
-                onClick = { sheetVisible.value = true }
-            ) {
-                Icon(
-                    tint = if (isLightTheme) Black else White,
-                    painter = painterResource(R.drawable.keyboard_arrow_down),
-                    contentDescription = "Выбор машины"
-                )
-            }
-        },
-        isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
-    )
-}
-
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -284,6 +265,16 @@ private fun MainBottomSheet(
         isLightTheme = isLightTheme,
         isVisible = sheetVisible.value
     ) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            textAlign = TextAlign.Center,
+            text = "Выбор текущего автомобиля",
+            fontSize = 16.sp,
+            color = if (isLightTheme) GrayForLight else GrayForDark
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
@@ -296,17 +287,6 @@ private fun MainBottomSheet(
             horizontalAlignment = Alignment.Start
         ) {
             item { Spacer(modifier = Modifier.height(0.dp)) }
-            item {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    textAlign = TextAlign.Center,
-                    text = "Выбор текущего автомобиля",
-                    fontSize = 16.sp,
-                    color = if (isLightTheme) GrayForLight else GrayForDark
-                )
-            }
             items(items = allCars, key = { it.id }) { car ->
                 UiCarInBottomSheetCard(
                     onClick = {
@@ -325,129 +305,7 @@ private fun MainBottomSheet(
                     context = context
                 )
             }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
-                )
-            }
             item { Spacer(modifier = Modifier.height(0.dp)) }
         }
     }
 }
-
-@Composable
-private fun CarPhoto(
-    currentCarImageUri: androidx.compose.runtime.State<String?>,
-    isLightTheme: Boolean,
-    context: Context
-) {
-    if (!currentCarImageUri.value.isNullOrBlank()) {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(currentCarImageUri.value)
-                .crossfade(true)
-                .build(),
-            placeholder = painterResource(R.drawable.car_wo_photo),
-            error = painterResource(R.drawable.car_wo_photo),
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .border(
-                    shape = CircleShape,
-                    width = 1.dp,
-                    color = if (isLightTheme) {
-                        GrayForLight.copy(alpha = 0.3f)
-                    } else {
-                        GrayForDark.copy(alpha = 0.3f)
-                    }
-                ),
-            contentScale = ContentScale.Crop,
-            contentDescription = "Фото машины"
-        )
-    } else {
-        Image(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .border(
-                    shape = CircleShape,
-                    width = 1.dp,
-                    color = if (isLightTheme) {
-                        GrayForLight.copy(alpha = 0.3f)
-                    } else {
-                        GrayForDark.copy(alpha = 0.3f)
-                    }
-                ),
-            contentScale = ContentScale.Crop,
-            painter = painterResource(R.drawable.car_wo_photo),
-            contentDescription = "Иконка машины"
-        )
-    }
-}
-
-@Composable
-private fun MainBottomBar(
-    isLightTheme: Boolean,
-    navBackStackEntry: NavBackStackEntry?,
-    navHostController: NavHostController
-) {
-    UiNavigationBar(
-        isLightTheme = isLightTheme,
-        itemSelected = { item -> item.route == navBackStackEntry?.destination?.route },
-        onItemClick = { item ->
-            onMainScreenItemClick(
-                item = item,
-                navHostController = navHostController,
-                navBackStackEntry = navBackStackEntry
-            )
-        },
-        items = mainScreenItems(),
-        isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
-    )
-}
-
-private fun onMainScreenItemClick(
-    item: UiNavigationBarItem,
-    navHostController: NavHostController,
-    navBackStackEntry: NavBackStackEntry?
-) {
-    if (item.route != navBackStackEntry?.destination?.route) {
-        navHostController.navigate(item.route) {
-            popUpTo(Screen.MainScreens.WorksMainScreen.route) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-    }
-}
-
-@Composable
-private fun mainScreenItems() = listOf(
-    UiNavigationBarItem(
-        icon = painterResource(R.drawable.works),
-        contentDescription = "Иконка работы",
-        title = "Работы",
-        route = Screen.MainScreens.WorksMainScreen.route
-    ),
-    UiNavigationBarItem(
-        icon = painterResource(R.drawable.ruble),
-        contentDescription = "Иконка рубля",
-        title = "Траты",
-        Screen.MainScreens.ExpensesMainScreen.route
-    ),
-    UiNavigationBarItem(
-        icon = painterResource(R.drawable.location),
-        contentDescription = "Иконка локация значок",
-        title = "Карта",
-        Screen.MainScreens.MapsMainScreen.route
-    ),
-    UiNavigationBarItem(
-        icon = painterResource(R.drawable.car),
-        contentDescription = "Иконка машины",
-        title = "Гараж",
-        Screen.MainScreens.CarsMainScreen.route
-    )
-)
