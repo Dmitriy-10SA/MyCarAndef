@@ -85,20 +85,42 @@ class ExpenseMainViewModel @Inject constructor(
         )
     }
 
+    private var lastCurrentCarId: Long? = null
     private var job: Job? = null
     private fun subscribeForExpenses(currentCarId: Long) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            getExpensesByCarIdUseCase.invoke(currentCarId)
-                .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
-                .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect {
-                    val expenses = it
-                        .groupBy { it.date }
-                        .toSortedMap(compareByDescending { it })
-                        .map { (date, items) -> ExpenseDay(date, items) }
-                    _state.value = _state.value.copy(isLoading = false, expensesDays = expenses)
-                }
+        if (lastCurrentCarId == null || currentCarId != lastCurrentCarId || state.value.isError) {
+            lastCurrentCarId = currentCarId
+            job?.cancel()
+            job = viewModelScope.launch {
+                getExpensesByCarIdUseCase.invoke(currentCarId)
+                    .onStart {
+                        _state.value = _state.value.copy(
+                            isLoading = true,
+                            isError = false,
+                            expensesDays = listOf()
+                        )
+                    }
+                    .catch {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isError = true,
+                            expensesDays = listOf()
+                        )
+                    }
+                    .collect { expensesList ->
+                        val expenses = withContext(Dispatchers.IO) {
+                            expensesList
+                                .groupBy { expense -> expense.date }
+                                .toSortedMap(compareByDescending { date -> date })
+                                .map { (date, items) -> ExpenseDay(date, items) }
+                        }
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            expensesDays = expenses,
+                            isError = false
+                        )
+                    }
+            }
         }
     }
 }

@@ -73,7 +73,9 @@ fun ExpenseMainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) { viewModel.send(ExpenseMainIntent.SubscribeForExpenses(currentCarId)) }
+    LaunchedEffect(currentCarId) {
+        viewModel.send(ExpenseMainIntent.SubscribeForExpenses(currentCarId))
+    }
 
     MainContent(
         viewModel = viewModel,
