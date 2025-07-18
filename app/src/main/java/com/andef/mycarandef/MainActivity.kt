@@ -1,5 +1,6 @@
 package com.andef.mycarandef
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,20 +9,39 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -29,8 +49,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
+import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiNavigationBar
@@ -51,6 +74,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
@@ -62,14 +86,19 @@ class MainActivity : ComponentActivity() {
             val navHostController = rememberNavController()
             val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
             val context = LocalContext.current
-            val currentCarId = component.getCurrentCarIdAsFlowUseCase.invoke().collectAsState(
-                component.getCurrentCarIdUseCase.invoke()
-            )
-            val currentCarName = component.getCurrentCarNameAsFlowUseCase.invoke().collectAsState(
-                component.getCurrentCarNameUseCase.invoke()
-            )
-            val currentCarImageUri = component.getCurrentCarImageUriAsFlowUseCase.invoke()
+            val currentCarId = component.getCurrentCarIdAsFlowUseCase
+                .invoke()
+                .collectAsState(component.getCurrentCarIdUseCase.invoke())
+            val currentCarName = component.getCurrentCarNameAsFlowUseCase
+                .invoke()
+                .collectAsState(component.getCurrentCarNameUseCase.invoke())
+            val currentCarImageUri = component.getCurrentCarImageUriAsFlowUseCase
+                .invoke()
                 .collectAsState(component.getCurrentCarImageUriUseCase.invoke())
+            val sheetState = rememberModalBottomSheetState()
+            val sheetVisible = rememberSaveable { mutableStateOf(false) }
+            val allCars = component.getAllCarsUseCase.invoke().collectAsState(listOf())
+
             SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
             MainContent(
                 navBackStackEntry = navBackStackEntry,
@@ -79,7 +108,10 @@ class MainActivity : ComponentActivity() {
                 context = context,
                 currentCarName = currentCarName,
                 currentCarId = currentCarId,
-                currentCarImageUri = currentCarImageUri
+                currentCarImageUri = currentCarImageUri,
+                sheetState = sheetState,
+                sheetVisible = sheetVisible,
+                allCars = allCars.value
             )
         }
     }
@@ -97,6 +129,7 @@ private fun SystemUiSettings(systemUiController: SystemUiController, isLightThem
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     navBackStackEntry: NavBackStackEntry?,
@@ -104,6 +137,9 @@ private fun MainContent(
     component: MyCarComponent,
     isLightTheme: Boolean,
     context: Context,
+    sheetState: SheetState,
+    allCars: List<Car>,
+    sheetVisible: MutableState<Boolean>,
     currentCarId: androidx.compose.runtime.State<Long>,
     currentCarImageUri: androidx.compose.runtime.State<String?>,
     currentCarName: androidx.compose.runtime.State<String>
@@ -124,6 +160,7 @@ private fun MainContent(
                     navBackStackEntry = navBackStackEntry,
                     currentCarImageUri = currentCarImageUri,
                     context = context,
+                    sheetVisible = sheetVisible,
                     currentCarName = currentCarName
                 )
             },
@@ -142,6 +179,15 @@ private fun MainContent(
                 isLightTheme = isLightTheme,
                 mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
                 currentCarId = currentCarId.value
+            )
+            MainBottomSheet(
+                isLightTheme = isLightTheme,
+                allCars = allCars,
+                sheetState = sheetState,
+                sheetVisible = sheetVisible,
+                currentCarId = currentCarId.value,
+                component = component,
+                context = context
             )
         }
     }
@@ -177,11 +223,13 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainTopBar(
     isLightTheme: Boolean,
     navBackStackEntry: NavBackStackEntry?,
     context: Context,
+    sheetVisible: MutableState<Boolean>,
     currentCarName: androidx.compose.runtime.State<String>,
     currentCarImageUri: androidx.compose.runtime.State<String?>,
 ) {
@@ -203,7 +251,7 @@ private fun MainTopBar(
                     containerColor = Color.Transparent,
                     contentColor = if (isLightTheme) Black else White
                 ),
-                onClick = { TODO() }
+                onClick = { sheetVisible.value = true }
             ) {
                 Icon(
                     tint = if (isLightTheme) Black else White,
@@ -214,6 +262,79 @@ private fun MainTopBar(
         },
         isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
     )
+}
+
+@SuppressLint("ConfigurationScreenWidthHeight")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainBottomSheet(
+    isLightTheme: Boolean,
+    allCars: List<Car>,
+    sheetState: SheetState,
+    component: MyCarComponent,
+    sheetVisible: MutableState<Boolean>,
+    currentCarId: Long,
+    context: Context
+) {
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    UiModalBottomSheet(
+        modifier = Modifier.padding(top = screenHeight / 3),
+        onDismissRequest = { sheetVisible.value = false },
+        sheetState = sheetState,
+        isLightTheme = isLightTheme,
+        isVisible = sheetVisible.value
+    ) {
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            item { Spacer(modifier = Modifier.height(0.dp)) }
+            item {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    textAlign = TextAlign.Center,
+                    text = "Выбор текущего автомобиля",
+                    fontSize = 16.sp,
+                    color = if (isLightTheme) GrayForLight else GrayForDark
+                )
+            }
+            items(items = allCars, key = { it.id }) { car ->
+                UiCarInBottomSheetCard(
+                    onClick = {
+                        sheetVisible.value = false
+                        component.setCurrentCarIdUseCase.invoke(car.id)
+                        component.setCurrentCarNameUseCase.invoke("${car.brand} ${car.model}")
+                        component.setCurrentCarImageUriUseCase.invoke(car.photo)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .animateItem(),
+                    isLightTheme = isLightTheme,
+                    isCurrentCar = currentCarId == car.id,
+                    car = car,
+                    context = context
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+                )
+            }
+            item { Spacer(modifier = Modifier.height(0.dp)) }
+        }
+    }
 }
 
 @Composable

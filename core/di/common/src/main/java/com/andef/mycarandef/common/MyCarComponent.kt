@@ -5,6 +5,7 @@ import android.app.Application
 import com.andef.mycarandef.car.di.CarDaoModule
 import com.andef.mycarandef.car.di.CarRepositoryModule
 import com.andef.mycarandef.car.di.CarViewModelModule
+import com.andef.mycarandef.car.domain.usecases.GetAllCarsUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdAsFlowUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarImageUriAsFlowUseCase
@@ -69,6 +70,7 @@ interface MyCarComponent {
     val viewModelFactory: ViewModelFactory
     val getIsFirstStartUseCase: GetIsFirstStartUseCase
     val getIsLightThemeUseCase: GetIsLightThemeUseCase
+    val getAllCarsUseCase: GetAllCarsUseCase
     val getCurrentCarIdUseCase: GetCurrentCarIdUseCase
     val getCurrentCarNameUseCase: GetCurrentCarNameUseCase
     val getCurrentCarImageUriUseCase: GetCurrentCarImageUriUseCase
