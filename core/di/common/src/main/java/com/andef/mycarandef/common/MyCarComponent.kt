@@ -56,9 +56,6 @@ import javax.inject.Singleton
         ExpenseDaoModule::class,
         ExpenseViewModelModule::class,
 
-        //Map
-        MapRepositoryModule::class,
-
         //Work
         WorkRepositoryModule::class,
         WorkDaoModule::class,
