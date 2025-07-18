@@ -94,11 +94,7 @@ class ExpenseMainViewModel @Inject constructor(
             job = viewModelScope.launch {
                 getExpensesByCarIdUseCase.invoke(currentCarId)
                     .onStart {
-                        _state.value = _state.value.copy(
-                            isLoading = true,
-                            isError = false,
-                            expensesDays = listOf()
-                        )
+                        _state.value = _state.value.copy(isLoading = true, isError = false)
                     }
                     .catch {
                         _state.value = _state.value.copy(

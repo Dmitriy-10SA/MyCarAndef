@@ -92,11 +92,7 @@ class WorkMainViewModel @Inject constructor(
             job = viewModelScope.launch {
                 getWorksByCarIdUseCase.invoke(currentCarId)
                     .onStart {
-                        _state.value = _state.value.copy(
-                            isLoading = true,
-                            isError = false,
-                            works = listOf()
-                        )
+                        _state.value = _state.value.copy(isLoading = true, isError = false)
                     }
                     .catch {
                         _state.value = _state.value.copy(
