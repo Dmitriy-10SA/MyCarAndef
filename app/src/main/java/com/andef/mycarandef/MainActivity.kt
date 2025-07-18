@@ -62,14 +62,16 @@ class MainActivity : ComponentActivity() {
             val navHostController = rememberNavController()
             val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
             val context = LocalContext.current
-            val currentCarId = component.getCurrentCarIdAsFlowUseCase.invoke().collectAsState(
-                component.getCurrentCarIdUseCase.invoke()
-            )
-            val currentCarName = component.getCurrentCarNameAsFlowUseCase.invoke().collectAsState(
-                component.getCurrentCarNameUseCase.invoke()
-            )
-            val currentCarImageUri = component.getCurrentCarImageUriAsFlowUseCase.invoke()
+            val currentCarId = component.getCurrentCarIdAsFlowUseCase
+                .invoke()
+                .collectAsState(component.getCurrentCarIdUseCase.invoke())
+            val currentCarName = component.getCurrentCarNameAsFlowUseCase
+                .invoke()
+                .collectAsState(component.getCurrentCarNameUseCase.invoke())
+            val currentCarImageUri = component.getCurrentCarImageUriAsFlowUseCase
+                .invoke()
                 .collectAsState(component.getCurrentCarImageUriUseCase.invoke())
+
             SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
             MainContent(
                 navBackStackEntry = navBackStackEntry,
@@ -214,6 +216,11 @@ private fun MainTopBar(
         },
         isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
     )
+}
+
+@Composable
+private fun MainBottomSheet() {
+
 }
 
 @Composable
