@@ -63,7 +63,7 @@ fun MainModalDrawerSheetContent(
 ) {
     val nameChangeSheetState = rememberModalBottomSheetState()
     val nameChangeSheetVisible = rememberSaveable { mutableStateOf(false) }
-    var usernameValue by remember { mutableStateOf(username ?: throw IllegalArgumentException()) }
+    var usernameValue by remember { mutableStateOf(username ?: "") }
     ModalDrawerSheet(
         drawerState = drawerState,
         drawerShape = RoundedCornerShape(
@@ -183,7 +183,7 @@ private fun ColumnScope.UsernameContent(
             maxLines = 1,
             modifier = Modifier.weight(1f),
             overflow = TextOverflow.Ellipsis,
-            text = username ?: throw IllegalArgumentException(),
+            text = username ?: "",
             fontSize = 22.sp,
             color = if (isLightTheme) Black else White
         )
