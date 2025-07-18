@@ -291,15 +291,16 @@ private fun MainBottomSheet(
         )
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
             item { Spacer(modifier = Modifier.height(0.dp)) }
             item {
                 Text(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
                     textAlign = TextAlign.Center,
                     text = "Выбор текущего автомобиля",
                     fontSize = 16.sp,
@@ -316,6 +317,7 @@ private fun MainBottomSheet(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
                         .animateItem(),
                     isLightTheme = isLightTheme,
                     isCurrentCar = currentCarId == car.id,
@@ -323,13 +325,15 @@ private fun MainBottomSheet(
                     context = context
                 )
             }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+                )
+            }
             item { Spacer(modifier = Modifier.height(0.dp)) }
         }
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
-        )
     }
 }
 
