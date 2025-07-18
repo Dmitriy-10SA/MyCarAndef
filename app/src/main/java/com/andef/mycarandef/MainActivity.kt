@@ -265,6 +265,16 @@ private fun MainBottomSheet(
         isLightTheme = isLightTheme,
         isVisible = sheetVisible.value
     ) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            textAlign = TextAlign.Center,
+            text = "Выбор текущего автомобиля",
+            fontSize = 16.sp,
+            color = if (isLightTheme) GrayForLight else GrayForDark
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
@@ -277,17 +287,6 @@ private fun MainBottomSheet(
             horizontalAlignment = Alignment.Start
         ) {
             item { Spacer(modifier = Modifier.height(0.dp)) }
-            item {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    textAlign = TextAlign.Center,
-                    text = "Выбор текущего автомобиля",
-                    fontSize = 16.sp,
-                    color = if (isLightTheme) GrayForLight else GrayForDark
-                )
-            }
             items(items = allCars, key = { it.id }) { car ->
                 UiCarInBottomSheetCard(
                     onClick = {
@@ -304,13 +303,6 @@ private fun MainBottomSheet(
                     isCurrentCar = currentCarId == car.id,
                     car = car,
                     context = context
-                )
-            }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
                 )
             }
             item { Spacer(modifier = Modifier.height(0.dp)) }
