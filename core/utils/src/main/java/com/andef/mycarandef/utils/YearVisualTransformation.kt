@@ -7,7 +7,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 class YearVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        val suffix = if (text.text.isNotEmpty()) "г." else ""
+        val suffix = if (text.text.isNotEmpty()) "г" else ""
         val transformed = AnnotatedString(text.text + suffix)
         val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {

@@ -252,7 +252,7 @@ private fun BottomSheetContent(
                     append(registrationMark)
                 }
                 year?.let {
-                    append(" (${it}г.)")
+                    append(" (${it}г)")
                 } ?: append(" (год не указан)")
             }.toString()
             Text(

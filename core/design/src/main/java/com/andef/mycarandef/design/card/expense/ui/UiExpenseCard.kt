@@ -32,7 +32,6 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
-import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatPriceRuble
 
 @Composable
@@ -61,7 +60,9 @@ fun UiExpenseCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                modifier = Modifier.size(45.dp).clip(CircleShape),
+                modifier = Modifier
+                    .size(45.dp)
+                    .clip(CircleShape),
                 painter = getImageForExpense(expense.type),
                 contentScale = ContentScale.Crop,
                 contentDescription = "Фото для категории траты"
@@ -88,21 +89,11 @@ fun UiExpenseCard(
                 )
             }
             Spacer(modifier = Modifier.width(3.dp))
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = formatPriceRuble(expense.amount),
-                    fontSize = 16.sp,
-                    color = if (isLightTheme) Black else White
-                )
-                Text(
-                    text = formatLocalDate(expense.date),
-                    fontSize = 14.sp,
-                    color = if (isLightTheme) GrayForLight else GrayForDark
-                )
-            }
+            Text(
+                text = formatPriceRuble(expense.amount),
+                fontSize = 16.sp,
+                color = if (isLightTheme) Black else White
+            )
         }
     }
 }
