@@ -8,13 +8,26 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -29,8 +43,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiNavigationBar
@@ -51,6 +67,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
@@ -71,6 +88,9 @@ class MainActivity : ComponentActivity() {
             val currentCarImageUri = component.getCurrentCarImageUriAsFlowUseCase
                 .invoke()
                 .collectAsState(component.getCurrentCarImageUriUseCase.invoke())
+            val sheetState = rememberModalBottomSheetState()
+            val sheetVisible = rememberSaveable { mutableStateOf(false) }
+            val allCars = component.getAllCarsUseCase.invoke().collectAsState(listOf())
 
             SystemUiSettings(systemUiController = systemUiController, isLightTheme = isLightTheme)
             MainContent(
@@ -81,7 +101,10 @@ class MainActivity : ComponentActivity() {
                 context = context,
                 currentCarName = currentCarName,
                 currentCarId = currentCarId,
-                currentCarImageUri = currentCarImageUri
+                currentCarImageUri = currentCarImageUri,
+                sheetState = sheetState,
+                sheetVisible = sheetVisible,
+                allCars = allCars.value
             )
         }
     }
@@ -99,6 +122,7 @@ private fun SystemUiSettings(systemUiController: SystemUiController, isLightThem
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     navBackStackEntry: NavBackStackEntry?,
@@ -106,6 +130,9 @@ private fun MainContent(
     component: MyCarComponent,
     isLightTheme: Boolean,
     context: Context,
+    sheetState: SheetState,
+    allCars: List<Car>,
+    sheetVisible: MutableState<Boolean>,
     currentCarId: androidx.compose.runtime.State<Long>,
     currentCarImageUri: androidx.compose.runtime.State<String?>,
     currentCarName: androidx.compose.runtime.State<String>
@@ -126,6 +153,7 @@ private fun MainContent(
                     navBackStackEntry = navBackStackEntry,
                     currentCarImageUri = currentCarImageUri,
                     context = context,
+                    sheetVisible = sheetVisible,
                     currentCarName = currentCarName
                 )
             },
@@ -144,6 +172,12 @@ private fun MainContent(
                 isLightTheme = isLightTheme,
                 mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
                 currentCarId = currentCarId.value
+            )
+            MainBottomSheet(
+                isLightTheme = isLightTheme,
+                allCars = allCars,
+                sheetState = sheetState,
+                sheetVisible = sheetVisible
             )
         }
     }
@@ -179,11 +213,13 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainTopBar(
     isLightTheme: Boolean,
     navBackStackEntry: NavBackStackEntry?,
     context: Context,
+    sheetVisible: MutableState<Boolean>,
     currentCarName: androidx.compose.runtime.State<String>,
     currentCarImageUri: androidx.compose.runtime.State<String?>,
 ) {
@@ -205,7 +241,7 @@ private fun MainTopBar(
                     containerColor = Color.Transparent,
                     contentColor = if (isLightTheme) Black else White
                 ),
-                onClick = { TODO() }
+                onClick = { sheetVisible.value = true }
             ) {
                 Icon(
                     tint = if (isLightTheme) Black else White,
@@ -218,9 +254,40 @@ private fun MainTopBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainBottomSheet() {
-
+private fun MainBottomSheet(
+    isLightTheme: Boolean,
+    allCars: List<Car>,
+    sheetState: SheetState,
+    sheetVisible: MutableState<Boolean>
+) {
+    UiModalBottomSheet(
+        onDismissRequest = { sheetVisible.value = false },
+        sheetState = sheetState,
+        isLightTheme = isLightTheme,
+        isVisible = sheetVisible.value
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            item {
+                Text(
+                    text = "Выбор текущего автомобиля",
+                    fontSize = 16.sp,
+                    color = if (isLightTheme) GrayForLight else GrayForDark
+                )
+            }
+            items(items = allCars, key = { it.id }) { car ->
+                Text(text = car.brand)
+            }
+        }
+    }
 }
 
 @Composable
