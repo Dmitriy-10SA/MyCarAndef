@@ -39,12 +39,6 @@ android {
 }
 
 dependencies {
-    //feature:map:domain
-    implementation(project(":feature:map:domain"))
-
-    //feature:map:data
-    implementation(project(":feature:map:data"))
-
     //feature:map:presentation
     implementation(project(":feature:map:presentation"))
 

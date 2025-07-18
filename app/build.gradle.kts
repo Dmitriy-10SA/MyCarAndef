@@ -95,8 +95,6 @@ dependencies {
     implementation(project(":feature:expense:presentation"))
 
     //feature:map
-    implementation(project(":feature:map:data"))
-    implementation(project(":feature:map:domain"))
     implementation(project(":feature:map:di"))
     implementation(project(":feature:map:presentation"))
 

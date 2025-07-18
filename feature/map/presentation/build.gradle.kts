@@ -43,9 +43,6 @@ dependencies {
     //Coil
     implementation(libs.coil.compose)
 
-    //feature:map:domain
-    implementation(project(":feature:map:domain"))
-
     //core:design
     implementation(project(":core:design"))
 

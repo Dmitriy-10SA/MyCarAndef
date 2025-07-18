@@ -44,10 +44,8 @@ include(":feature:expense:presentation")
 include(":feature:expense:di")
 
 include(":feature:map")
-include(":feature:map:data")
 include(":feature:map:di")
 include(":feature:map:presentation")
-include(":feature:map:domain")
 
 include(":feature:car")
 include(":feature:car:data")
