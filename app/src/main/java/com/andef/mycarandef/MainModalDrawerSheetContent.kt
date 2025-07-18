@@ -2,6 +2,7 @@ package com.andef.mycarandef
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,7 +39,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,7 +68,7 @@ fun MainModalDrawerSheetContent(
 ) {
     val nameChangeSheetState = rememberModalBottomSheetState()
     val nameChangeSheetVisible = rememberSaveable { mutableStateOf(false) }
-    var usernameValue by remember { mutableStateOf(username ?: throw IllegalArgumentException()) }
+    var usernameValue by remember { mutableStateOf(username ?: "") }
     ModalDrawerSheet(
         drawerState = drawerState,
         drawerShape = RoundedCornerShape(
@@ -137,7 +142,13 @@ private fun InnerContent(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(0.dp))
+        Spacer(modifier = Modifier.height(3.dp))
+        Icon(
+            modifier = Modifier.size(100.dp),
+            tint = if (isLightTheme) Black else White,
+            painter = painterResource(com.andef.mycarandef.design.R.drawable.car_key),
+            contentDescription = "Иконка приложения"
+        )
         UsernameContent(
             isLightTheme = isLightTheme,
             username = username,
@@ -151,11 +162,19 @@ private fun InnerContent(
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
-
+            item {
+                InnerContentItem(
+                    isLightTheme = isLightTheme,
+                    icon = painterResource(com.andef.mycarandef.design.R.drawable.schedule),
+                    iconContentDescription = "Иконка часов",
+                    itemText = "Скоро...",
+                    onClick = {}
+                )
+            }
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
@@ -168,6 +187,36 @@ private fun InnerContent(
 }
 
 @Composable
+private fun InnerContentItem(
+    isLightTheme: Boolean,
+    itemText: String,
+    icon: Painter,
+    iconContentDescription: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = iconContentDescription
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = itemText,
+            fontSize = 18.sp,
+            color = if (isLightTheme) Black else White
+        )
+    }
+}
+
+@Composable
 private fun ColumnScope.UsernameContent(
     isLightTheme: Boolean,
     username: String?,
@@ -176,14 +225,14 @@ private fun ColumnScope.UsernameContent(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 4.dp),
+            .padding(start = 24.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             maxLines = 1,
             modifier = Modifier.weight(1f),
             overflow = TextOverflow.Ellipsis,
-            text = username ?: throw IllegalArgumentException(),
+            text = username ?: "",
             fontSize = 22.sp,
             color = if (isLightTheme) Black else White
         )
@@ -207,7 +256,7 @@ private fun ColumnScope.UiThemeContent(isLightTheme: Boolean, component: MyCarCo
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 12.dp)
             .height(48.dp)
             .background(
                 color = if (isLightTheme) {

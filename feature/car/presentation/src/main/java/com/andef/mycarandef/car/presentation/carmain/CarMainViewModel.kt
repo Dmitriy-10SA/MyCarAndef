@@ -105,14 +105,32 @@ class CarMainViewModel @Inject constructor(
         )
     }
 
+    private var firstStart: Boolean = true
     private var job: Job? = null
     private fun getCars() {
-        job?.cancel()
-        job = viewModelScope.launch {
-            getAllCarsUseCase.invoke()
-                .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
-                .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect { _state.value = _state.value.copy(isLoading = false, cars = it) }
+        if (firstStart == true || state.value.isError) {
+            firstStart = false
+            job?.cancel()
+            job = viewModelScope.launch {
+                getAllCarsUseCase.invoke()
+                    .onStart {
+                        _state.value = _state.value.copy(isLoading = true, isError = false)
+                    }
+                    .catch {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isError = true,
+                            cars = listOf()
+                        )
+                    }
+                    .collect {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            cars = it,
+                            isError = false
+                        )
+                    }
+            }
         }
     }
 }

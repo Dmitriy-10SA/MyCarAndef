@@ -126,6 +126,7 @@ private fun BottomSheetWithDeleteDialog(
                     BottomSheetContent(
                         isLightTheme = isLightTheme,
                         brand = brand,
+                        showCurrentAction = currentCarId != carId,
                         model = model,
                         onDeleteClick = {
                             viewModel.send(
@@ -227,6 +228,7 @@ private fun BottomSheetContent(
     model: String,
     registrationMark: String?,
     year: Int?,
+    showCurrentAction: Boolean,
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit,
     onChooseCurrentClick: () -> Unit
@@ -252,7 +254,7 @@ private fun BottomSheetContent(
                     append(registrationMark)
                 }
                 year?.let {
-                    append(" (${it}г.)")
+                    append(" (${it}г)")
                 } ?: append(" (год не указан)")
             }.toString()
             Text(
@@ -261,22 +263,24 @@ private fun BottomSheetContent(
                 color = if (isLightTheme) GrayForLight else GrayForDark
             )
         }
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .clickable(onClick = onChooseCurrentClick)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.star),
-                tint = Blue,
-                contentDescription = "Звезда (сделать текущим)"
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "Выбрать текущим",
-                color = Blue,
-                fontSize = 16.sp
-            )
+        if (showCurrentAction) {
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable(onClick = onChooseCurrentClick)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.star),
+                    tint = Blue,
+                    contentDescription = "Звезда (сделать текущим)"
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Выбрать текущим",
+                    color = Blue,
+                    fontSize = 16.sp
+                )
+            }
         }
         Row(
             modifier = Modifier

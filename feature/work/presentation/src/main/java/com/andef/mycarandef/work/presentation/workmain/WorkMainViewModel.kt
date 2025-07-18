@@ -83,14 +83,32 @@ class WorkMainViewModel @Inject constructor(
         )
     }
 
+    private var lastCurrentCarId: Long? = null
     private var job: Job? = null
     private fun subscribeForWorks(currentCarId: Long) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            getWorksByCarIdUseCase.invoke(currentCarId)
-                .onStart { _state.value = _state.value.copy(isLoading = true, isError = false) }
-                .catch { _state.value = _state.value.copy(isLoading = false, isError = true) }
-                .collect { _state.value = _state.value.copy(isLoading = false, works = it) }
+        if (lastCurrentCarId == null || currentCarId != lastCurrentCarId || state.value.isError) {
+            lastCurrentCarId = currentCarId
+            job?.cancel()
+            job = viewModelScope.launch {
+                getWorksByCarIdUseCase.invoke(currentCarId)
+                    .onStart {
+                        _state.value = _state.value.copy(isLoading = true, isError = false)
+                    }
+                    .catch {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isError = true,
+                            works = listOf()
+                        )
+                    }
+                    .collect {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            works = it,
+                            isError = false
+                        )
+                    }
+            }
         }
     }
 }

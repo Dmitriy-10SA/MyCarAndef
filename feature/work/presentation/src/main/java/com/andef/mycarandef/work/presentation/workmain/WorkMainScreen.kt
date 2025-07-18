@@ -71,7 +71,7 @@ fun WorkMainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
+    LaunchedEffect(currentCarId) { viewModel.send(WorkMainIntent.SubscribeForWorks(currentCarId)) }
 
     MainContent(
         viewModel = viewModel,
