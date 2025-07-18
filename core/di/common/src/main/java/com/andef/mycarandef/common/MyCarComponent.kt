@@ -24,6 +24,7 @@ import com.andef.mycarandef.start.di.StartViewModelModule
 import com.andef.mycarandef.start.domain.usecases.GetIsFirstStartUseCase
 import com.andef.mycarandef.start.domain.usecases.GetUsernameAsFlowUseCase
 import com.andef.mycarandef.start.domain.usecases.GetUsernameUseCase
+import com.andef.mycarandef.start.domain.usecases.SetUsernameUseCase
 import com.andef.mycarandef.uitheme.di.UiThemeRepositoryModule
 import com.andef.mycarandef.uitheme.domain.usecases.GetIsLightThemeAsFlowUseCase
 import com.andef.mycarandef.uitheme.domain.usecases.GetIsLightThemeUseCase
@@ -79,6 +80,7 @@ interface MyCarComponent {
     val getUsernameUseCase: GetUsernameUseCase
     val getIsLightThemeAsFlowUseCase: GetIsLightThemeAsFlowUseCase
     val setThemeUseCase: SetThemeUseCase
+    val setUsernameUseCase: SetUsernameUseCase
     val getCurrentCarIdUseCase: GetCurrentCarIdUseCase
     val getCurrentCarNameUseCase: GetCurrentCarNameUseCase
     val getCurrentCarImageUriUseCase: GetCurrentCarImageUriUseCase

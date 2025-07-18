@@ -158,7 +158,6 @@ private fun MainContent(
                 MainModalDrawerSheetContent(
                     username = username,
                     drawerState = drawerState,
-                    scope = scope,
                     component = component,
                     isLightTheme = isLightTheme
                 )

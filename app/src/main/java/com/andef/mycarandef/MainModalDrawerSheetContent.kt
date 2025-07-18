@@ -1,9 +1,7 @@
 package com.andef.mycarandef
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -12,50 +10,62 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andef.mycarandef.common.MyCarComponent
+import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
+import com.andef.mycarandef.design.button.ui.UiButton
+import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.Black
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
-import kotlinx.coroutines.CoroutineScope
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainModalDrawerSheetContent(
     isLightTheme: Boolean,
     username: String?,
     drawerState: DrawerState,
-    scope: CoroutineScope,
     component: MyCarComponent
 ) {
+    val nameChangeSheetState = rememberModalBottomSheetState()
+    val nameChangeSheetVisible = rememberSaveable { mutableStateOf(false) }
+    var usernameValue by remember { mutableStateOf(username ?: throw IllegalArgumentException()) }
     ModalDrawerSheet(
         drawerState = drawerState,
         drawerShape = RoundedCornerShape(
@@ -69,20 +79,56 @@ fun MainModalDrawerSheetContent(
     ) {
         InnerContent(
             isLightTheme = isLightTheme,
-            drawerState = drawerState,
-            scope = scope,
             component = component,
-            username = username
+            username = username,
+            nameChangeSheetVisible = nameChangeSheetVisible
         )
+    }
+    UiModalBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = nameChangeSheetVisible.value,
+        onDismissRequest = { nameChangeSheetVisible.value = false },
+        sheetState = nameChangeSheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            UiTextField(
+                isLightTheme = isLightTheme,
+                value = usernameValue,
+                onValueChange = { usernameValue = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholderText = "Ваше имя",
+                leadingIcon = painterResource(com.andef.mycarandef.design.R.drawable.person),
+                contentDescription = "Иконка человека",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                )
+            )
+            UiButton(
+                text = "Сохранить",
+                onClick = {
+                    nameChangeSheetVisible.value = false
+                    component.setUsernameUseCase.invoke(usernameValue)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = usernameValue.isNotEmpty()
+            )
+        }
     }
 }
 
 @Composable
 private fun InnerContent(
     isLightTheme: Boolean,
-    drawerState: DrawerState,
-    scope: CoroutineScope,
     username: String?,
+    nameChangeSheetVisible: MutableState<Boolean>,
     component: MyCarComponent
 ) {
     Column(
@@ -94,7 +140,11 @@ private fun InnerContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(0.dp))
-        UsernameContent(isLightTheme = isLightTheme, username = username, component = component)
+        UsernameContent(
+            isLightTheme = isLightTheme,
+            username = username,
+            nameChangeSheetVisible = nameChangeSheetVisible
+        )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
@@ -123,20 +173,14 @@ private fun InnerContent(
 private fun ColumnScope.UsernameContent(
     isLightTheme: Boolean,
     username: String?,
-    component: MyCarComponent
+    nameChangeSheetVisible: MutableState<Boolean>
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(start = 16.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            painter = painterResource(com.andef.mycarandef.design.R.drawable.person),
-            contentDescription = "Иконка человека",
-            tint = if (isLightTheme) Black else White
-        )
-        Spacer(modifier = Modifier.width(12.dp))
         Text(
             maxLines = 1,
             modifier = Modifier.weight(1f),
@@ -150,9 +194,7 @@ private fun ColumnScope.UsernameContent(
                 containerColor = Color.Transparent,
                 contentColor = if (isLightTheme) Black else White
             ),
-            onClick = {
-                TODO()
-            }
+            onClick = { nameChangeSheetVisible.value = true }
         ) {
             Icon(
                 painter = painterResource(com.andef.mycarandef.design.R.drawable.edit),
