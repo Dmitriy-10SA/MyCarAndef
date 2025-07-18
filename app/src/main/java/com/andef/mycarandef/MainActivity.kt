@@ -1,5 +1,6 @@
 package com.andef.mycarandef
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,13 +10,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -32,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +55,7 @@ import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
+import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.navigationbar.item.UiNavigationBarItem
 import com.andef.mycarandef.design.navigationbar.ui.UiNavigationBar
@@ -178,7 +186,10 @@ private fun MainContent(
                 isLightTheme = isLightTheme,
                 allCars = allCars,
                 sheetState = sheetState,
-                sheetVisible = sheetVisible
+                sheetVisible = sheetVisible,
+                currentCarId = currentCarId.value,
+                component = component,
+                context = context
             )
         }
     }
@@ -255,28 +266,39 @@ private fun MainTopBar(
     )
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainBottomSheet(
     isLightTheme: Boolean,
     allCars: List<Car>,
     sheetState: SheetState,
-    sheetVisible: MutableState<Boolean>
+    component: MyCarComponent,
+    sheetVisible: MutableState<Boolean>,
+    currentCarId: Long,
+    context: Context
 ) {
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     UiModalBottomSheet(
+        modifier = Modifier.padding(top = screenHeight / 3),
         onDismissRequest = { sheetVisible.value = false },
         sheetState = sheetState,
         isLightTheme = isLightTheme,
         isVisible = sheetVisible.value
     ) {
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
+            item { Spacer(modifier = Modifier.height(0.dp)) }
             item {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -287,9 +309,29 @@ private fun MainBottomSheet(
                 )
             }
             items(items = allCars, key = { it.id }) { car ->
-                Text(text = car.brand)
+                UiCarInBottomSheetCard(
+                    onClick = {
+                        sheetVisible.value = false
+                        component.setCurrentCarIdUseCase.invoke(car.id)
+                        component.setCurrentCarNameUseCase.invoke("${car.brand} ${car.model}")
+                        component.setCurrentCarImageUriUseCase.invoke(car.photo)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem(),
+                    isLightTheme = isLightTheme,
+                    isCurrentCar = currentCarId == car.id,
+                    car = car,
+                    context = context
+                )
             }
+            item { Spacer(modifier = Modifier.height(0.dp)) }
         }
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+        )
     }
 }
 
