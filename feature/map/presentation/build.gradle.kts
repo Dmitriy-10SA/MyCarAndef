@@ -46,6 +46,9 @@ dependencies {
     //core:design
     implementation(project(":core:design"))
 
+    //feature:car:domain
+    implementation(project(":feature:car:domain"))
+
     //core:di:viewmodel
     implementation(project(":core:di:viewmodel"))
 
