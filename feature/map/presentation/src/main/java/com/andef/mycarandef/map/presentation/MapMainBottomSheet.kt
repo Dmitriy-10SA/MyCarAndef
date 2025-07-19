@@ -7,14 +7,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -88,7 +91,8 @@ fun MapMainBottomSheet(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp),
+                            .padding(horizontal = 12.dp)
+                            .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -108,7 +112,16 @@ fun MapMainBottomSheet(
                                 )
                             }
                         )
-                        Spacer(modifier = Modifier.width(36.dp))
+                        DGISItem(isLightTheme = isLightTheme) {
+                            onDismissRequest()
+                            launchApp(
+                                context = context,
+                                intent = build2GisNavIntent(lat = lat, lon = lon),
+                                viewModel = viewModel,
+                                scope = scope,
+                                snackbarHostState = snackbarHostState
+                            )
+                        }
                         AppItem(
                             isLightTheme = isLightTheme,
                             icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_google_maps_icon),
@@ -133,7 +146,43 @@ fun MapMainBottomSheet(
 }
 
 @Composable
-private fun AppItem(
+private fun RowScope.DGISItem(isLightTheme: Boolean, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onClick)
+                .size(65.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(color = White, shape = RoundedCornerShape(16.dp))
+                .border(
+                    width = 1.dp,
+                    color = if (isLightTheme) {
+                        GrayForLight.copy(alpha = 0.3f)
+                    } else {
+                        GrayForDark.copy(alpha = 0.3f)
+                    },
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            painter = painterResource(com.andef.mycarandef.design.R.drawable.my_car_2gis_icon),
+            contentDescription = "Иконка 2 гис"
+        )
+        Text(
+            text = "2ГИС",
+            color = if (isLightTheme) Black else White,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+private fun RowScope.AppItem(
     isLightTheme: Boolean,
     icon: Painter,
     contentDescription: String,
@@ -141,6 +190,7 @@ private fun AppItem(
     onClick: () -> Unit
 ) {
     Column(
+        modifier = Modifier.weight(1f),
         verticalArrangement = Arrangement.spacedBy(1.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -203,6 +253,7 @@ private fun launchApp(
 private object NavApps {
     const val PKG_YANDEX_MAPS = "ru.yandex.yandexmaps"
     const val PKG_GOOGLE_MAPS = "com.google.android.apps.maps"
+    const val PKG_2GIS = "ru.dublgis.dgismobile"
 }
 
 private fun buildYandexMapsIntent(lat: Double, lon: Double): Intent =
@@ -219,4 +270,12 @@ private fun buildGoogleMapsNavIntent(lat: Double, lon: Double): Intent =
         "google.navigation:q=$lat,$lon&mode=w".toUri()
     ).apply {
         setPackage(NavApps.PKG_GOOGLE_MAPS)
+    }
+
+private fun build2GisNavIntent(lat: Double, lon: Double): Intent =
+    Intent(
+        Intent.ACTION_VIEW,
+        "dgis://2gis.ru/routeSearch/rsType/pedestrian/to/$lon,$lat".toUri()
+    ).apply {
+        setPackage(NavApps.PKG_2GIS)
     }
