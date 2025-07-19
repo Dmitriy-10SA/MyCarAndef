@@ -177,6 +177,7 @@ fun MapMainScreen(
     )
     MapMainBottomSheet(
         sheetState = sheetState,
+        context = context,
         onDismissRequest = {
             viewModel.send(
                 MapMainIntent.ChangeBottomSheetVisible(
@@ -186,8 +187,13 @@ fun MapMainScreen(
                 )
             )
         },
+        isLightTheme = isLightTheme,
+        isVisible = state.value.bottomSheetVisible,
         lat = state.value.latInBottomSheet,
-        lon = state.value.lonInBottomSheet
+        lon = state.value.lonInBottomSheet,
+        viewModel = viewModel,
+        scope = scope,
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -231,6 +237,7 @@ private fun MainContent(
             UiButton(
                 text = "Сохранить новое местоположение",
                 onClick = {
+                    snackbarHostState.currentSnackbarData?.dismiss()
                     viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = true))
                 },
                 modifier = Modifier.fillMaxWidth()

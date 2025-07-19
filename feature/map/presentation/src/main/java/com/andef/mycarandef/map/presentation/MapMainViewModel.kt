@@ -33,6 +33,11 @@ class MapMainViewModel @Inject constructor(
                 )
             }
 
+            is MapMainIntent.ShowErrorSnackbar -> {
+                _state.value = _state.value.copy(isErrorSnackbar = true)
+                intent.callback(intent.msg)
+            }
+
             is MapMainIntent.ChangeBottomSheetVisible -> {
                 _state.value = _state.value.copy(
                     bottomSheetVisible = intent.isVisible,

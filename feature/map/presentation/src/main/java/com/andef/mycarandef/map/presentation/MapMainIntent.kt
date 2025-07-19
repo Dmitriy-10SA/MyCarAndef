@@ -23,5 +23,7 @@ sealed class MapMainIntent {
         val lon: Double?
     ) : MapMainIntent()
 
+    data class ShowErrorSnackbar(val msg: String, val callback: (String) -> Unit) : MapMainIntent()
+
     data class BuildRouteToCar(val latAndLon: (Double, Double) -> Unit) : MapMainIntent()
 }
