@@ -28,8 +28,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -228,7 +231,8 @@ private fun MainContent(
     UiLoading(
         isVisible = state.value.isLoading,
         paddingValues = paddingValues,
-        isLightTheme = isLightTheme
+        isLightTheme = isLightTheme,
+        withTouch = false
     )
     UiError(
         isVisible = state.value.isError,
@@ -266,7 +270,7 @@ private fun ConfirmDialog(
 ) {
     UiAlertDialog(
         isLightTheme = isLightTheme,
-        title = "Прошлое местоположение будет удалено!\nВы уверены?",
+        title = "Вы уверены?",
         onDismissRequest = {
             viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
         },
@@ -341,6 +345,8 @@ fun hasLocationCoarsePermission(context: Context): Boolean {
 
 @Composable
 private fun ColumnScope.Map(isLightTheme: Boolean, state: State<MapMainState>) {
+    var lastCarId by remember { mutableStateOf<Long?>(null) }
+    var lastCoords by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
@@ -367,38 +373,64 @@ private fun ColumnScope.Map(isLightTheme: Boolean, state: State<MapMainState>) {
                         state.value.currentCar?.coordinatesLon ?: 37.618423
                     )
                 )
-                state.value.currentCar?.let { car ->
-                    car.coordinatesLat?.let { lat ->
-                        car.coordinatesLon?.let { lon ->
-                            val marker = Marker(this)
-                            marker.position = org.osmdroid.util.GeoPoint(lat, lon)
-                            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                            marker.title = "Авто"
-                            overlays.add(marker)
-                        }
-                    }
-                }
             }
         },
-//        update = { map ->
-//            // Обновляем маркер при изменении координат
-//            val car = state.value.currentCar
-//            val existing = map.overlays.filterIsInstance<Marker>()
-//                .firstOrNull { it.title == "Авто" }
-//            if (existing != null) map.overlays.remove(existing)
-//
-//            val lat = car?.coordinatesLat
-//            val lon = car?.coordinatesLon
-//            if (lat != null && lon != null) {
-//                val marker = Marker(map).apply {
-//                    position = org.osmdroid.util.GeoPoint(lat, lon)
-//                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-//                    title = "Авто"
-//                }
-//                map.overlays.add(marker)
-//            }
-//            map.invalidate()
-//        }
+        update = { map ->
+            val car = state.value.currentCar
+            val currentCarId = car?.id
+            val newLat = car?.coordinatesLat
+            val newLon = car?.coordinatesLon
+
+            val existingMarker = map.overlays
+                .filterIsInstance<Marker>()
+                .firstOrNull { it.id == "car_marker" }
+
+            if (newLat != null && newLon != null) {
+                val newPoint = org.osmdroid.util.GeoPoint(newLat, newLon)
+
+                if (existingMarker == null) {
+                    map.overlays.add(
+                        Marker(map).apply {
+                            id = "car_marker"
+                            position = newPoint
+                            infoWindow = null
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                            icon = ContextCompat.getDrawable(
+                                map.context,
+                                com.andef.mycarandef.design.R.drawable.my_car_car_location
+                            )
+                        }
+                    )
+                } else {
+                    existingMarker.position = newPoint
+                }
+
+                val coordsChanged = lastCoords?.let { (prevLat, prevLon) ->
+                    val dLat = kotlin.math.abs(prevLat - newLat)
+                    val dLon = kotlin.math.abs(prevLon - newLon)
+                    dLat > 0.00005 || dLon > 0.00005
+                } != false
+
+                val carChanged = currentCarId != null && currentCarId != lastCarId
+
+                if (coordsChanged || carChanged) {
+                    map.controller.animateTo(newPoint)
+                }
+
+                lastCoords = newLat to newLon
+            } else {
+                if (existingMarker != null) {
+                    map.overlays.remove(existingMarker)
+                }
+                lastCoords = null
+            }
+
+            if (currentCarId != lastCarId) {
+                lastCarId = currentCarId
+            }
+
+            map.invalidate()
+        }
     )
 }
 

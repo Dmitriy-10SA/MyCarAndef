@@ -40,10 +40,11 @@ fun UiAlertDialog(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
                     textAlign = TextAlign.Center,
                     text = title,
-                    fontSize = 22.sp
+                    fontSize = 24.sp
                 )
             },
             containerColor = if (isLightTheme) White else DarkGray,
