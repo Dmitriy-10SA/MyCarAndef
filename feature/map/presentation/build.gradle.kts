@@ -43,11 +43,17 @@ dependencies {
     //Coil
     implementation(libs.coil.compose)
 
-    //feature:map:domain
-    implementation(project(":feature:map:domain"))
-
     //core:design
     implementation(project(":core:design"))
+
+    //osmdroid
+    implementation(libs.osmdroid.android)
+
+    //Google Play Services Location
+    implementation(libs.play.services.location)
+
+    //feature:car:domain
+    implementation(project(":feature:car:domain"))
 
     //core:di:viewmodel
     implementation(project(":core:di:viewmodel"))

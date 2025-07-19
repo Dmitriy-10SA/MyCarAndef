@@ -48,7 +48,7 @@ fun MainTopBar(
         isLightTheme = isLightTheme,
         type = UiTopBarType.NotCenter,
         title = currentCarName.value,
-        navigationIcon = painterResource(R.drawable.menu),
+        navigationIcon = painterResource(R.drawable.my_car_menu),
         navigationIconContentDescription = "Меню",
         onNavigationIconClick = { scope.launch { drawerState.open() } },
         actions = {
@@ -66,7 +66,7 @@ fun MainTopBar(
             ) {
                 Icon(
                     tint = if (isLightTheme) Black else White,
-                    painter = painterResource(R.drawable.keyboard_arrow_down),
+                    painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
                     contentDescription = "Выбор машины"
                 )
             }
@@ -87,8 +87,8 @@ private fun CarPhoto(
                 .data(currentCarImageUri.value)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.car_wo_photo),
-            error = painterResource(R.drawable.car_wo_photo),
+            placeholder = painterResource(R.drawable.my_car_car_wo_photo),
+            error = painterResource(R.drawable.my_car_car_wo_photo),
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
@@ -119,7 +119,7 @@ private fun CarPhoto(
                     }
                 ),
             contentScale = ContentScale.Crop,
-            painter = painterResource(R.drawable.car_wo_photo),
+            painter = painterResource(R.drawable.my_car_car_wo_photo),
             contentDescription = "Иконка машины"
         )
     }

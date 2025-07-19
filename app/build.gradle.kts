@@ -71,6 +71,12 @@ dependencies {
     //core:design
     implementation(project(":core:design"))
 
+    //osmdroid
+    implementation(libs.osmdroid.android)
+
+    //Google Play Services Location
+    implementation(libs.play.services.location)
+
     //core:data
     implementation(project(":core:data"))
 
@@ -95,8 +101,6 @@ dependencies {
     implementation(project(":feature:expense:presentation"))
 
     //feature:map
-    implementation(project(":feature:map:data"))
-    implementation(project(":feature:map:domain"))
     implementation(project(":feature:map:di"))
     implementation(project(":feature:map:presentation"))
 

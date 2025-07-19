@@ -18,7 +18,8 @@ import com.andef.mycarandef.car.domain.usecases.SetCurrentCarNameUseCase
 import com.andef.mycarandef.expense.di.ExpenseDaoModule
 import com.andef.mycarandef.expense.di.ExpenseRepositoryModule
 import com.andef.mycarandef.expense.di.ExpenseViewModelModule
-import com.andef.mycarandef.map.di.MapRepositoryModule
+import com.andef.mycarandef.map.di.MapViewModelModule
+import com.andef.mycarandef.map.presentation.MapMainViewModel
 import com.andef.mycarandef.start.di.StartRepositoryModule
 import com.andef.mycarandef.start.di.StartViewModelModule
 import com.andef.mycarandef.start.domain.usecases.GetIsFirstStartUseCase
@@ -58,7 +59,7 @@ import javax.inject.Singleton
         ExpenseViewModelModule::class,
 
         //Map
-        MapRepositoryModule::class,
+        MapViewModelModule::class,
 
         //Work
         WorkRepositoryModule::class,

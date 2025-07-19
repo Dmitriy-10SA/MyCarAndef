@@ -49,25 +49,25 @@ private fun onMainScreenItemClick(
 @Composable
 private fun mainScreenItems() = listOf(
     UiNavigationBarItem(
-        icon = painterResource(R.drawable.works),
+        icon = painterResource(R.drawable.my_car_works),
         contentDescription = "Иконка работы",
         title = "Работы",
         route = Screen.MainScreens.WorksMainScreen.route
     ),
     UiNavigationBarItem(
-        icon = painterResource(R.drawable.ruble),
+        icon = painterResource(R.drawable.my_car_ruble),
         contentDescription = "Иконка рубля",
         title = "Траты",
         Screen.MainScreens.ExpensesMainScreen.route
     ),
     UiNavigationBarItem(
-        icon = painterResource(R.drawable.location),
+        icon = painterResource(R.drawable.my_car_location),
         contentDescription = "Иконка локация значок",
         title = "Карта",
         Screen.MainScreens.MapsMainScreen.route
     ),
     UiNavigationBarItem(
-        icon = painterResource(R.drawable.car),
+        icon = painterResource(R.drawable.my_car_car),
         contentDescription = "Иконка машины",
         title = "Гараж",
         Screen.MainScreens.CarsMainScreen.route

@@ -66,8 +66,8 @@ fun <T> UiMenu(
             },
             trailingIcon = {
                 Icon(
-                    painter = if (expanded) painterResource(R.drawable.arrow_drop_up)
-                    else painterResource(R.drawable.arrow_drop_down),
+                    painter = if (expanded) painterResource(R.drawable.my_car_arrow_drop_up)
+                    else painterResource(R.drawable.my_car_arrow_drop_down),
                     contentDescription = "Открытие закрытие меню"
                 )
             },

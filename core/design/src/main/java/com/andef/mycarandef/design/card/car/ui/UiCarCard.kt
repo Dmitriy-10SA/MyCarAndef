@@ -81,15 +81,15 @@ private fun BoxScope.CarPhoto(car: Car, context: Context) {
                 .data(car.photo)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.car_wo_photo),
-            error = painterResource(R.drawable.car_wo_photo),
+            placeholder = painterResource(R.drawable.my_car_car_wo_photo),
+            error = painterResource(R.drawable.my_car_car_wo_photo),
             modifier = Modifier.height(160.dp),
             contentScale = ContentScale.Crop,
             contentDescription = "Фото машины"
         )
     } else {
         Image(
-            painter = painterResource(R.drawable.car_wo_photo),
+            painter = painterResource(R.drawable.my_car_car_wo_photo),
             contentDescription = "Фото машины из гаража без фото",
             contentScale = ContentScale.Crop,
             modifier = Modifier.height(160.dp)

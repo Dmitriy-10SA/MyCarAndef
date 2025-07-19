@@ -104,10 +104,10 @@ private val shape = RoundedCornerShape(16.dp)
 fun getImageForExpense(type: ExpenseType): Painter {
     return painterResource(
         when (type) {
-            ExpenseType.FUEL -> R.drawable.fuel_photo
-            ExpenseType.WORKS -> R.drawable.works_photo
-            ExpenseType.WASHING -> R.drawable.washing_photo
-            ExpenseType.OTHER -> R.drawable.other_photo
+            ExpenseType.FUEL -> R.drawable.my_car_fuel_photo
+            ExpenseType.WORKS -> R.drawable.my_car_works_photo
+            ExpenseType.WASHING -> R.drawable.my_car_washing_photo
+            ExpenseType.OTHER -> R.drawable.my_car_other_photo
         }
     )
 }

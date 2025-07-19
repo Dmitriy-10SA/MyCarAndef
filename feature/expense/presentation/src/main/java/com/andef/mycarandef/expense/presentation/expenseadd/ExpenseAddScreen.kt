@@ -120,7 +120,7 @@ fun ExpenseAddScreen(
                 isLightTheme = isLightTheme,
                 type = UiTopBarType.Center,
                 title = "Траты",
-                navigationIcon = painterResource(R.drawable.arrow_back),
+                navigationIcon = painterResource(R.drawable.my_car_arrow_back),
                 navigationIconContentDescription = "Назад",
                 onNavigationIconClick = {
                     if (!state.value.isLoading) navHostController.popBackStack()
@@ -216,7 +216,7 @@ private fun ColumnScope.MainContent(
                     }
                 ),
             contentScale = ContentScale.Crop,
-            painter = painterResource(R.drawable.piechart_expenses),
+            painter = painterResource(R.drawable.my_car_piechart_expenses),
             contentDescription = "Иконка траты диаграмма круговая"
         )
         Spacer(modifier = Modifier.height(28.dp))
@@ -240,7 +240,7 @@ private fun ColumnScope.MainContent(
             },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Сумма (₽)",
-            leadingIcon = painterResource(R.drawable.ruble),
+            leadingIcon = painterResource(R.drawable.my_car_ruble),
             contentDescription = "Значок рубля",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
@@ -266,7 +266,7 @@ private fun ColumnScope.MainContent(
             isLightTheme = isLightTheme,
             value = state.value.type?.title ?: "",
             placeholderText = "Тип",
-            textFieldLeadingIcon = painterResource(R.drawable.more_horiz),
+            textFieldLeadingIcon = painterResource(R.drawable.my_car_more_horiz),
             textFieldLeadingIconContentDescription = "Три горизонтальные точки",
             onItemClick = { item ->
                 typeExpanded = false
@@ -282,9 +282,9 @@ private fun ColumnScope.MainContent(
             onClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(true)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Дата",
-            leadingIcon = painterResource(R.drawable.schedule),
+            leadingIcon = painterResource(R.drawable.my_car_schedule),
             leadingIconContentDescription = "Значок часов",
-            trailingIcon = painterResource(R.drawable.calendar),
+            trailingIcon = painterResource(R.drawable.my_car_calendar),
             trailingIconContentDescription = "Значок календаря"
         )
         Spacer(modifier = Modifier.height(28.dp))
@@ -304,7 +304,7 @@ private fun ColumnScope.MainContent(
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
             placeholderText = "Примечание",
-            leadingIcon = painterResource(R.drawable.comment),
+            leadingIcon = painterResource(R.drawable.my_car_comment),
             contentDescription = "Значок комментария",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,

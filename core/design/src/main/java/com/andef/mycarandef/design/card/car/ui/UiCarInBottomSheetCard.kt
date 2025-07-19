@@ -92,8 +92,8 @@ private fun RowScope.CarPhoto(car: Car, context: Context) {
                 .data(car.photo)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.car_wo_photo),
-            error = painterResource(R.drawable.car_wo_photo),
+            placeholder = painterResource(R.drawable.my_car_car_wo_photo),
+            error = painterResource(R.drawable.my_car_car_wo_photo),
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape),
@@ -102,7 +102,7 @@ private fun RowScope.CarPhoto(car: Car, context: Context) {
         )
     } else {
         Image(
-            painter = painterResource(R.drawable.car_wo_photo),
+            painter = painterResource(R.drawable.my_car_car_wo_photo),
             contentDescription = "Фото машины из гаража без фото",
             contentScale = ContentScale.Crop,
             modifier = Modifier

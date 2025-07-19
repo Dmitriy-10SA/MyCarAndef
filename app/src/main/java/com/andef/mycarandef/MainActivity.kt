@@ -225,7 +225,7 @@ private fun MainFAB(navBackStackEntry: NavBackStackEntry?, navHostController: Na
     )
     UiFAB(
         isVisible = currentRoute in allRoutesForMainFAB,
-        icon = painterResource(R.drawable.add),
+        icon = painterResource(R.drawable.my_car_add),
         iconContentDescription = "Крестик добавить",
         onClick = {
             when (currentRoute) {

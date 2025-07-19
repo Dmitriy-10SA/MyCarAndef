@@ -124,7 +124,7 @@ private fun MainContent(
             onValueChange = { viewModel.send(UsernameInputIntent.UsernameChange(it)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Ваше имя",
-            leadingIcon = painterResource(R.drawable.person),
+            leadingIcon = painterResource(R.drawable.my_car_person),
             contentDescription = "Иконка человечка",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,

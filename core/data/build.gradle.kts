@@ -44,10 +44,6 @@ dependencies {
     implementation(project(":feature:expense:data"))
     implementation(project(":feature:expense:domain"))
 
-    //feature:map
-    implementation(project(":feature:map:data"))
-    implementation(project(":feature:map:domain"))
-
     //feature:car
     implementation(project(":feature:car:data"))
     implementation(project(":feature:car:domain"))
