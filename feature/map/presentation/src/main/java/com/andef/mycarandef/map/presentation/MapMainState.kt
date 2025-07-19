@@ -8,6 +8,9 @@ data class MapMainState(
     val coarsePermission: Boolean = false,
     val isErrorSnackbar: Boolean = false,
     val confirmDialogVisible: Boolean = false,
+    val bottomSheetVisible: Boolean = false,
+    val latInBottomSheet: Double? = null,
+    val lonInBottomSheet: Double? = null,
     val isLoading: Boolean = false,
     val isError: Boolean = false
 )

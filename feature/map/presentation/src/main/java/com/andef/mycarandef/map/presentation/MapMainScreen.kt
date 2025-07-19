@@ -21,8 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +43,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,6 +67,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapMainScreen(
     navHostController: NavHostController,
@@ -78,6 +80,7 @@ fun MapMainScreen(
     val state = viewModel.state.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val settingsLauncher = rememberLauncherForActivityResult(
@@ -172,8 +175,23 @@ fun MapMainScreen(
         context = context,
         snackbarHostState = snackbarHostState
     )
+    MapMainBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = {
+            viewModel.send(
+                MapMainIntent.ChangeBottomSheetVisible(
+                    isVisible = false,
+                    lat = null,
+                    lon = null
+                )
+            )
+        },
+        lat = state.value.latInBottomSheet,
+        lon = state.value.lonInBottomSheet
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     viewModel: MapMainViewModel,
@@ -220,7 +238,19 @@ private fun MainContent(
             UiButton(
                 text = "Построить маршрут до автомобиля",
                 onClick = {
-                    TODO("Строим маршрут.")
+                    viewModel.send(
+                        MapMainIntent.BuildRouteToCar(
+                            latAndLon = { lat, lon ->
+                                viewModel.send(
+                                    MapMainIntent.ChangeBottomSheetVisible(
+                                        isVisible = true,
+                                        lat = lat,
+                                        lon = lon
+                                    )
+                                )
+                            }
+                        )
+                    )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.value.currentCar?.coordinatesLat != null &&
@@ -259,14 +289,6 @@ private fun MainContent(
         }
     )
 }
-
-private fun isPackageInstalled(context: Context, packageName: String): Boolean =
-    try {
-        context.packageManager.getPackageInfo(packageName, 0)
-        true
-    } catch (_: PackageManager.NameNotFoundException) {
-        false
-    }
 
 @Composable
 private fun ConfirmDialog(

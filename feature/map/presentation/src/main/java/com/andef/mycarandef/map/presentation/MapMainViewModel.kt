@@ -33,6 +33,14 @@ class MapMainViewModel @Inject constructor(
                 )
             }
 
+            is MapMainIntent.ChangeBottomSheetVisible -> {
+                _state.value = _state.value.copy(
+                    bottomSheetVisible = intent.isVisible,
+                    latInBottomSheet = intent.lat,
+                    lonInBottomSheet = intent.lon
+                )
+            }
+
             is MapMainIntent.SaveCarCoordinates -> {
                 saveCoordinates(
                     context = intent.context,
