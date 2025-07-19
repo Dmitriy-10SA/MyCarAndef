@@ -46,6 +46,9 @@ dependencies {
     //core:design
     implementation(project(":core:design"))
 
+    //osmdroid
+    implementation(libs.osmdroid.android)
+
     //feature:car:domain
     implementation(project(":feature:car:domain"))
 

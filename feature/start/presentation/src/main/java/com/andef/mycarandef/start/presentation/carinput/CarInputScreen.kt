@@ -187,7 +187,7 @@ private fun ColumnScope.MainContent(
             onValueChange = { viewModel.send(CarInputIntent.ChangeBrand(it)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Марка",
-            leadingIcon = painterResource(R.drawable.brand),
+            leadingIcon = painterResource(R.drawable.my_car_brand),
             contentDescription = "Значок бренд",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -201,7 +201,7 @@ private fun ColumnScope.MainContent(
             onValueChange = { viewModel.send(CarInputIntent.ChangeModel(it)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Модель",
-            leadingIcon = painterResource(R.drawable.car),
+            leadingIcon = painterResource(R.drawable.my_car_car),
             contentDescription = "Значок авто",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -225,9 +225,9 @@ private fun ColumnScope.MainContent(
             },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Фото",
-            leadingIcon = painterResource(R.drawable.image),
+            leadingIcon = painterResource(R.drawable.my_car_image),
             leadingIconContentDescription = "Значок фото",
-            trailingIcon = painterResource(R.drawable.attach),
+            trailingIcon = painterResource(R.drawable.my_car_attach),
             trailingIconContentDescription = "Значок скрепки"
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -244,7 +244,7 @@ private fun ColumnScope.MainContent(
             },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Год выпуска",
-            leadingIcon = painterResource(R.drawable.schedule),
+            leadingIcon = painterResource(R.drawable.my_car_schedule),
             contentDescription = "Значок часов",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
@@ -261,7 +261,7 @@ private fun ColumnScope.MainContent(
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
             placeholderText = "Госномер",
-            leadingIcon = painterResource(R.drawable.more_horiz),
+            leadingIcon = painterResource(R.drawable.my_car_more_horiz),
             contentDescription = "Три горизонтальные точки",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -284,8 +284,8 @@ private fun ColumnScope.CarPhoto(
                 .data(state.value.photo)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.car_cars),
-            error = painterResource(R.drawable.car_cars),
+            placeholder = painterResource(R.drawable.my_car_car_cars),
+            error = painterResource(R.drawable.my_car_car_cars),
             modifier = Modifier
                 .padding(top = 12.dp)
                 .size(130.dp)
@@ -318,7 +318,7 @@ private fun ColumnScope.CarPhoto(
                     }
                 ),
             contentScale = ContentScale.Crop,
-            painter = painterResource(R.drawable.car_cars),
+            painter = painterResource(R.drawable.my_car_car_cars),
             contentDescription = "Иконка машины"
         )
     }

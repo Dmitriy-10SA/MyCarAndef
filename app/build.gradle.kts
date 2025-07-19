@@ -71,6 +71,9 @@ dependencies {
     //core:design
     implementation(project(":core:design"))
 
+    //osmdroid
+    implementation(libs.osmdroid.android)
+
     //core:data
     implementation(project(":core:data"))
 

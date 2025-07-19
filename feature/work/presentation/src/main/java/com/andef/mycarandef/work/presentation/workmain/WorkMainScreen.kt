@@ -236,7 +236,7 @@ private fun BottomSheetContent(
                 .clickable(onClick = onEditClick)
         ) {
             Icon(
-                painter = painterResource(R.drawable.edit),
+                painter = painterResource(R.drawable.my_car_edit),
                 tint = if (isLightTheme) Black else White,
                 contentDescription = "Карандаш (изменить)"
             )
@@ -249,7 +249,7 @@ private fun BottomSheetContent(
                 .clickable(onClick = onDeleteClick)
         ) {
             Icon(
-                painter = painterResource(R.drawable.delete),
+                painter = painterResource(R.drawable.my_car_delete),
                 tint = Red,
                 contentDescription = "Корзина"
             )

@@ -1,5 +1,12 @@
 package com.andef.mycarandef.map.presentation
 
+import com.andef.mycarandef.car.domain.entities.Car
+
 data class MapMainState(
-    val isLoading: Boolean = false
+    val currentCar: Car? = null,
+    val finePermission: Boolean = false,
+    val coarsePermission: Boolean = false,
+    val isErrorSnackbar: Boolean = false,
+    val isLoading: Boolean = false,
+    val isError: Boolean = false
 )

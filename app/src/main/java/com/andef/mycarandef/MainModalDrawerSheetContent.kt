@@ -107,7 +107,7 @@ fun MainModalDrawerSheetContent(
                 onValueChange = { usernameValue = it },
                 modifier = Modifier.fillMaxWidth(),
                 placeholderText = "Ваше имя",
-                leadingIcon = painterResource(com.andef.mycarandef.design.R.drawable.person),
+                leadingIcon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_person),
                 contentDescription = "Иконка человека",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -146,7 +146,7 @@ private fun InnerContent(
         Icon(
             modifier = Modifier.size(100.dp),
             tint = if (isLightTheme) Black else White,
-            painter = painterResource(com.andef.mycarandef.design.R.drawable.car_key),
+            painter = painterResource(com.andef.mycarandef.design.R.drawable.my_car_car_key),
             contentDescription = "Иконка приложения"
         )
         UsernameContent(
@@ -169,7 +169,7 @@ private fun InnerContent(
             item {
                 InnerContentItem(
                     isLightTheme = isLightTheme,
-                    icon = painterResource(com.andef.mycarandef.design.R.drawable.schedule),
+                    icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_schedule),
                     iconContentDescription = "Иконка часов",
                     itemText = "Скоро...",
                     onClick = {}
@@ -244,7 +244,7 @@ private fun ColumnScope.UsernameContent(
             onClick = { nameChangeSheetVisible.value = true }
         ) {
             Icon(
-                painter = painterResource(com.andef.mycarandef.design.R.drawable.edit),
+                painter = painterResource(com.andef.mycarandef.design.R.drawable.my_car_edit),
                 contentDescription = "Карандаш (изменить)"
             )
         }
@@ -295,9 +295,9 @@ private fun ColumnScope.UiThemeContent(isLightTheme: Boolean, component: MyCarCo
         ) {
             Icon(
                 painter = if (isLightTheme) {
-                    painterResource(com.andef.mycarandef.design.R.drawable.baseline_light)
+                    painterResource(com.andef.mycarandef.design.R.drawable.my_car_baseline_light)
                 } else {
-                    painterResource(com.andef.mycarandef.design.R.drawable.outline_light)
+                    painterResource(com.andef.mycarandef.design.R.drawable.my_car_outline_light)
                 },
                 tint = if (isLightTheme) Black else GrayForDark,
                 contentDescription = "Значок для светлой темы"
@@ -329,9 +329,9 @@ private fun ColumnScope.UiThemeContent(isLightTheme: Boolean, component: MyCarCo
         ) {
             Icon(
                 painter = if (isLightTheme) {
-                    painterResource(com.andef.mycarandef.design.R.drawable.outline_dark)
+                    painterResource(com.andef.mycarandef.design.R.drawable.my_car_outline_dark)
                 } else {
-                    painterResource(com.andef.mycarandef.design.R.drawable.baseline_dark)
+                    painterResource(com.andef.mycarandef.design.R.drawable.my_car_baseline_dark)
                 },
                 tint = if (isLightTheme) GrayForLight else White,
                 contentDescription = "Значок для темной темы"
