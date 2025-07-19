@@ -267,7 +267,8 @@ private fun BottomSheetContent(
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
-                    .clickable(onClick = onChooseCurrentClick)
+                    .clickable(onClick = onChooseCurrentClick),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     painter = painterResource(R.drawable.my_car_star),
@@ -285,7 +286,8 @@ private fun BottomSheetContent(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .clickable(onClick = onEditClick)
+                .clickable(onClick = onEditClick),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.my_car_edit),
@@ -298,7 +300,8 @@ private fun BottomSheetContent(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .clickable(onClick = onDeleteClick)
+                .clickable(onClick = onDeleteClick),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.my_car_delete),
