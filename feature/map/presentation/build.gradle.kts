@@ -49,6 +49,9 @@ dependencies {
     //osmdroid
     implementation(libs.osmdroid.android)
 
+    //Google Play Services Location
+    implementation(libs.play.services.location)
+
     //feature:car:domain
     implementation(project(":feature:car:domain"))
 

@@ -42,6 +42,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.andef.mycarandef.design.alertdialog.ui.UiAlertDialog
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
@@ -50,8 +51,12 @@ import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.viewmodel.ViewModelFactory
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
@@ -155,6 +160,14 @@ fun MapMainScreen(
             UiSnackbarType.Success
         }
     )
+    ConfirmDialog(
+        isLightTheme = isLightTheme,
+        viewModel = viewModel,
+        state = state,
+        scope = scope,
+        context = context,
+        snackbarHostState = snackbarHostState
+    )
 }
 
 @Composable
@@ -196,7 +209,7 @@ private fun MainContent(
             UiButton(
                 text = "Сохранить новое местоположение",
                 onClick = {
-                    TODO("Открытие диалога да или нет. После сохранение координат, если да.")
+                    viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = true))
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -240,6 +253,78 @@ private fun MainContent(
             )
         }
     )
+}
+
+@Composable
+private fun ConfirmDialog(
+    isLightTheme: Boolean,
+    viewModel: MapMainViewModel,
+    context: Context,
+    state: State<MapMainState>,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    UiAlertDialog(
+        isLightTheme = isLightTheme,
+        title = "Прошлое местоположение будет удалено!\nВы уверены?",
+        onDismissRequest = {
+            viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
+        },
+        onYesClick = {
+            viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
+            viewModel.send(
+                MapMainIntent.SaveCarCoordinates(
+                    onSuccess = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true
+                            )
+                        }
+                    },
+                    context = context,
+                    onError = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long
+                            )
+                        }
+                    }
+                )
+            )
+        },
+        onCancelClick = {
+            viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
+        },
+        isVisible = state.value.confirmDialogVisible
+    )
+}
+
+@Suppress("MissingPermission")
+suspend fun getPreciseLocationOnce(context: Context): Pair<Double, Double>? {
+    val hasFine = ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    if (!hasFine) return null
+    val fused = LocationServices.getFusedLocationProviderClient(context)
+    val cts = CancellationTokenSource()
+    val current = suspendCancellableCoroutine<Pair<Double, Double>?> { cont ->
+        fused.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
+            .addOnSuccessListener { loc ->
+                if (!cont.isCompleted) {
+                    cont.resume(loc?.let { it.latitude to it.longitude }) { cause, _, _ -> null }
+                }
+            }
+            .addOnFailureListener {
+                if (!cont.isCompleted) cont.resume(null) { cause, _, _ -> null }
+            }
+        cont.invokeOnCancellation { cts.cancel() }
+    }
+    return current
 }
 
 fun hasLocationFinePermission(context: Context): Boolean {
@@ -294,7 +379,26 @@ private fun ColumnScope.Map(isLightTheme: Boolean, state: State<MapMainState>) {
                     }
                 }
             }
-        }
+        },
+//        update = { map ->
+//            // Обновляем маркер при изменении координат
+//            val car = state.value.currentCar
+//            val existing = map.overlays.filterIsInstance<Marker>()
+//                .firstOrNull { it.title == "Авто" }
+//            if (existing != null) map.overlays.remove(existing)
+//
+//            val lat = car?.coordinatesLat
+//            val lon = car?.coordinatesLon
+//            if (lat != null && lon != null) {
+//                val marker = Marker(map).apply {
+//                    position = org.osmdroid.util.GeoPoint(lat, lon)
+//                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+//                    title = "Авто"
+//                }
+//                map.overlays.add(marker)
+//            }
+//            map.invalidate()
+//        }
     )
 }
 

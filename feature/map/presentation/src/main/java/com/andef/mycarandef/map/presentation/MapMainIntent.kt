@@ -9,12 +9,12 @@ sealed class MapMainIntent {
         val onOnlyForCoarse: (String) -> Unit
     ) : MapMainIntent()
     data class SaveCarCoordinates(
-        val lat: Double,
-        val lon: Double,
+        val context: Context,
         val onSuccess: (String) -> Unit,
         val onError: (String) -> Unit
     ) : MapMainIntent()
     data class PermissionChanged(val fine: Boolean, val coarse: Boolean) : MapMainIntent()
+    data class ConfirmDialogVisibleChange(val isVisible: Boolean) : MapMainIntent()
 
     data class BuildRouteToCar(val latAndLon: (Double, Double) -> Unit) : MapMainIntent()
 }

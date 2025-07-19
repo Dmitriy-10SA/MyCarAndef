@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+private class SaveCoordinatesException : Exception()
+
 class MapMainViewModel @Inject constructor(
     private val getCarByIdUseCase: GetCarByIdUseCase,
     private val changeCarUseCase: ChangeCarUseCase
@@ -33,8 +35,7 @@ class MapMainViewModel @Inject constructor(
 
             is MapMainIntent.SaveCarCoordinates -> {
                 saveCoordinates(
-                    lat = intent.lat,
-                    lon = intent.lon,
+                    context = intent.context,
                     onError = intent.onError,
                     onSuccess = intent.onSuccess
                 )
@@ -44,10 +45,16 @@ class MapMainViewModel @Inject constructor(
                 getCoordinates(latAndLon = intent.latAndLon)
             }
 
-            is MapMainIntent.PermissionChanged -> _state.value = _state.value.copy(
-                finePermission = intent.fine,
-                coarsePermission = intent.coarse
-            )
+            is MapMainIntent.PermissionChanged -> {
+                _state.value = _state.value.copy(
+                    finePermission = intent.fine,
+                    coarsePermission = intent.coarse
+                )
+            }
+
+            is MapMainIntent.ConfirmDialogVisibleChange -> {
+                _state.value = _state.value.copy(confirmDialogVisible = intent.isVisible)
+            }
         }
     }
 
@@ -62,8 +69,7 @@ class MapMainViewModel @Inject constructor(
     }
 
     private fun saveCoordinates(
-        lat: Double,
-        lon: Double,
+        context: Context,
         onSuccess: (String) -> Unit,
         onError: (String) -> Unit
     ) {
@@ -71,6 +77,10 @@ class MapMainViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     _state.value = _state.value.copy(isLoading = true, isErrorSnackbar = false)
+                    val coordinates = withContext(Dispatchers.IO) {
+                        getPreciseLocationOnce(context)
+                    }
+                    if (coordinates == null) throw SaveCoordinatesException()
                     withContext(Dispatchers.IO) {
                         changeCarUseCase.invoke(
                             id = car.id,
@@ -79,8 +89,8 @@ class MapMainViewModel @Inject constructor(
                             photo = car.photo,
                             year = car.year,
                             registrationMark = car.registrationMark,
-                            coordinatesLon = lon,
-                            coordinatesLat = lat
+                            coordinatesLon = coordinates.second,
+                            coordinatesLat = coordinates.first
                         )
                     }
                     _state.value = _state.value.copy(
@@ -91,12 +101,16 @@ class MapMainViewModel @Inject constructor(
                             photo = car.photo,
                             year = car.year,
                             registrationMark = car.registrationMark,
-                            coordinatesLon = lon,
-                            coordinatesLat = lat
+                            coordinatesLon = coordinates.second,
+                            coordinatesLat = coordinates.first
                         )
                     )
-                    onSuccess("Координаты успешно сохранены!")
+                    onSuccess("Местоположение успешно сохранено!")
+                } catch (_: SaveCoordinatesException) {
+                    _state.value = _state.value.copy(isErrorSnackbar = true)
+                    onError("Невозможно определить точное местоположение! Проверьте, включен ли GPS!")
                 } catch (_: Exception) {
+                    _state.value = _state.value.copy(isErrorSnackbar = true)
                     onError("Ошибка! Попробуйте ещё раз!")
                 } finally {
                     _state.value = _state.value.copy(isLoading = false)

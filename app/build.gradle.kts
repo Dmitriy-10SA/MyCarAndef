@@ -74,6 +74,9 @@ dependencies {
     //osmdroid
     implementation(libs.osmdroid.android)
 
+    //Google Play Services Location
+    implementation(libs.play.services.location)
+
     //core:data
     implementation(project(":core:data"))
 

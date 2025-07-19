@@ -7,6 +7,7 @@ data class MapMainState(
     val finePermission: Boolean = false,
     val coarsePermission: Boolean = false,
     val isErrorSnackbar: Boolean = false,
+    val confirmDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val isError: Boolean = false
 )
