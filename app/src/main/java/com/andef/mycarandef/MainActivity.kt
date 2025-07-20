@@ -154,6 +154,7 @@ private fun MainContent(
     MyCarAndefTheme(darkTheme = !isLightTheme) {
         ModalNavigationDrawer(
             drawerState = drawerState,
+            gesturesEnabled = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
             drawerContent = {
                 MainModalDrawerSheetContent(
                     username = username,

@@ -209,6 +209,8 @@ private fun InnerContentItem(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             text = itemText,
             fontSize = 18.sp,
             color = if (isLightTheme) Black else White

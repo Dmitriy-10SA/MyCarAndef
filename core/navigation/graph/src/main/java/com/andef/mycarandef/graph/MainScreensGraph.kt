@@ -49,7 +49,6 @@ fun NavGraphBuilder.mainScreensGraph(
         composable(route = Screen.MainScreens.MapsMainScreen.route) {
             if (mainContentIsVisible) {
                 MapMainScreen(
-                    navHostController = navHostController,
                     viewModelFactory = viewModelFactory,
                     paddingValues = paddingValues,
                     isLightTheme = isLightTheme,

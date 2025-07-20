@@ -246,7 +246,7 @@ private fun ColumnScope.MainContent(
             contentDescription = "Значок машины",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Next
             ),
             visualTransformation = MileageVisualTransformation()
         )

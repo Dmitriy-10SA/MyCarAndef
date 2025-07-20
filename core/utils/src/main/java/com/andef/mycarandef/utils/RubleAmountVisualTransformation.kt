@@ -9,10 +9,9 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 
 class RubleAmountVisualTransformation : VisualTransformation {
-    private val locale = Locale("ru", "RU")
-    private val dfs = DecimalFormatSymbols(locale).apply {
-        decimalSeparator = ','
-        groupingSeparator = '.'
+    private val dfs = DecimalFormatSymbols(Locale("ru", "RU")).apply {
+        groupingSeparator = ' '
+        decimalSeparator = '.'
     }
     private val formatter = DecimalFormat("#,##0.00", dfs)
     private val suffix = "₽"
@@ -22,53 +21,54 @@ class RubleAmountVisualTransformation : VisualTransformation {
         if (raw.isEmpty()) {
             return TransformedText(text, OffsetMapping.Identity)
         }
-
-        val number = raw.replace(',', '.').toDoubleOrNull()
-
+        val normalized = raw
+            .replace("\u00A0", "")
+            .replace(" ", "")
+            .replace(',', '.')
+        val number = normalized.toDoubleOrNull()
         if (number == null) {
-            return TransformedText(text, OffsetMapping.Identity)
+            return TransformedText(AnnotatedString(raw), OffsetMapping.Identity)
         }
-
         val formattedNumber = formatter.format(number)
         val showText = formattedNumber + suffix
-
         val offsetMapping = buildOffsetMappingForMoney(
-            raw = raw,
+            raw = normalized,
             formatted = formattedNumber,
-            suffixLength = suffix.length
+            suffixLength = suffix.length,
+            decimalChar = '.'
         )
-
         return TransformedText(AnnotatedString(showText), offsetMapping)
     }
 
     private fun buildOffsetMappingForMoney(
         raw: String,
         formatted: String,
-        suffixLength: Int
+        suffixLength: Int,
+        decimalChar: Char
     ): OffsetMapping {
         val rawLen = raw.length
         val fmtLen = formatted.length
         val editableFmtIdx = buildList {
             formatted.forEachIndexed { idx, ch ->
-                if (ch.isDigit() || ch == ',') add(idx)
+                if (ch.isDigit() || ch == decimalChar) add(idx)
             }
         }
         val editableCount = editableFmtIdx.size
         val rawToFmt = IntArray(rawLen + 1)
-        var take = 0
+        var taken = 0
 
-        fun mapPos(rawPos: Int, fmtPos: Int) {
+        fun map(rawPos: Int, fmtPos: Int) {
             rawToFmt[rawPos] = fmtPos
         }
 
         for (i in 0 until rawLen) {
             val r = raw[i]
-            if (!r.isDigit() && r != ',' && r != '.') continue
-            if (take < editableCount) {
-                mapPos(i, editableFmtIdx[take])
-                take++
+            if (!r.isDigit() && r != decimalChar) continue
+            if (taken < editableCount) {
+                map(i, editableFmtIdx[taken])
+                taken++
             } else {
-                mapPos(i, editableFmtIdx.lastOrNull() ?: (fmtLen - suffixLength))
+                map(i, editableFmtIdx.lastOrNull() ?: (fmtLen - suffixLength))
             }
         }
         rawToFmt[rawLen] = editableFmtIdx.lastOrNull()?.plus(1) ?: (fmtLen - suffixLength)
@@ -76,8 +76,7 @@ class RubleAmountVisualTransformation : VisualTransformation {
         return object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {
                 val o = offset.coerceIn(0, rawLen)
-                val mapped = rawToFmt[o].coerceAtMost(fmtLen - suffixLength)
-                return mapped
+                return rawToFmt[o].coerceAtMost(fmtLen - suffixLength)
             }
 
             override fun transformedToOriginal(offset: Int): Int {
@@ -85,8 +84,7 @@ class RubleAmountVisualTransformation : VisualTransformation {
                 val pos = editableFmtIdx.binarySearch(limited).let { idx ->
                     if (idx >= 0) idx else (-idx - 2).coerceAtLeast(0)
                 }
-                val targetFmt = editableFmtIdx.getOrNull(pos)
-                if (targetFmt == null) return rawLen
+                val targetFmt = editableFmtIdx.getOrNull(pos) ?: return rawLen
                 for (i in 0 until rawLen) {
                     if (rawToFmt[i] == targetFmt) return i
                 }

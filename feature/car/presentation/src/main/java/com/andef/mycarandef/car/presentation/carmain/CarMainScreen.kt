@@ -238,7 +238,7 @@ private fun BottomSheetContent(
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
             .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
         Column {
@@ -263,11 +263,15 @@ private fun BottomSheetContent(
                 color = if (isLightTheme) GrayForLight else GrayForDark
             )
         }
+        Spacer(modifier = Modifier.height(12.dp))
         if (showCurrentAction) {
             Row(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .clickable(onClick = onChooseCurrentClick)
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     painter = painterResource(R.drawable.my_car_star),
@@ -282,10 +286,14 @@ private fun BottomSheetContent(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .clickable(onClick = onEditClick)
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.my_car_edit),
@@ -295,10 +303,14 @@ private fun BottomSheetContent(
             Spacer(modifier = Modifier.width(10.dp))
             Text(text = "Изменить", color = if (isLightTheme) Black else White, fontSize = 16.sp)
         }
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .clickable(onClick = onDeleteClick)
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.my_car_delete),
