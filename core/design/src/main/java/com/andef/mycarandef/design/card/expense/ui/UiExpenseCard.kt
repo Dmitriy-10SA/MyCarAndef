@@ -81,7 +81,14 @@ fun UiExpenseCard(
                     color = if (isLightTheme) Black else White
                 )
                 Text(
-                    text = expense.note ?: "Примечания нет",
+                    text = buildString {
+                        val note = expense.note
+                        if (note.isNullOrBlank()) {
+                            append("Примечания нет")
+                        } else {
+                            append(note)
+                        }
+                    }.toString(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
