@@ -64,7 +64,14 @@ fun UiWorkCard(
                     color = if (isLightTheme) Black else White
                 )
                 Text(
-                    text = work.note ?: "Примечания нет",
+                    text = buildString {
+                        val note = work.note
+                        if (note.isNullOrBlank()) {
+                            append("Примечания нет")
+                        } else {
+                            append(note)
+                        }
+                    }.toString(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
