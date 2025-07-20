@@ -229,7 +229,7 @@ private fun ColumnScope.MainContent(
             contentDescription = "Значок авто",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Next
             )
         )
         Spacer(modifier = Modifier.height(28.dp))

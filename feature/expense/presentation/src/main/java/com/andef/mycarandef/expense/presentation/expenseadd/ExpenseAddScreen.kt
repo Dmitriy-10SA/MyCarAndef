@@ -244,7 +244,7 @@ private fun ColumnScope.MainContent(
             contentDescription = "Значок рубля",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Next
             ),
             visualTransformation = RubleAmountVisualTransformation()
         )
