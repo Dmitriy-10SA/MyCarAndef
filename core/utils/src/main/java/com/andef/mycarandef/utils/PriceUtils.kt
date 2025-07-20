@@ -6,8 +6,8 @@ import java.util.Locale
 
 fun formatPriceRuble(value: Double): String {
     val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
-        groupingSeparator = '.'
-        decimalSeparator = ','
+        groupingSeparator = ' '
+        decimalSeparator = '.'
     }
     val formatter = DecimalFormat("#,##0.00", symbols)
     return "${formatter.format(value)}₽"
