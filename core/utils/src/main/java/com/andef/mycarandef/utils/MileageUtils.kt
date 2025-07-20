@@ -5,7 +5,7 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 fun formatMileage(mileage: Int): String {
-    val symbols = DecimalFormatSymbols(Locale.getDefault()).apply { groupingSeparator = '.' }
+    val symbols = DecimalFormatSymbols(Locale.getDefault()).apply { groupingSeparator = ' ' }
     val formatter = DecimalFormat("#,###", symbols)
     return "${formatter.format(mileage)}км"
 }

@@ -9,7 +9,7 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 class MileageVisualTransformation : VisualTransformation {
-    private val symbols = DecimalFormatSymbols(Locale.getDefault()).apply { groupingSeparator = '.' }
+    private val symbols = DecimalFormatSymbols(Locale.getDefault()).apply { groupingSeparator = ' ' }
     private val formatter = DecimalFormat("#,###", symbols)
 
     override fun filter(text: AnnotatedString): TransformedText {
