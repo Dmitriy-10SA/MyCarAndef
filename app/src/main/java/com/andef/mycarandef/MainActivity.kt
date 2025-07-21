@@ -201,7 +201,9 @@ private fun MainContent(
                         isFirstStart = component.getIsFirstStartUseCase(),
                         isLightTheme = isLightTheme,
                         mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
-                        currentCarId = currentCarId.value
+                        currentCarId = currentCarId.value,
+                        currentCarName = currentCarName,
+                        currentCarImageUri = currentCarImageUri
                     )
                     MainBottomSheet(
                         isLightTheme = isLightTheme,

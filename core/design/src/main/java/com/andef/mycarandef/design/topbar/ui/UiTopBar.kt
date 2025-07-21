@@ -1,25 +1,34 @@
 package com.andef.mycarandef.design.topbar.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andef.mycarandef.design.theme.Black
+import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
@@ -129,6 +138,81 @@ private fun MainContent(
             windowInsets = windowInsets,
             colors = colors(isLightTheme = isLightTheme)
         )
+
+        is UiTopBarType.WithTabs -> {
+            Column {
+                TopAppBar(
+                    modifier = modifier,
+                    title = {
+                        Text(
+                            text = title,
+                            maxLines = 1,
+                            fontSize = 20.sp,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    navigationIcon = {
+                        navigationIcon?.let {
+                            IconButton(onClick = onNavigationIconClick) {
+                                Icon(
+                                    painter = it,
+                                    contentDescription = navigationIconContentDescription
+                                )
+                            }
+                        }
+                    },
+                    actions = actions,
+                    expandedHeight = expandedHeight,
+                    windowInsets = windowInsets,
+                    colors = colors(isLightTheme = isLightTheme)
+                )
+                PrimaryScrollableTabRow(
+                    edgePadding = 0.dp,
+                    selectedTabIndex = type.selectedTabIndex,
+                    modifier = modifier,
+                    containerColor = if (isLightTheme) White else DarkGray,
+                    contentColor = if (isLightTheme) Black else White,
+                    indicator = {
+                        Box(
+                            modifier = Modifier
+                                .tabIndicatorOffset(type.selectedTabIndex)
+                                .height(5.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .padding(horizontal = 28.dp)
+                                .background(
+                                    color = Blue,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        )
+                    },
+                    tabs = {
+                        type.tabs.forEach { tab ->
+                            Tab(
+                                modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                                selected = tab.id == type.selectedTabIndex,
+                                onClick = { type.onTabClick(tab) },
+                                selectedContentColor = if (isLightTheme) Black else White,
+                                unselectedContentColor = if (isLightTheme) Black else White,
+                                text = {
+                                    Text(
+                                        text = tab.title,
+                                        fontSize = 16.sp,
+                                        color = if (tab.id == type.selectedTabIndex) {
+                                            Blue
+                                        } else {
+                                            when (isLightTheme) {
+                                                true -> Black
+                                                false -> White
+                                            }
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 

@@ -2,6 +2,7 @@ package com.andef.mycarandef.graph
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,6 +23,8 @@ fun MyCarNavGraph(
     isFirstStart: Boolean,
     isLightTheme: Boolean,
     mainContentIsVisible: Boolean,
+    currentCarName: State<String>,
+    currentCarImageUri: State<String?>,
     currentCarId: Long
 ) {
     NavHost(
@@ -109,7 +112,9 @@ fun MyCarNavGraph(
                 viewModelFactory = viewModelFactory,
                 paddingValues = paddingValues,
                 isLightTheme = isLightTheme,
-                carId = currentCarId
+                carId = currentCarId,
+                currentCarName = currentCarName,
+                currentCarImageUri = currentCarImageUri
             )
         }
         composable(
