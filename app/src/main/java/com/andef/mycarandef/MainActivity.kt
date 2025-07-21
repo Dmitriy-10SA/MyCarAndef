@@ -158,9 +158,11 @@ private fun MainContent(
             drawerContent = {
                 MainModalDrawerSheetContent(
                     username = username,
+                    scope = scope,
                     drawerState = drawerState,
                     component = component,
-                    isLightTheme = isLightTheme
+                    isLightTheme = isLightTheme,
+                    navHostController = navHostController
                 )
             },
             content = {
