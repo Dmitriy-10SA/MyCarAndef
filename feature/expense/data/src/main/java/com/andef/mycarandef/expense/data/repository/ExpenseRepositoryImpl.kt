@@ -33,6 +33,12 @@ class ExpenseRepositoryImpl @Inject constructor(
         expenseDao.removeExpense(id)
     }
 
+    override suspend fun getExpensesByCarIdAsList(carId: Long): List<Expense> {
+        return expenseDao.getExpensesByCarIdAsList(carId).map { expenseDbo ->
+            expenseMapper.map(expenseDbo)
+        }
+    }
+
     override suspend fun getExpenseById(id: Long): Expense {
         return expenseMapper.map(expenseDao.getExpenseById(id))
     }

@@ -16,6 +16,9 @@ interface ExpenseDao {
     @Query("SELECT * FROM expense WHERE car_id = :carId")
     fun getExpensesByCarId(carId: Long): Flow<List<ExpenseDbo>>
 
+    @Query("SELECT * FROM expense WHERE car_id = :carId")
+    suspend fun getExpensesByCarIdAsList(carId: Long): List<ExpenseDbo>
+
     @Insert(onConflict = REPLACE)
     suspend fun addExpense(expenseDbo: ExpenseDbo)
 
