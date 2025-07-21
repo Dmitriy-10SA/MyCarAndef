@@ -42,6 +42,8 @@ sealed class Screen(val route: String) {
         fun passId(id: Long, carId: Long): String = "$EXPENSE_SCREEN/$id/$carId"
     }
 
+    data object ExpenseAnalysisScreen : Screen(EXPENSE_ANALYSIS_SCREEN)
+
     data object CarScreen : Screen("$CAR_SCREEN/{$ID_PARAM}") {
         fun passId(id: Long): String = "$CAR_SCREEN/$id"
     }
@@ -53,6 +55,7 @@ sealed class Screen(val route: String) {
         private const val WORK_ADD_SCREEN = "work-add-screen"
         private const val EXPENSE_SCREEN = "expense-screen"
         private const val EXPENSE_ADD_SCREEN = "expense-add-screen"
+        private const val EXPENSE_ANALYSIS_SCREEN = "expense-analysis-screen"
         private const val CAR_SCREEN = "car-screen"
         private const val CAR_ADD_SCREEN = "car-add-screen"
 

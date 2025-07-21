@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.andef.mycarandef.car.presentation.caradd.CarAddScreen
 import com.andef.mycarandef.expense.presentation.expenseadd.ExpenseAddScreen
+import com.andef.mycarandef.expense.presentation.expenseanalysis.ExpenseAnalysisScreen
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import com.andef.mycarandef.work.presentation.workadd.WorkAddScreen
@@ -95,6 +96,15 @@ fun MyCarNavGraph(
         composable(route = Screen.ExpenseAddScreen.route) {
             ExpenseAddScreen(
                 expenseId = null,
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId
+            )
+        }
+        composable(route = Screen.ExpenseAnalysisScreen.route) {
+            ExpenseAnalysisScreen(
                 navHostController = navHostController,
                 viewModelFactory = viewModelFactory,
                 paddingValues = paddingValues,
