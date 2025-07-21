@@ -1,0 +1,3 @@
+package com.andef.mycarandef.expense.presentation.expenseanalysis
+
+sealed class ExpenseAnalysisIntent
