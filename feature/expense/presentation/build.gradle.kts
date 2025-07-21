@@ -49,6 +49,9 @@ dependencies {
     //feature:expense:domain
     implementation(project(":feature:expense:domain"))
 
+    //feature:car:domain
+    implementation(project(":feature:car:domain"))
+
     //core:design
     implementation(project(":core:design"))
 

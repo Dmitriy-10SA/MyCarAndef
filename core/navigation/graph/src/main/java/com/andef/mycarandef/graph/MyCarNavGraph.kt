@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.presentation.caradd.CarAddScreen
 import com.andef.mycarandef.expense.presentation.expenseadd.ExpenseAddScreen
 import com.andef.mycarandef.expense.presentation.expenseanalysis.ExpenseAnalysisScreen
@@ -23,6 +24,7 @@ fun MyCarNavGraph(
     isFirstStart: Boolean,
     isLightTheme: Boolean,
     mainContentIsVisible: Boolean,
+    allCars: List<Car>,
     currentCarName: State<String>,
     currentCarImageUri: State<String?>,
     currentCarId: Long
@@ -114,7 +116,8 @@ fun MyCarNavGraph(
                 isLightTheme = isLightTheme,
                 carId = currentCarId,
                 currentCarName = currentCarName,
-                currentCarImageUri = currentCarImageUri
+                currentCarImageUri = currentCarImageUri,
+                allCars = allCars
             )
         }
         composable(

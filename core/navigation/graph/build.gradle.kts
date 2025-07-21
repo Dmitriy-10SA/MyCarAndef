@@ -49,6 +49,9 @@ dependencies {
     //feature:car:presentation
     implementation(project(":feature:car:presentation"))
 
+    //feature:car:domain
+    implementation(project(":feature:car:domain"))
+
     //feature:start:presentation
     implementation(project(":feature:start:presentation"))
 

@@ -199,6 +199,7 @@ private fun MainContent(
                         viewModelFactory = component.viewModelFactory,
                         paddingValues = paddingValues,
                         isFirstStart = component.getIsFirstStartUseCase(),
+                        allCars = allCars,
                         isLightTheme = isLightTheme,
                         mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
                         currentCarId = currentCarId.value,
