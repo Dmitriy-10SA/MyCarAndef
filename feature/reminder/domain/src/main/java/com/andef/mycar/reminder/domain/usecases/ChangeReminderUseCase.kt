@@ -6,11 +6,7 @@ import java.time.LocalTime
 import javax.inject.Inject
 
 class ChangeReminderUseCase @Inject constructor(private val repository: ReminderRepository) {
-    suspend operator fun invoke(
-        id: Long,
-        text: String,
-        date: LocalDate,
-        time: LocalTime,
-        carId: Long
-    ) = repository.changeReminder(id, text, date, time, carId)
+    suspend operator fun invoke(id: Long, text: String, date: LocalDate, time: LocalTime) {
+        repository.changeReminder(id, text, date, time)
+    }
 }

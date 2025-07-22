@@ -15,17 +15,11 @@ interface ReminderDao {
     @Query(
         """
         UPDATE reminder
-        SET text = :text, date = :date, time = :time, car_Id = :carId
+        SET text = :text, date = :date, time = :time
         WHERE id = :id
         """
     )
-    suspend fun changeReminder(
-        id: Long,
-        text: String,
-        date: Int,
-        time: Int,
-        carId: Long
-    )
+    suspend fun changeReminder(id: Long, text: String, date: Int, time: Int)
 
     @Query("DELETE FROM reminder WHERE id = :id")
     suspend fun removeReminder(id: Long)
