@@ -2,6 +2,7 @@ package com.andef.mycar.reminder.di
 
 import androidx.lifecycle.ViewModel
 import com.andef.mycar.reminder.presentation.allreminders.AllRemindersViewModel
+import com.andef.mycar.reminder.presentation.reminderadd.ReminderAddViewModel
 import com.andef.mycarandef.viewmodel.ViewModelKey
 import dagger.Binds
 import dagger.Module
@@ -13,4 +14,9 @@ interface ReminderViewModelModule {
     @IntoMap
     @ViewModelKey(AllRemindersViewModel::class)
     fun bindAllRemindersViewModel(impl: AllRemindersViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ReminderAddViewModel::class)
+    fun bindReminderAddViewModel(impl: ReminderAddViewModel): ViewModel
 }
