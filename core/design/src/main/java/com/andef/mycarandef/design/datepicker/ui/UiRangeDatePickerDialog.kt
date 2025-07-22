@@ -1,9 +1,9 @@
 package com.andef.mycarandef.design.datepicker.ui
 
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.DatePickerDefaults
@@ -18,6 +18,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,6 +92,28 @@ fun UiRangeDatePickerDialog(
         ) {
             DateRangePicker(
                 state = dateRangePickerState,
+                title = {},
+                headline = {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        textAlign = TextAlign.Center,
+                        text = buildString {
+                            append(dateRangePickerState.selectedStartDateMillis?.let {
+                                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
+                                    .toLocalDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                            } ?: "Начало")
+                            append(" - ")
+                            append(dateRangePickerState.selectedEndDateMillis?.let {
+                                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
+                                    .toLocalDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                            } ?: "Конец")
+                        },
+                        fontSize = 16.sp,
+                        color = if (isLightTheme) Black else White
+                    )
+                },
                 colors = colors(isLightTheme),
                 dateFormatter = russianDateFormatter
             )
