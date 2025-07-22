@@ -181,7 +181,9 @@ private fun MainContent(
                     colors = colors(isLightTheme = isLightTheme)
                 )
                 WeekCalendar(
-                    modifier = Modifier.padding(horizontal = 1.dp, vertical = 3.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 1.dp, vertical = 3.dp)
+                        .padding(bottom = 6.dp),
                     state = type.weekCalendarState,
                     dayContent = { day ->
                         Day(

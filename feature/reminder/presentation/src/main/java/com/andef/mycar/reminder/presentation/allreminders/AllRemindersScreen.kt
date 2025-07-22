@@ -61,6 +61,7 @@ import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.card.reminder.ui.UiReminderCard
 import com.andef.mycarandef.design.error.ui.UiError
+import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
@@ -105,7 +106,7 @@ fun AllRemindersScreen(
     val reminderSheet = rememberModalBottomSheetState()
     val weekCalendarState = rememberWeekCalendarState(
         startDate = LocalDate.now().minusWeeks(1),
-        endDate = LocalDate.now().plusWeeks(2),
+        endDate = LocalDate.now().plusWeeks(3),
         firstVisibleWeekDate = LocalDate.now(),
         firstDayOfWeek = DayOfWeek.MONDAY
     )
@@ -157,6 +158,14 @@ fun AllRemindersScreen(
                 paddingValues = paddingValues,
                 snackbarHostState = snackbarHostState,
                 type = UiSnackbarType.Error
+            )
+        },
+        floatingActionButton = {
+            UiFAB(
+                onClick = { navHostController.navigate(Screen.ReminderAddScreen.route) },
+                icon = painterResource(R.drawable.my_car_add),
+                iconContentDescription = "Иконка добавить",
+                isVisible = !state.value.isLoading
             )
         }
     ) { topBarPadding ->
