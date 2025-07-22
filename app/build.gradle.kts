@@ -49,6 +49,9 @@ dependencies {
     //Coil
     implementation(libs.coil.compose)
 
+    //Charts, Bars, Pies
+    implementation(libs.charts)
+
     //Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.appcompat)

@@ -77,6 +77,10 @@ import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatPriceRuble
 import com.andef.mycarandef.viewmodel.ViewModelFactory
+import com.github.tehras.charts.piechart.PieChart
+import com.github.tehras.charts.piechart.PieChartData
+import com.github.tehras.charts.piechart.animation.simpleChartAnimation
+import com.github.tehras.charts.piechart.renderer.SimpleSliceDrawer
 import java.time.LocalDate
 import java.util.Locale
 
@@ -213,7 +217,22 @@ fun ExpenseAnalysisScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(20.dp))
-                    // TODO("Сделать PieChart")
+                    val slices = mutableListOf<PieChartData.Slice>().apply {
+                        Expense.allExpenseTypes.forEach { type ->
+                            add(
+                                PieChartData.Slice(
+                                    value = expensesInfo[type]?.first ?: 0.0f,
+                                    color = getColorForExpenseType(type)
+                                )
+                            )
+                        }
+                    }
+                    PieChart(
+                        modifier = Modifier.size(300.dp),
+                        pieChartData = PieChartData(slices = slices),
+                        animation = simpleChartAnimation(),
+                        sliceDrawer = SimpleSliceDrawer()
+                    )
                     Expense.allExpenseTypes.forEachIndexed { index, type ->
                         Spacer(modifier = Modifier.height(20.dp))
                         LegendRow(
