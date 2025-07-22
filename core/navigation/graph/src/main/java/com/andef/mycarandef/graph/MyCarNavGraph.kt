@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andef.mycar.reminder.presentation.allreminders.AllRemindersScreen
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.presentation.caradd.CarAddScreen
 import com.andef.mycarandef.expense.presentation.expenseadd.ExpenseAddScreen
@@ -145,7 +146,16 @@ fun MyCarNavGraph(
             )
         }
         composable(route = Screen.AllRemindersScreen.route) {
-
+            AllRemindersScreen(
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId,
+                currentCarName = currentCarName,
+                currentCarImageUri = currentCarImageUri,
+                allCars = allCars
+            )
         }
         composable(
             route = Screen.ReminderScreen.route,

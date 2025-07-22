@@ -195,10 +195,15 @@ private fun InnerContent(
             item {
                 InnerContentItem(
                     isLightTheme = isLightTheme,
-                    icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_schedule),
-                    iconContentDescription = "Иконка часов",
-                    itemText = "Скоро...",
-                    onClick = {}
+                    icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_reminder),
+                    iconContentDescription = "Иконка звонка",
+                    itemText = "Напоминания",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navHostController.navigate(Screen.AllRemindersScreen.route)
+                        }
+                    }
                 )
             }
         }
