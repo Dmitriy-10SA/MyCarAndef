@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    //Custom Calendar
+    implementation(libs.compose)
+
     //core:utils
     implementation(project(":core:utils"))
 

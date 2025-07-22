@@ -65,6 +65,9 @@ dependencies {
     //core:navigation:routes
     implementation(project(":core:navigation:routes"))
 
+    //Custom Calendar
+    implementation(libs.compose)
+
     //Jetpack Compose Navigation
     implementation(libs.androidx.navigation.compose)
 

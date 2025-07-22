@@ -77,6 +77,9 @@ dependencies {
     //osmdroid
     implementation(libs.osmdroid.android)
 
+    //Custom Calendar
+    implementation(libs.compose)
+
     //Google Play Services Location
     implementation(libs.play.services.location)
 

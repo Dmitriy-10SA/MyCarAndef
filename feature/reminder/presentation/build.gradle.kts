@@ -46,6 +46,9 @@ dependencies {
     //Coil
     implementation(libs.coil.compose)
 
+    //Custom Calendar
+    implementation(libs.compose)
+
     //feature:reminder:domain
     implementation(project(":feature:reminder:domain"))
 
