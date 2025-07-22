@@ -24,18 +24,14 @@ class ReminderRepositoryImpl @Inject constructor(
         text: String,
         date: LocalDate,
         time: LocalTime,
-        carId: Long,
-        carName: String,
-        carImageUri: String?
+        carId: Long
     ) {
         reminderDao.changeReminder(
             id,
             text,
             date.toInt(),
             time.toInt(),
-            carId,
-            carName,
-            carImageUri
+            carId
         )
     }
 

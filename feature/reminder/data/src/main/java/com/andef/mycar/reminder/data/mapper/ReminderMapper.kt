@@ -13,9 +13,7 @@ class ReminderMapper @Inject constructor() {
         text = reminder.text,
         date = reminder.date.toInt(),
         time = reminder.time.toInt(),
-        carId = reminder.carId,
-        carName = reminder.carName,
-        carImageUri = reminder.carImageUri
+        carId = reminder.carId
     )
 
     fun map(reminderDbo: ReminderDbo): Reminder = Reminder(
@@ -23,8 +21,6 @@ class ReminderMapper @Inject constructor() {
         text = reminderDbo.text,
         date = reminderDbo.date.toLocalDate(),
         time = reminderDbo.time.toLocalTime(),
-        carId = reminderDbo.carId,
-        carName = reminderDbo.carName,
-        carImageUri = reminderDbo.carImageUri
+        carId = reminderDbo.carId
     )
 }

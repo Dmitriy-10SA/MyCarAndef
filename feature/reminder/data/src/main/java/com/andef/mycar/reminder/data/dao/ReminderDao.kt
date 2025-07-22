@@ -15,7 +15,7 @@ interface ReminderDao {
     @Query(
         """
         UPDATE reminder
-        SET text = :text, date = :date, time = :time, car_Id = :carId, car_name = :carName, car_image_uri = :carImageUri
+        SET text = :text, date = :date, time = :time, car_Id = :carId
         WHERE id = :id
         """
     )
@@ -24,9 +24,7 @@ interface ReminderDao {
         text: String,
         date: Int,
         time: Int,
-        carId: Long,
-        carName: String,
-        carImageUri: String?
+        carId: Long
     )
 
     @Query("DELETE FROM reminder WHERE id = :id")
