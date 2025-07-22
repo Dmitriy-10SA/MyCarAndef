@@ -157,6 +157,9 @@ fun MyCarNavGraph(
                 allCars = allCars
             )
         }
+        composable(route = Screen.ReminderAddScreen.route) {
+
+        }
         composable(
             route = Screen.ReminderScreen.route,
             arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })

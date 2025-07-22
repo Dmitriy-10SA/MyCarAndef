@@ -54,6 +54,8 @@ sealed class Screen(val route: String) {
         fun passId(id: Long): String = "$REMINDER_SCREEN/$id"
     }
 
+    data object ReminderAddScreen : Screen(REMINDER_ADD_SCREEN)
+
     companion object {
         private const val START_SCREENS = "start-screens"
         private const val MAIN_SCREENS = "main-screens"
@@ -66,6 +68,7 @@ sealed class Screen(val route: String) {
         private const val CAR_ADD_SCREEN = "car-add-screen"
         private const val ALL_REMINDERS_SCREEN = "all-reminders-screen"
         private const val REMINDER_SCREEN = "reminder-screen"
+        private const val REMINDER_ADD_SCREEN = "reminder-add-screen"
 
         const val ID_PARAM = "id-param"
         const val CAR_ID_PARAM = "car-id-param"
