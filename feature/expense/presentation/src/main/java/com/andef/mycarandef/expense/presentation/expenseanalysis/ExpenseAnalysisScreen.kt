@@ -2,7 +2,6 @@ package com.andef.mycarandef.expense.presentation.expenseanalysis
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,8 +41,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -51,7 +48,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,6 +58,7 @@ import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
+import com.andef.mycarandef.design.datepicker.ui.UiRangeDatePickerDialog
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
@@ -72,6 +69,7 @@ import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarTab
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatPriceRuble
@@ -211,38 +209,16 @@ fun ExpenseAnalysisScreen(
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     // TODO("Сделать PieChart")
-                    Spacer(modifier = Modifier.height(20.dp))
-                    LegendRow(
-                        isLightTheme = isLightTheme,
-                        color = Color(0xFFFF6B6B),
-                        title = "Бензин",
-                        percent = expensesInfo[ExpenseType.FUEL]?.first ?: 0.0f,
-                        amount = expensesInfo[ExpenseType.FUEL]?.second ?: 0.0
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    LegendRow(
-                        isLightTheme = isLightTheme,
-                        color = Color(0xFF4BCFA9),
-                        title = "Работы",
-                        percent = expensesInfo[ExpenseType.WORKS]?.first ?: 0.0f,
-                        amount = expensesInfo[ExpenseType.WORKS]?.second ?: 0.0
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    LegendRow(
-                        isLightTheme = isLightTheme,
-                        color = Color(0xFF4A9FF5),
-                        title = "Мойка",
-                        percent = expensesInfo[ExpenseType.WASHING]?.first ?: 0.0f,
-                        amount = expensesInfo[ExpenseType.WASHING]?.second ?: 0.0
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    LegendRow(
-                        isLightTheme = isLightTheme,
-                        color = Color(0xFFFFD166),
-                        title = "Другое",
-                        percent = expensesInfo[ExpenseType.OTHER]?.first ?: 0.0f,
-                        amount = expensesInfo[ExpenseType.OTHER]?.second ?: 0.0
-                    )
+                    Expense.allExpenseTypes.forEachIndexed { index, type ->
+                        Spacer(modifier = Modifier.height(20.dp))
+                        LegendRow(
+                            isLightTheme = isLightTheme,
+                            color = getColorForExpenseType(type),
+                            title = type.title,
+                            percent = expensesInfo[type]?.first ?: 0.0f,
+                            amount = expensesInfo[type]?.second ?: 0.0
+                        )
+                    }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
@@ -260,6 +236,28 @@ fun ExpenseAnalysisScreen(
         isLightTheme = isLightTheme,
         onRetry = { viewModel.send(ExpenseAnalysisIntent.LoadExpenses(carId)) }
     )
+    UiRangeDatePickerDialog(
+        isVisible = state.value.dateRangePickerVisible,
+        isLightTheme = isLightTheme,
+        dateRangePickerState = dateRangePickerState,
+        onDismissRequest = {
+            viewModel.send(ExpenseAnalysisIntent.ChooseLastSelectedTabId)
+            viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(false))
+        },
+        onCancelClick = {
+            viewModel.send(ExpenseAnalysisIntent.ChooseLastSelectedTabId)
+            viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(false))
+        },
+        onOkClick = { startDate, endDate ->
+            viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(false))
+            viewModel.send(
+                ExpenseAnalysisIntent.DatesChange(
+                    startDate = startDate,
+                    endDate = endDate
+                )
+            )
+        }
+    )
     BottomSheet(
         isLightTheme = isLightTheme,
         allCars = allCars,
@@ -269,16 +267,6 @@ fun ExpenseAnalysisScreen(
         context = context,
         viewModel = viewModel
     )
-}
-
-private fun expenseInfoToAmountAndColor(
-    expenseInfo: Map<ExpenseType, Pair<Float, Double>>
-): List<Pair<Double, Color>> {
-    return mutableListOf<Pair<Double, Color>>().apply {
-        expenseInfo.forEach { info ->
-            add(info.value.second to getColorForExpenseType(info.key))
-        }
-    }
 }
 
 private fun getColorForExpenseType(type: ExpenseType): Color {

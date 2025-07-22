@@ -12,4 +12,5 @@ sealed class ExpenseAnalysisIntent {
         val startDate: LocalDate,
         val endDate: LocalDate
     ) : ExpenseAnalysisIntent()
+    data object ChooseLastSelectedTabId : ExpenseAnalysisIntent()
 }

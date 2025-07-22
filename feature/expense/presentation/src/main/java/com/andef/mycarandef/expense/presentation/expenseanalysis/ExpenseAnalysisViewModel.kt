@@ -37,7 +37,17 @@ class ExpenseAnalysisViewModel @Inject constructor(
             }
 
             is ExpenseAnalysisIntent.SelectedTabIdChange -> {
-                _state.value = _state.value.copy(selectedDateTabId = intent.id)
+                val lastSelectedDateTabId = _state.value.selectedDateTabId
+                _state.value = _state.value.copy(
+                    selectedDateTabId = intent.id,
+                    lastSelectedDateTabId = lastSelectedDateTabId
+                )
+            }
+
+            ExpenseAnalysisIntent.ChooseLastSelectedTabId -> {
+                _state.value = _state.value.copy(
+                    selectedDateTabId = _state.value.lastSelectedDateTabId
+                )
             }
 
             is ExpenseAnalysisIntent.RangePickerVisibleChange -> {
