@@ -28,5 +28,9 @@ data class ReminderDbo(
     val date: Int,
     val time: Int,
     @ColumnInfo(name = "car_id")
-    val carId: Long
+    val carId: Long,
+    @ColumnInfo(name = "car_name")
+    val carName: String,
+    @ColumnInfo(name = "car_image_uri")
+    val carImageUri: String?
 )

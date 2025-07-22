@@ -11,6 +11,8 @@ class ChangeReminderUseCase @Inject constructor(private val repository: Reminder
         text: String,
         date: LocalDate,
         time: LocalTime,
-        carId: Long
-    ) = repository.changeReminder(id, text, date, time, carId)
+        carId: Long,
+        carName: String,
+        carImageUri: String?
+    ) = repository.changeReminder(id, text, date, time, carId, carName, carImageUri)
 }

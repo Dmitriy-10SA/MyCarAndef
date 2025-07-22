@@ -12,7 +12,9 @@ interface ReminderRepository {
         text: String,
         date: LocalDate,
         time: LocalTime,
-        carId: Long
+        carId: Long,
+        carName: String,
+        carImageUri: String?
     )
 
     suspend fun getReminder(id: Long): Reminder

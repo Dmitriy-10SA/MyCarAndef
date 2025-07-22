@@ -8,5 +8,7 @@ data class Reminder(
     val text: String,
     val date: LocalDate,
     val time: LocalTime,
-    val carId: Long
+    val carId: Long,
+    val carName: String,
+    val carImageUri: String?
 )

@@ -24,9 +24,19 @@ class ReminderRepositoryImpl @Inject constructor(
         text: String,
         date: LocalDate,
         time: LocalTime,
-        carId: Long
+        carId: Long,
+        carName: String,
+        carImageUri: String?
     ) {
-        reminderDao.changeReminder(id, text, date.toInt(), time.toInt(), carId)
+        reminderDao.changeReminder(
+            id,
+            text,
+            date.toInt(),
+            time.toInt(),
+            carId,
+            carName,
+            carImageUri
+        )
     }
 
     override suspend fun getReminder(id: Long): Reminder {
