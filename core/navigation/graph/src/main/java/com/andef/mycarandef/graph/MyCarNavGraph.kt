@@ -144,5 +144,15 @@ fun MyCarNavGraph(
                 currentCarId = currentCarId
             )
         }
+        composable(route = Screen.AllRemindersScreen.route) {
+
+        }
+        composable(
+            route = Screen.ReminderScreen.route,
+            arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })
+        ) {
+            val id = it.arguments?.getLong(Screen.ID_PARAM) ?: throw IllegalArgumentException()
+
+        }
     }
 }

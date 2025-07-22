@@ -52,8 +52,8 @@ dependencies {
     //feature:car:domain
     implementation(project(":feature:car:domain"))
 
-    //feature:reminder:domain
-    implementation(project(":feature:reminder:domain"))
+    //feature:reminder:presentation
+    implementation(project(":feature:reminder:presentation"))
 
     //feature:start:presentation
     implementation(project(":feature:start:presentation"))
