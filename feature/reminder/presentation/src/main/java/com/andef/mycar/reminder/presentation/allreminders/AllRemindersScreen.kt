@@ -59,6 +59,7 @@ import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.alertdialog.ui.UiAlertDialog
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
+import com.andef.mycarandef.design.card.reminder.ui.UiReminderCard
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
@@ -170,7 +171,24 @@ fun AllRemindersScreen(
         ) {
             item { Spacer(modifier = Modifier.height(0.dp)) }
             items(items = state.value.remindersForScreenAsList, key = { it.id }) { reminder ->
-                // TODO("Карточка Reminder")
+                UiReminderCard(
+                    onClick = {
+                        viewModel.send(
+                            AllRemindersIntent.ReminderBottomSheetVisibleChange(
+                                isVisible = true,
+                                reminderId = reminder.id,
+                                reminderText = reminder.text,
+                                reminderDate = reminder.date,
+                                reminderTime = reminder.time
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem(),
+                    isLightTheme = isLightTheme,
+                    reminder = reminder
+                )
             }
             item { Spacer(modifier = Modifier.height(0.dp)) }
         }
