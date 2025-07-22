@@ -48,6 +48,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.button.ui.UiButton
@@ -57,6 +58,9 @@ import com.andef.mycarandef.design.theme.DarkGray
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
+import com.andef.mycarandef.routes.Screen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +68,9 @@ fun MainModalDrawerSheetContent(
     isLightTheme: Boolean,
     username: String?,
     drawerState: DrawerState,
-    component: MyCarComponent
+    scope: CoroutineScope,
+    component: MyCarComponent,
+    navHostController: NavHostController
 ) {
     val nameChangeSheetState = rememberModalBottomSheetState()
     val nameChangeSheetVisible = rememberSaveable { mutableStateOf(false) }
@@ -84,7 +90,10 @@ fun MainModalDrawerSheetContent(
             isLightTheme = isLightTheme,
             component = component,
             username = username,
-            nameChangeSheetVisible = nameChangeSheetVisible
+            nameChangeSheetVisible = nameChangeSheetVisible,
+            navHostController = navHostController,
+            scope = scope,
+            drawerState = drawerState
         )
     }
     UiModalBottomSheet(
@@ -131,6 +140,9 @@ fun MainModalDrawerSheetContent(
 private fun InnerContent(
     isLightTheme: Boolean,
     username: String?,
+    navHostController: NavHostController,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
     nameChangeSheetVisible: MutableState<Boolean>,
     component: MyCarComponent
 ) {
@@ -166,6 +178,20 @@ private fun InnerContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
+            item {
+                InnerContentItem(
+                    isLightTheme = isLightTheme,
+                    icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_analytics),
+                    iconContentDescription = "Иконка диаграмма",
+                    itemText = "Анализ трат",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navHostController.navigate(Screen.ExpenseAnalysisScreen.route)
+                        }
+                    }
+                )
+            }
             item {
                 InnerContentItem(
                     isLightTheme = isLightTheme,

@@ -158,9 +158,11 @@ private fun MainContent(
             drawerContent = {
                 MainModalDrawerSheetContent(
                     username = username,
+                    scope = scope,
                     drawerState = drawerState,
                     component = component,
-                    isLightTheme = isLightTheme
+                    isLightTheme = isLightTheme,
+                    navHostController = navHostController
                 )
             },
             content = {
@@ -197,9 +199,12 @@ private fun MainContent(
                         viewModelFactory = component.viewModelFactory,
                         paddingValues = paddingValues,
                         isFirstStart = component.getIsFirstStartUseCase(),
+                        allCars = allCars,
                         isLightTheme = isLightTheme,
                         mainContentIsVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
-                        currentCarId = currentCarId.value
+                        currentCarId = currentCarId.value,
+                        currentCarName = currentCarName,
+                        currentCarImageUri = currentCarImageUri
                     )
                     MainBottomSheet(
                         isLightTheme = isLightTheme,

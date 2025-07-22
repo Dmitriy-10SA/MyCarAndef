@@ -49,6 +49,12 @@ dependencies {
     //feature:expense:domain
     implementation(project(":feature:expense:domain"))
 
+    //feature:car:domain
+    implementation(project(":feature:car:domain"))
+
+    //Charts, Bars, Pies
+    implementation(libs.charts)
+
     //core:design
     implementation(project(":core:design"))
 

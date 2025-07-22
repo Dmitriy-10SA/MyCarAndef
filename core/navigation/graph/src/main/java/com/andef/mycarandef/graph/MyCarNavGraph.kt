@@ -2,13 +2,16 @@ package com.andef.mycarandef.graph
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.presentation.caradd.CarAddScreen
 import com.andef.mycarandef.expense.presentation.expenseadd.ExpenseAddScreen
+import com.andef.mycarandef.expense.presentation.expenseanalysis.ExpenseAnalysisScreen
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import com.andef.mycarandef.work.presentation.workadd.WorkAddScreen
@@ -21,6 +24,9 @@ fun MyCarNavGraph(
     isFirstStart: Boolean,
     isLightTheme: Boolean,
     mainContentIsVisible: Boolean,
+    allCars: List<Car>,
+    currentCarName: State<String>,
+    currentCarImageUri: State<String?>,
     currentCarId: Long
 ) {
     NavHost(
@@ -100,6 +106,18 @@ fun MyCarNavGraph(
                 paddingValues = paddingValues,
                 isLightTheme = isLightTheme,
                 carId = currentCarId
+            )
+        }
+        composable(route = Screen.ExpenseAnalysisScreen.route) {
+            ExpenseAnalysisScreen(
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId,
+                currentCarName = currentCarName,
+                currentCarImageUri = currentCarImageUri,
+                allCars = allCars
             )
         }
         composable(
