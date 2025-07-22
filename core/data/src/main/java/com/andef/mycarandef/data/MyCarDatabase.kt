@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.andef.mycar.reminder.data.dao.ReminderDao
+import com.andef.mycar.reminder.data.dbo.ReminderDbo
 import com.andef.mycarandef.car.data.dao.CarDao
 import com.andef.mycarandef.car.data.dbo.CarDbo
 import com.andef.mycarandef.expense.data.dao.ExpenseDao
@@ -15,7 +17,8 @@ import com.andef.mycarandef.work.data.dbo.WorkDbo
     entities = [
         CarDbo::class,
         ExpenseDbo::class,
-        WorkDbo::class
+        WorkDbo::class,
+        ReminderDbo::class
     ],
     exportSchema = false,
     version = 1
@@ -24,6 +27,7 @@ abstract class MyCarDatabase : RoomDatabase() {
     abstract val carDao: CarDao
     abstract val expenseDao: ExpenseDao
     abstract val workDao: WorkDao
+    abstract val reminderDao: ReminderDao
 
     companion object {
         private const val DB_NAME = "my-car-db"
