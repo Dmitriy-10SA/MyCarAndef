@@ -339,7 +339,6 @@ private fun Day(
                     if (isLightTheme) Black else White
                 }
             )
-            Spacer(modifier = Modifier.height(1.dp))
             if (withEvent(day.date)) {
                 Box(
                     modifier = Modifier
@@ -357,7 +356,7 @@ private fun Day(
             } else {
                 Spacer(modifier = Modifier.height(6.dp))
             }
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(4.dp))
         }
     }
 }

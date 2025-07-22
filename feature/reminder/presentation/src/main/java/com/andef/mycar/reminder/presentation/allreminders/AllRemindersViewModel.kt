@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import javax.inject.Inject
 
 class AllRemindersViewModel @Inject constructor(
@@ -31,9 +32,7 @@ class AllRemindersViewModel @Inject constructor(
     fun send(intent: AllRemindersIntent) {
         when (intent) {
             is AllRemindersIntent.CurrentCarChoose -> currentCarChoose(car = intent.car)
-            is AllRemindersIntent.DateSelected -> {
-                _state.value = _state.value.copy(currentDate = intent.date)
-            }
+            is AllRemindersIntent.DateSelected -> dateSelected(intent.date)
             is AllRemindersIntent.SubscribeToReminders -> subscribeToReminders(carId = intent.carId)
             is AllRemindersIntent.ReminderBottomSheetVisibleChange -> {
                 _state.value = _state.value.copy(
@@ -44,10 +43,12 @@ class AllRemindersViewModel @Inject constructor(
                     reminderTimeInBottomSheet = intent.reminderTime
                 )
             }
+
             is AllRemindersIntent.DeleteReminder -> deleteReminder(
                 id = intent.id,
                 onError = intent.onError
             )
+
             is AllRemindersIntent.DeleteDialogVisibleChange -> {
                 _state.value = _state.value.copy(deleteDialogVisible = intent.isVisible)
             }
@@ -64,6 +65,20 @@ class AllRemindersViewModel @Inject constructor(
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
             }
+        }
+    }
+
+    private fun dateSelected(date: LocalDate) {
+        viewModelScope.launch {
+            val reminders = _state.value.reminders
+            _state.value = _state.value.copy(currentDate = date, isLoading = true)
+            val remindersForScreenAsList = withContext(Dispatchers.IO) {
+                reminders.filter { it.date == _state.value.currentDate }
+            }
+            _state.value = _state.value.copy(
+                remindersForScreenAsList = remindersForScreenAsList,
+                isLoading = false
+            )
         }
     }
 
@@ -89,10 +104,10 @@ class AllRemindersViewModel @Inject constructor(
                     }
                     .collect { reminders ->
                         val remindersForScreenAsList = withContext(Dispatchers.IO) {
-                            reminders.filter { it.carId == carId }
+                            reminders.filter { it.date == _state.value.currentDate }
                         }
                         val remindersLocalDatesForScreenAsSet = withContext(Dispatchers.IO) {
-                            remindersForScreenAsList.map { it.date }.toSet()
+                            reminders.map { it.date }.toSet()
                         }
                         _state.value = _state.value.copy(
                             isLoading = false,

@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,8 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatLocalTimeToString
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
 fun UiReminderCard(
@@ -67,17 +70,35 @@ fun UiReminderCard(
                 contentDescription = "Фото для напоминаний"
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
+            Column(
                 modifier = Modifier.weight(1f),
-                text = reminder.text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontSize = 16.sp,
-                color = if (isLightTheme) Black else White
-            )
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = reminder.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 16.sp,
+                    color = if (isLightTheme) Black else White
+                )
+                Text(
+                    text = if (reminder.date > LocalDate.now()) {
+                        "Ожидается"
+                    } else if (reminder.date == LocalDate.now() && reminder.time > LocalTime.now()) {
+                        "Ожидается"
+                    } else {
+                        "Завершено"
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 16.sp,
+                    color = if (isLightTheme) GrayForLight else GrayForDark
+                )
+            }
             Spacer(modifier = Modifier.width(3.dp))
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
