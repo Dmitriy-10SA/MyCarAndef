@@ -59,9 +59,9 @@ import com.andef.mycarandef.design.theme.Black
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
+import com.andef.mycarandef.design.timepicker.ui.UiTimePickerDialog
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
-import com.andef.mycarandef.utils.MileageVisualTransformation
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatLocalTimeToString
 import com.andef.mycarandef.viewmodel.ViewModelFactory
@@ -174,7 +174,17 @@ fun ReminderAddScreen(
             viewModel.send(ReminderAddIntent.ChangeDatePickerVisible(false))
         }
     )
-    //TODO("UiTimePickerDialog")
+    UiTimePickerDialog(
+        isVisible = state.value.timePickerVisible,
+        isLightTheme = isLightTheme,
+        timePickerState = timePickerState,
+        onDismissRequest = { viewModel.send(ReminderAddIntent.ChangeTimePickerVisible(false)) },
+        onCancelClick = { viewModel.send(ReminderAddIntent.ChangeTimePickerVisible(false)) },
+        onOkClick = {
+            viewModel.send(ReminderAddIntent.ChangeReminderTime(it))
+            viewModel.send(ReminderAddIntent.ChangeTimePickerVisible(false))
+        }
+    )
     BackHandler { if (!state.value.isLoading) navHostController.popBackStack() }
 }
 
