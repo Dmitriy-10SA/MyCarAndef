@@ -3,8 +3,10 @@ package com.andef.mycarandef.expense.presentation.expenseanalysis
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -96,6 +99,7 @@ fun ExpenseAnalysisScreen(
     val dateRangePickerState = rememberDateRangePickerState()
     val sheetState = rememberModalBottomSheetState()
     val sheetVisible = rememberSaveable { mutableStateOf(false) }
+    val legendScrollState = rememberScrollState()
 
     LaunchedEffect(carId) { viewModel.send(ExpenseAnalysisIntent.LoadExpenses(carId)) }
 
@@ -172,7 +176,6 @@ fun ExpenseAnalysisScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = topBarPadding.calculateTopPadding())
-                .padding(horizontal = 12.dp)
                 .navigationBarsPadding()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -182,7 +185,9 @@ fun ExpenseAnalysisScreen(
                 state.value.expensesInfoForScreen.let { expensesInfo ->
                     Spacer(modifier = Modifier.height(16.dp))
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -216,7 +221,8 @@ fun ExpenseAnalysisScreen(
                             color = getColorForExpenseType(type),
                             title = type.title,
                             percent = expensesInfo[type]?.first ?: 0.0f,
-                            amount = expensesInfo[type]?.second ?: 0.0
+                            amount = expensesInfo[type]?.second ?: 0.0,
+                            scrollState = legendScrollState
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -284,31 +290,36 @@ private fun LegendRow(
     color: Color,
     title: String,
     percent: Float,
-    amount: Double
+    amount: Double,
+    scrollState: ScrollState
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.width(8.dp))
         Box(
             modifier = Modifier
                 .size(12.dp)
                 .background(color = color, shape = CircleShape)
         )
         Text(
-            modifier = Modifier.weight(1f),
             text = "$title (${String.format(Locale.US, "%.2f", percent)}%)",
             fontSize = 16.sp,
             color = if (isLightTheme) GrayForLight else GrayForDark,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = formatPriceRuble(amount),
             color = if (isLightTheme) Black else White,
             fontSize = 16.sp
         )
+        Spacer(modifier = Modifier.width(8.dp))
     }
 }
 
