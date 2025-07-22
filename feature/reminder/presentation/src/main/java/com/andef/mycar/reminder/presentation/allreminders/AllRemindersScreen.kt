@@ -291,6 +291,11 @@ private fun ReminderBottomSheet(
                                         ?: throw IllegalArgumentException()
                                 )
                             )
+                            viewModel.send(
+                                AllRemindersIntent.ReminderBottomSheetVisibleChange(
+                                    isVisible = false
+                                )
+                            )
                         }
                     )
                     .padding(vertical = 8.dp),
