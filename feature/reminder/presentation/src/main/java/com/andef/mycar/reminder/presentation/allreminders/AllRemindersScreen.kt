@@ -336,7 +336,7 @@ private fun PermissionsBottomSheet(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        modifier = Modifier.padding(horizontal = 2.dp, vertical = 2.dp),
+                        modifier = Modifier.padding(horizontal = 2.dp, vertical = 11.dp),
                         text = "Назад",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
