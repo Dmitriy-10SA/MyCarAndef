@@ -8,6 +8,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andef.mycar.reminder.presentation.allreminders.AllRemindersScreen
+import com.andef.mycar.reminder.presentation.reminderadd.ReminderAddScreen
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.presentation.caradd.CarAddScreen
 import com.andef.mycarandef.expense.presentation.expenseadd.ExpenseAddScreen
@@ -142,6 +144,44 @@ fun MyCarNavGraph(
                 paddingValues = paddingValues,
                 isLightTheme = isLightTheme,
                 currentCarId = currentCarId
+            )
+        }
+        composable(route = Screen.AllRemindersScreen.route) {
+            AllRemindersScreen(
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId,
+                currentCarName = currentCarName,
+                currentCarImageUri = currentCarImageUri,
+                allCars = allCars
+            )
+        }
+        composable(route = Screen.ReminderAddScreen.route) {
+            ReminderAddScreen(
+                reminderId = null,
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId,
+                carName = currentCarName.value
+            )
+        }
+        composable(
+            route = Screen.ReminderScreen.route,
+            arguments = listOf(navArgument(Screen.ID_PARAM) { type = NavType.LongType })
+        ) {
+            val id = it.arguments?.getLong(Screen.ID_PARAM) ?: throw IllegalArgumentException()
+            ReminderAddScreen(
+                reminderId = id,
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme,
+                carId = currentCarId,
+                carName = currentCarName.value
             )
         }
     }

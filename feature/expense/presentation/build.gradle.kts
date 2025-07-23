@@ -43,6 +43,9 @@ dependencies {
     //core:utils
     implementation(project(":core:utils"))
 
+    //Custom Calendar
+    implementation(libs.compose)
+
     //Coil
     implementation(libs.coil.compose)
 

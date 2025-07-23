@@ -46,6 +46,9 @@ dependencies {
     //feature:car:domain
     implementation(project(":feature:car:domain"))
 
+    //feature:reminder:domain
+    implementation(project(":feature:reminder:domain"))
+
     //feature:start:domain
     implementation(project(":feature:start:domain"))
 
@@ -54,6 +57,9 @@ dependencies {
 
     //core:utils
     implementation(project(":core:utils"))
+
+    //Custom Calendar
+    implementation(libs.compose)
 
     //Coil
     implementation(libs.coil.compose)

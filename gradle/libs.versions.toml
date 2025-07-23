@@ -3,6 +3,7 @@ accompanistSystemuicontroller = "0.27.0"
 agp = "8.9.3"
 charts = "0.2.4-alpha"
 coilCompose = "2.4.0"
+compose = "2.0.0"
 coreSplashscreen = "1.0.1"
 dagger = "2.56.1"
 daggerCompiler = "2.55"
@@ -33,6 +34,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx"
 charts = { module = "com.github.tehras:charts", version.ref = "charts" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomKtx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+compose = { module = "com.kizitonwose.calendar:compose", version.ref = "compose" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
