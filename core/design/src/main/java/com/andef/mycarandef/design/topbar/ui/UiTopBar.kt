@@ -25,6 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +37,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andef.mycarandef.design.theme.Black
@@ -317,22 +322,20 @@ private fun Day(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
+            AutoResizeText(
                 modifier = Modifier.fillMaxWidth(),
                 text = getShortDayOfWeekName(day.date.dayOfWeek),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
                 color = if (currentDate == day.date) {
                     White
                 } else {
                     if (isLightTheme) Black else White
                 }
             )
-            Text(
+            AutoResizeText(
                 modifier = Modifier.fillMaxWidth(),
                 text = day.date.dayOfMonth.toString(),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
                 color = if (currentDate == day.date) {
                     White
                 } else {
@@ -359,6 +362,33 @@ private fun Day(
             Spacer(modifier = Modifier.height(4.dp))
         }
     }
+}
+
+@Composable
+private fun AutoResizeText(
+    text: String,
+    color: Color,
+    textAlign: TextAlign = TextAlign.Center,
+    maxFontSize: TextUnit = 16.sp,
+    minFontSize: TextUnit = 2.sp,
+    modifier: Modifier = Modifier
+) {
+    var textSize by remember { mutableStateOf(maxFontSize) }
+
+    Text(
+        text = text,
+        color = color,
+        textAlign = textAlign,
+        fontSize = textSize,
+        modifier = modifier,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        onTextLayout = { result ->
+            if (result.hasVisualOverflow && textSize > minFontSize) {
+                textSize = (textSize.value - 1).sp
+            }
+        }
+    )
 }
 
 @Composable
