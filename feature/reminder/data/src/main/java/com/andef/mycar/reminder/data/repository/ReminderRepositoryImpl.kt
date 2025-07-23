@@ -69,13 +69,22 @@ class ReminderRepositoryImpl @Inject constructor(
 
     override suspend fun addReminder(reminder: Reminder): Long {
         val id = reminderDao.addReminder(reminderMapper.map(reminder))
-        addNotification(id, reminder.text, toEpochMillis(reminder.date, reminder.time))
+        addNotification(
+            id = id,
+            text = "${reminder.text}\nМашина: ${reminder.carName}" ,
+            time = toEpochMillis(reminder.date, reminder.time)
+        )
         return id
     }
 
     override suspend fun changeReminder(id: Long, text: String, date: LocalDate, time: LocalTime) {
         reminderDao.changeReminder(id, text, date.toInt(), time.toInt())
-        changeNotification(id, text, toEpochMillis(date, time))
+        val reminder = getReminder(id)
+        changeNotification(
+            id = id,
+            text = "${text}\nМашина: ${reminder.carName}",
+            time = toEpochMillis(date, time)
+        )
     }
 
     override suspend fun getReminder(id: Long): Reminder {
