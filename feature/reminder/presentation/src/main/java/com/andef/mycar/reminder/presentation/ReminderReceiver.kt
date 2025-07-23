@@ -9,8 +9,6 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
-import com.andef.mycarandef.routes.Screen
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -24,8 +22,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
             val id = intent?.extras?.getInt(ID_EXTRA) ?: 0
 
-            val launchIntent = Intent(Intent.ACTION_VIEW).apply {
-                data = Screen.AllRemindersScreen.route.toUri()
+            val launchIntent = it.packageManager.getLaunchIntentForPackage(it.packageName)?.apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
 
