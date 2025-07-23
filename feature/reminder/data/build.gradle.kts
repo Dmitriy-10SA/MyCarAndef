@@ -42,6 +42,9 @@ dependencies {
     //feature:reminder:domain
     implementation(project(":feature:reminder:domain"))
 
+    //feature:reminder:presentation
+    implementation(project(":feature:reminder:presentation"))
+
     //feature:car:data
     implementation(project(":feature:car:data"))
 
