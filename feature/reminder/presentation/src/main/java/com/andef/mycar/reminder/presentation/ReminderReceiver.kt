@@ -40,6 +40,10 @@ class ReminderReceiver : BroadcastReceiver() {
                 .setContentTitle("MyCar")
                 .setSmallIcon(com.andef.mycarandef.design.R.drawable.my_car_car_key)
                 .setContentText(intent?.extras?.getString(TEXT_EXTRA) ?: "")
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(intent?.extras?.getString(TEXT_EXTRA) ?: "")
+                )
                 .setContentIntent(pendingIntent)
                 .setColor(Color.WHITE)
                 .setAutoCancel(true)
