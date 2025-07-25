@@ -6,6 +6,9 @@ import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.work.domain.entities.Work
 
 data class BackupData(
+    val currentCarId: Long,
+    val currentCarName: String,
+    val currentCarImageUri: String?,
     val allCars: List<Car>,
     val allExpenses: List<Expense>,
     val allWorks: List<Work>,
