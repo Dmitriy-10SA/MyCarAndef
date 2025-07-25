@@ -107,7 +107,7 @@ fun BackupStartScreen(
             UiTopBar(
                 isLightTheme = isLightTheme,
                 type = UiTopBarType.Center,
-                title = "Резервное копирование",
+                title = "Восстановление данных",
                 navigationIcon = painterResource(R.drawable.my_car_arrow_back),
                 navigationIconContentDescription = "Назад",
                 onNavigationIconClick = {
