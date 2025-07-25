@@ -11,11 +11,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -39,10 +41,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.andef.mycar.backup.presentation.DownText
 import com.andef.mycar.backup.presentation.gson
 import com.andef.mycar.backup.presentation.importDataFromJson
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.button.ui.UiButton
+import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
@@ -142,16 +146,35 @@ fun BackupMainScreen(
             )
         }
     ) { topBarPadding ->
-        MainContent(
-            topBarPadding = topBarPadding,
-            isLightTheme = isLightTheme,
-            viewModel = viewModel,
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            context = context,
-            launcher = launcher
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topBarPadding.calculateTopPadding())
+                .navigationBarsPadding()
+                .imePadding()
+        ) {
+            MainContent(
+                isLightTheme = isLightTheme,
+                viewModel = viewModel,
+                scope = scope,
+                snackbarHostState = snackbarHostState,
+                context = context,
+                launcher = launcher
+            )
+            DownText(
+                isLightTheme = isLightTheme,
+                context = context,
+                feedbackSheetVisible = feedbackSheetVisible,
+                feedbackSheetState = feedbackSheetState
+            )
+        }
     }
+    UiLoading(
+        isLightTheme = isLightTheme,
+        isVisible = state.value.isLoading,
+        paddingValues = paddingValues,
+        withTouch = false
+    )
     BackHandler {
         if (!state.value.isLoading) {
             navHostController.popBackStack()
@@ -166,8 +189,7 @@ fun BackupMainScreen(
 }
 
 @Composable
-private fun MainContent(
-    topBarPadding: PaddingValues,
+private fun ColumnScope.MainContent(
     isLightTheme: Boolean,
     viewModel: BackupMainViewModel,
     scope: CoroutineScope,
@@ -177,10 +199,8 @@ private fun MainContent(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(top = topBarPadding.calculateTopPadding())
+            .weight(1f)
             .padding(horizontal = 12.dp)
-            .navigationBarsPadding()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
