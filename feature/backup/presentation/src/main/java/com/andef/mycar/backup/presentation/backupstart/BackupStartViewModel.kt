@@ -11,6 +11,7 @@ import com.andef.mycarandef.car.domain.usecases.SetCurrentCarIdUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarImageUriUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarNameUseCase
 import com.andef.mycarandef.expense.domain.usecases.AddExpenseUseCase
+import com.andef.mycarandef.start.domain.usecases.SetIsFirstStartUseCase
 import com.andef.mycarandef.start.domain.usecases.SetUsernameUseCase
 import com.andef.mycarandef.work.domain.usecases.AddWorkUseCase
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,8 @@ class BackupStartViewModel @Inject constructor(
     private val setUsernameUseCase: SetUsernameUseCase,
     private val setCurrentCarIdUseCase: SetCurrentCarIdUseCase,
     private val setCurrentCarNameUseCase: SetCurrentCarNameUseCase,
-    private val setCurrentCarImageUriUseCase: SetCurrentCarImageUriUseCase
+    private val setCurrentCarImageUriUseCase: SetCurrentCarImageUriUseCase,
+    private val setIsFirstStartUseCase: SetIsFirstStartUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(BackupStartState())
     val state: StateFlow<BackupStartState> = _state
@@ -61,6 +63,7 @@ class BackupStartViewModel @Inject constructor(
                 setCurrentCarNameUseCase.invoke(data.currentCarName)
                 setCurrentCarImageUriUseCase.invoke(data.currentCarImageUri)
                 setUsernameUseCase.invoke(data.username)
+                setIsFirstStartUseCase.invoke(false)
                 onSuccess("Данные успешно восстановлены!")
             } catch (e: Exception) {
                 Log.e("BackupViewModel", e.toString())
