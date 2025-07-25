@@ -37,6 +37,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycar.backup.domain.BackupData
+import com.andef.mycar.backup.presentation.gson
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
@@ -167,45 +168,6 @@ fun BackupMainScreen(
         }
     }
 }
-
-
-private class LocalDateAdapter : JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
-    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-
-    override fun serialize(
-        src: LocalDate?,
-        typeOfSrc: Type?,
-        context: JsonSerializationContext?
-    ): JsonElement {
-        return JsonPrimitive(src?.format(formatter))
-    }
-
-    override fun deserialize(
-        json: JsonElement?,
-        typeOfT: Type?,
-        context: JsonDeserializationContext?
-    ): LocalDate {
-        return LocalDate.parse(json?.asString, formatter)
-    }
-}
-
-private class LocalTimeAdapter : JsonSerializer<LocalTime>, JsonDeserializer<LocalTime> {
-    private val formatter = DateTimeFormatter.ISO_LOCAL_TIME
-    override fun serialize(src: LocalTime?, typeOfSrc: Type?, context: JsonSerializationContext?) =
-        JsonPrimitive(src?.format(formatter))
-
-    override fun deserialize(
-        json: JsonElement?,
-        typeOfT: Type?,
-        context: JsonDeserializationContext?
-    ) =
-        LocalTime.parse(json?.asString, formatter)
-}
-
-private val gson = GsonBuilder()
-    .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
-    .registerTypeAdapter(LocalTime::class.java, LocalTimeAdapter())
-    .create()
 
 @Composable
 private fun MainContent(
