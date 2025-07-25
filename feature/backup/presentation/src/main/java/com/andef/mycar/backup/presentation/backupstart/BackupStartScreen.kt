@@ -57,6 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycar.backup.domain.BackupData
 import com.andef.mycar.backup.presentation.gson
+import com.andef.mycar.backup.presentation.importDataFromJson
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.button.ui.UiButton
@@ -360,16 +361,5 @@ private fun RowScope.AppItem(
             overflow = TextOverflow.Ellipsis,
             fontSize = 14.sp
         )
-    }
-}
-
-
-private fun importDataFromJson(uri: Uri, context: Context): BackupData? {
-    return try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val json = inputStream?.bufferedReader().use { it?.readText() }
-        json?.let { gson.fromJson(it, BackupData::class.java) }
-    } catch (_: Exception) {
-        null
     }
 }

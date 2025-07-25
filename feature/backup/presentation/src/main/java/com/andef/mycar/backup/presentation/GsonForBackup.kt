@@ -1,5 +1,8 @@
 package com.andef.mycar.backup.presentation
 
+import android.content.Context
+import android.net.Uri
+import com.andef.mycar.backup.domain.BackupData
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -43,6 +46,16 @@ private class LocalTimeAdapter : JsonSerializer<LocalTime>, JsonDeserializer<Loc
         context: JsonDeserializationContext?
     ) =
         LocalTime.parse(json?.asString, formatter)
+}
+
+fun importDataFromJson(uri: Uri, context: Context): BackupData? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val json = inputStream?.bufferedReader().use { it?.readText() }
+        json?.let { gson.fromJson(it, BackupData::class.java) }
+    } catch (_: Exception) {
+        null
+    }
 }
 
 val gson = GsonBuilder()
