@@ -338,6 +338,20 @@ private fun InnerContent(
             item {
                 InnerContentItem(
                     isLightTheme = isLightTheme,
+                    icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_backup),
+                    iconContentDescription = "Иконка резервное копирование",
+                    itemText = "Резервное копирование",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navHostController.navigate(Screen.BackupMainScreen.route)
+                        }
+                    }
+                )
+            }
+            item {
+                InnerContentItem(
+                    isLightTheme = isLightTheme,
                     icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_feedback),
                     iconContentDescription = "Иконка почты",
                     itemText = "Обратная связь",
