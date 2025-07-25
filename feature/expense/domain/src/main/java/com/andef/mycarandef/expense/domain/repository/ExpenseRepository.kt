@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface ExpenseRepository {
+    suspend fun getAllExpensesAsList(): List<Expense>
     suspend fun addExpense(expense: Expense)
     suspend fun changeExpense(
         id: Long,
