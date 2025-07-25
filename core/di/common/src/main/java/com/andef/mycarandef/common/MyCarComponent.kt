@@ -2,6 +2,7 @@ package com.andef.mycarandef.common
 
 import android.app.Activity
 import android.app.Application
+import com.andef.mycar.backup.di.BackupViewModelModule
 import com.andef.mycar.reminder.di.ReminderDaoModule
 import com.andef.mycar.reminder.di.ReminderRepositoryModule
 import com.andef.mycar.reminder.di.ReminderViewModelModule
@@ -72,6 +73,9 @@ import javax.inject.Singleton
         ReminderRepositoryModule::class,
         ReminderDaoModule::class,
         ReminderViewModelModule::class,
+
+        //Backup
+        BackupViewModelModule::class,
 
         //UiTheme
         UiThemeRepositoryModule::class
