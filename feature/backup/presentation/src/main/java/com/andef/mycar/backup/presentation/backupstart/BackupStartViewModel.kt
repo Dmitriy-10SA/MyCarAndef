@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycar.backup.domain.BackupData
-import com.andef.mycar.backup.presentation.backupmain.BackupMainState
 import com.andef.mycar.reminder.domain.usecases.AddReminderUseCase
 import com.andef.mycarandef.car.domain.usecases.AddCarUseCase
 import com.andef.mycarandef.car.domain.usecases.SetCurrentCarIdUseCase
