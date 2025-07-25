@@ -72,8 +72,7 @@ class BackupMainViewModel @Inject constructor(
                     username = username
                 )
                 onSuccess(Gson().toJson(backupData))
-            } catch (e: Exception) {
-                Log.e("BackupViewModel", e.toString())
+            } catch (_: Exception) {
                 onError("Ошибка! Попробуйте ещё раз!")
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
