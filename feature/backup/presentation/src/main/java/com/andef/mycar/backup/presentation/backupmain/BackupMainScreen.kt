@@ -1,5 +1,7 @@
 package com.andef.mycar.backup.presentation.backupmain
 
+import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
@@ -39,9 +42,14 @@ import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.White
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.formatLocalTimeToString
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
 fun BackupMainScreen(
@@ -84,7 +92,8 @@ fun BackupMainScreen(
             isLightTheme = isLightTheme,
             viewModel = viewModel,
             scope = scope,
-            snackbarHostState = snackbarHostState
+            snackbarHostState = snackbarHostState,
+            context = context
         )
     }
     BackHandler {
@@ -106,6 +115,7 @@ private fun MainContent(
     isLightTheme: Boolean,
     viewModel: BackupMainViewModel,
     scope: CoroutineScope,
+    context: Context,
     snackbarHostState: SnackbarHostState
 ) {
     Column(
@@ -141,7 +151,26 @@ private fun MainContent(
                 viewModel.send(
                     BackupMainIntent.SaveData(
                         onSuccess = { json ->
+                            val fileName = "MyCar резервная копия. ${LocalDate.now()}.json"
+                            val file = File(context.cacheDir, fileName)
+                            file.writeText(json)
 
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider",
+                                file
+                            )
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/json"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            context.startActivity(
+                                Intent.createChooser(
+                                    intent,
+                                    "Поделиться резервной копией"
+                                )
+                            )
                         },
                         onError = { msg ->
                             scope.launch {

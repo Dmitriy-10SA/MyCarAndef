@@ -1,5 +1,6 @@
 package com.andef.mycar.backup.presentation.backupmain
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycar.backup.domain.BackupData
@@ -71,7 +72,8 @@ class BackupMainViewModel @Inject constructor(
                     username = username
                 )
                 onSuccess(Gson().toJson(backupData))
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("BackupViewModel", e.toString())
                 onError("Ошибка! Попробуйте ещё раз!")
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
