@@ -232,6 +232,7 @@ private fun MainContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "Не теряйте данные о машинах",
             fontSize = 20.sp,
@@ -310,6 +311,7 @@ private fun MainContent(
             text = "Восстановить данные",
             onClick = { launcher.launch(arrayOf("application/json")) }
         )
+        Spacer(modifier = Modifier.height(6.dp))
     }
 }
 
