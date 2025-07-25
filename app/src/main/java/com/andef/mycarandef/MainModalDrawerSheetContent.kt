@@ -1,5 +1,6 @@
 package com.andef.mycarandef
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -109,6 +110,7 @@ fun MainModalDrawerSheetContent(
             navHostController = navHostController,
             scope = scope,
             drawerState = drawerState,
+            context = context,
             feedbackSheetVisible = feedbackSheetVisible
         )
     }
@@ -268,6 +270,7 @@ private fun InnerContent(
     navHostController: NavHostController,
     scope: CoroutineScope,
     drawerState: DrawerState,
+    context: Context,
     nameChangeSheetVisible: MutableState<Boolean>,
     feedbackSheetVisible: MutableState<Boolean>,
     component: MyCarComponent
@@ -339,6 +342,24 @@ private fun InnerContent(
                     iconContentDescription = "Иконка почты",
                     itemText = "Обратная связь",
                     onClick = { feedbackSheetVisible.value = true }
+                )
+            }
+            item {
+                InnerContentItem(
+                    isLightTheme = isLightTheme,
+                    icon = painterResource(com.andef.mycarandef.design.R.drawable.my_car_share),
+                    iconContentDescription = "Иконка поделиться",
+                    itemText = "Поделиться",
+                    onClick = {
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                "Попробуй приложение MyCar для учёта авто: https://www.rustore.ru/catalog/app/com.andef.mycarandef"
+                            )
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Поделиться приложением"))
+                    }
                 )
             }
         }
