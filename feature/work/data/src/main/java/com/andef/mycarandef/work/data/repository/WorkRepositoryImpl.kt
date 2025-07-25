@@ -14,6 +14,10 @@ class WorkRepositoryImpl @Inject constructor(
     private val workMapper: WorkMapper,
     private val workDao: WorkDao
 ) : WorkRepository {
+    override suspend fun getAllWorksAsList(): List<Work> {
+        return workDao.getAllWorksAsList().map { workDbo -> workMapper.map(workDbo) }
+    }
+
     override suspend fun addWork(work: Work) {
         workDao.addWork(workMapper.map(work))
     }

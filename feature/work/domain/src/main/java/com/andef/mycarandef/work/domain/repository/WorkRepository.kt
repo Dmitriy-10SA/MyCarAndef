@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface WorkRepository {
+    suspend fun getAllWorksAsList(): List<Work>
     suspend fun addWork(work: Work)
     suspend fun changeWork(
         id: Long,
