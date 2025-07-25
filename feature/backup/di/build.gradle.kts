@@ -1,6 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+
+    //Dagger 2
+    id("kotlin-kapt")
+
+    //Room
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -33,6 +39,24 @@ android {
 }
 
 dependencies {
+    //feature:backup:presentation
+    implementation(project(":feature:backup:presentation"))
+
+    //core:di:viewmodel
+    implementation(project(":core:di:viewmodel"))
+
+    //core:data
+    implementation(project(":core:data"))
+
+    //Dagger 2
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+
+    //Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.appcompat)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

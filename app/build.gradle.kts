@@ -106,6 +106,10 @@ dependencies {
     implementation(project(":feature:reminder:di"))
     implementation(project(":feature:reminder:presentation"))
 
+    //feature:backup
+    implementation(project(":feature:backup:di"))
+    implementation(project(":feature:backup:presentation"))
+
     //feature:expense
     implementation(project(":feature:expense:data"))
     implementation(project(":feature:expense:domain"))

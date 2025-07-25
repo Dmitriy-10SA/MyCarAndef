@@ -72,7 +72,5 @@ include(":feature:reminder:domain")
 include(":feature:reminder:presentation")
 
 include(":feature:backup")
-include(":feature:backup:data")
-include(":feature:backup:domain")
 include(":feature:backup:di")
 include(":feature:backup:presentation")
