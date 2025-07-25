@@ -12,5 +12,5 @@ fun BackupStartScreen(
     paddingValues: PaddingValues,
     isLightTheme: Boolean
 ) {
-
+    //navHostController.navigate(Screen.MainScreens.WorksMainScreen.route) { popUpTo(0) }
 }
