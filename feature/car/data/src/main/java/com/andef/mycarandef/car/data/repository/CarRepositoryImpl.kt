@@ -27,6 +27,10 @@ class CarRepositoryImpl @Inject constructor(
 
     override fun getCurrentCarNameAsFlow(): Flow<String> = currentCarNameAsFlow.asStateFlow()
 
+    override suspend fun getAllCarsAsList(): List<Car> {
+        return carDao.getAllCarsAsList().map { carDbo -> carMapper.map(carDbo) }
+    }
+
     override fun getAllCars(): Flow<List<Car>> {
         return carDao.getAllCars().map { carsDbo ->
             carsDbo.map { carDbo ->
