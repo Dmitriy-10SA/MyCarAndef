@@ -70,3 +70,8 @@ include(":feature:reminder:data")
 include(":feature:reminder:di")
 include(":feature:reminder:domain")
 include(":feature:reminder:presentation")
+
+include(":feature:backup")
+include(":feature:backup:di")
+include(":feature:backup:presentation")
+include(":feature:backup:domain")

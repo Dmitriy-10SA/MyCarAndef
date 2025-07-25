@@ -15,6 +15,10 @@ class ExpenseRepositoryImpl @Inject constructor(
     private val expenseMapper: ExpenseMapper,
     private val expenseDao: ExpenseDao
 ) : ExpenseRepository {
+    override suspend fun getAllExpensesAsList(): List<Expense> {
+        return expenseDao.getAllExpensesAsList().map { expenseDbo -> expenseMapper.map(expenseDbo) }
+    }
+
     override suspend fun addExpense(expense: Expense) {
         expenseDao.addExpense(expenseMapper.map(expense))
     }

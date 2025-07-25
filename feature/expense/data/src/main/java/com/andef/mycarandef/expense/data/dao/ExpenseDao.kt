@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseDao {
+    @Query("SELECT * FROM expense")
+    suspend fun getAllExpensesAsList(): List<ExpenseDbo>
+
     @Query("SELECT * FROM expense WHERE id = :id")
     suspend fun getExpenseById(id: Long): ExpenseDbo
 

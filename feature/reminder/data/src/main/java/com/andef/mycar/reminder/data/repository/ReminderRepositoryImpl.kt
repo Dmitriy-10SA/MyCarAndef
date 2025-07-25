@@ -40,7 +40,8 @@ class ReminderRepositoryImpl @Inject constructor(
                 time,
                 pendingIntent
             )
-        } finally { }
+        } finally {
+        }
     }
 
     private fun cancelNotification(id: Long) {
@@ -59,7 +60,8 @@ class ReminderRepositoryImpl @Inject constructor(
                 NotificationManager::class.java
             ) as NotificationManager
             notificationManager.cancel(id.toInt())
-        } finally { }
+        } finally {
+        }
     }
 
     private fun changeNotification(id: Long, text: String, time: Long) {
@@ -67,11 +69,17 @@ class ReminderRepositoryImpl @Inject constructor(
         addNotification(id, text, time)
     }
 
+    override suspend fun getAllRemindersAsList(): List<Reminder> {
+        return reminderDao.getAllRemindersAsList().map {
+            reminderDbo -> reminderMapper.map(reminderDbo)
+        }
+    }
+
     override suspend fun addReminder(reminder: Reminder): Long {
         val id = reminderDao.addReminder(reminderMapper.map(reminder))
         addNotification(
             id = id,
-            text = "${reminder.text}\nМашина: ${reminder.carName}" ,
+            text = "${reminder.text}\nМашина: ${reminder.carName}",
             time = toEpochMillis(reminder.date, reminder.time)
         )
         return id

@@ -8,6 +8,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andef.mycar.backup.presentation.backupmain.BackupMainScreen
+import com.andef.mycar.backup.presentation.backupstart.BackupStartScreen
 import com.andef.mycar.reminder.presentation.allreminders.AllRemindersScreen
 import com.andef.mycar.reminder.presentation.reminderadd.ReminderAddScreen
 import com.andef.mycarandef.car.domain.entities.Car
@@ -182,6 +184,22 @@ fun MyCarNavGraph(
                 isLightTheme = isLightTheme,
                 carId = currentCarId,
                 carName = currentCarName.value
+            )
+        }
+        composable(route = Screen.BackupMainScreen.route) {
+            BackupMainScreen(
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme
+            )
+        }
+        composable(route = Screen.BackupStartScreen.route) {
+            BackupStartScreen(
+                navHostController = navHostController,
+                viewModelFactory = viewModelFactory,
+                paddingValues = paddingValues,
+                isLightTheme = isLightTheme
             )
         }
     }

@@ -43,6 +43,9 @@ dependencies {
     //feature:expense:presentation
     implementation(project(":feature:expense:presentation"))
 
+    //feature:backup:presentation
+    implementation(project(":feature:backup:presentation"))
+
     //feature:map:presentation
     implementation(project(":feature:map:presentation"))
 

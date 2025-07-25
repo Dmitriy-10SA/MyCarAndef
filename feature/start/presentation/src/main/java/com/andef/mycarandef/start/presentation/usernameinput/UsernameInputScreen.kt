@@ -1,5 +1,6 @@
 package com.andef.mycarandef.start.presentation.usernameinput
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarHostState
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -31,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,7 +47,9 @@ import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.Black
+import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.White
+import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -105,7 +112,7 @@ private fun MainContent(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.Start
     ) {
         Spacer(modifier = Modifier.height(6.dp))
         Text(
@@ -131,7 +138,20 @@ private fun MainContent(
                 imeAction = ImeAction.Done
             )
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            modifier = Modifier
+                .padding(vertical = 6.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = { navHostController.navigate(Screen.BackupStartScreen.route) }),
+            text = "Восстановить данные",
+            maxLines = 1,
+            color = Blue,
+            overflow = TextOverflow.Ellipsis,
+            textDecoration = TextDecoration.Underline,
+            textAlign = TextAlign.Start,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         UiButton(
             text = "Продолжить", onClick = {
                 keyboard?.hide()

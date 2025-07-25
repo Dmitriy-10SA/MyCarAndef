@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WorkDao {
+    @Query("SELECT * FROM work")
+    suspend fun getAllWorksAsList(): List<WorkDbo>
+
     @Insert(onConflict = REPLACE)
     suspend fun addWork(workDbo: WorkDbo)
 

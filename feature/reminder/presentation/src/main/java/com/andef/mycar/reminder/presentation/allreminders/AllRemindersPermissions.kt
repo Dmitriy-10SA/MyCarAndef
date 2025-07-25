@@ -24,10 +24,14 @@ private fun hasNotificationPermission(context: Context): Boolean {
 }
 
 private fun hasUseExactAlarmPermission(context: Context): Boolean {
-    return ContextCompat.checkSelfPermission(
-        context,
-        "android.permission.USE_EXACT_ALARM"
-    ) == PackageManager.PERMISSION_GRANTED
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context,
+            "android.permission.USE_EXACT_ALARM"
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
 }
 
 private fun canScheduleExactAlarms(context: Context): Boolean {

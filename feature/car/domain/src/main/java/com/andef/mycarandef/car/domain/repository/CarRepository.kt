@@ -4,6 +4,7 @@ import com.andef.mycarandef.car.domain.entities.Car
 import kotlinx.coroutines.flow.Flow
 
 interface CarRepository {
+    suspend fun getAllCarsAsList(): List<Car>
     fun getAllCars(): Flow<List<Car>>
     suspend fun getCarById(id: Long): Car
     suspend fun changeCar(

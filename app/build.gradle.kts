@@ -77,6 +77,9 @@ dependencies {
     //osmdroid
     implementation(libs.osmdroid.android)
 
+    //Gson
+    implementation(libs.gson)
+
     //Custom Calendar
     implementation(libs.compose)
 
@@ -105,6 +108,11 @@ dependencies {
     implementation(project(":feature:reminder:domain"))
     implementation(project(":feature:reminder:di"))
     implementation(project(":feature:reminder:presentation"))
+
+    //feature:backup
+    implementation(project(":feature:backup:di"))
+    implementation(project(":feature:backup:presentation"))
+    implementation(project(":feature:backup:domain"))
 
     //feature:expense
     implementation(project(":feature:expense:data"))

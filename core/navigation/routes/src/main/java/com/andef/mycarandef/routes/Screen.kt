@@ -56,6 +56,10 @@ sealed class Screen(val route: String) {
 
     data object ReminderAddScreen : Screen(REMINDER_ADD_SCREEN)
 
+    data object BackupMainScreen : Screen(BACKUP_MAIN_SCREEN)
+
+    data object BackupStartScreen : Screen(BACKUP_START_SCREEN)
+
     companion object {
         private const val START_SCREENS = "start-screens"
         private const val MAIN_SCREENS = "main-screens"
@@ -69,6 +73,8 @@ sealed class Screen(val route: String) {
         private const val ALL_REMINDERS_SCREEN = "all-reminders-screen"
         private const val REMINDER_SCREEN = "reminder-screen"
         private const val REMINDER_ADD_SCREEN = "reminder-add-screen"
+        private const val BACKUP_MAIN_SCREEN = "backup-main-screen"
+        private const val BACKUP_START_SCREEN = "backup-start-screen"
 
         const val ID_PARAM = "id-param"
         const val CAR_ID_PARAM = "car-id-param"

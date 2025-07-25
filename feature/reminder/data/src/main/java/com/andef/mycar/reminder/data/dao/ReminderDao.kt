@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReminderDao {
+    @Query("SELECT * FROM reminder")
+    suspend fun getAllRemindersAsList(): List<ReminderDbo>
+
     @Insert(onConflict = REPLACE)
     suspend fun addReminder(reminderDbo: ReminderDbo): Long
 
