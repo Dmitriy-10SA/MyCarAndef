@@ -20,10 +20,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.andef.mycar.backup.domain.BackupData
 import com.andef.mycar.backup.presentation.gson
 import com.andef.mycar.backup.presentation.importDataFromJson
 import com.andef.mycarandef.design.R
@@ -56,6 +58,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BackupMainScreen(
     navHostController: NavHostController,
@@ -66,6 +69,8 @@ fun BackupMainScreen(
     val viewModel: BackupMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
 
+    val feedbackSheetVisible = remember { mutableStateOf(false) }
+    val feedbackSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
