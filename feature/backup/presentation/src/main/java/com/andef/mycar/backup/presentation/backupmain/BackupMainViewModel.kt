@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.andef.mycar.backup.domain.BackupData
 import com.andef.mycar.reminder.domain.usecases.AddReminderUseCase
 import com.andef.mycar.reminder.domain.usecases.GetAllRemindersAsListUseCase
+import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.car.domain.usecases.AddCarUseCase
 import com.andef.mycarandef.car.domain.usecases.GetAllCarsAsListUseCase
 import com.andef.mycarandef.car.domain.usecases.GetCurrentCarIdUseCase
@@ -97,7 +98,18 @@ class BackupMainViewModel @Inject constructor(
             try {
                 _state.value = _state.value.copy(isLoading = true, isErrorSnackbar = false)
                 val allCars = withContext(Dispatchers.IO) {
-                    getAllCarsAsListUseCase.invoke()
+                    getAllCarsAsListUseCase.invoke().map {
+                        Car(
+                            id = it.id,
+                            brand = it.brand,
+                            model = it.model,
+                            photo = null,
+                            year = it.year,
+                            registrationMark = it.registrationMark,
+                            coordinatesLat = it.coordinatesLat,
+                            coordinatesLon = it.coordinatesLon
+                        )
+                    }
                 }
                 val allWorks = withContext(Dispatchers.IO) {
                     getAllWorksAsListUseCase.invoke()
