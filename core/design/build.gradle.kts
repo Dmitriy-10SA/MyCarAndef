@@ -49,6 +49,9 @@ dependencies {
     //feature:reminder:domain
     implementation(project(":feature:reminder:domain"))
 
+    //feature:backup:domain
+    implementation(project(":feature:backup:domain"))
+
     //feature:start:domain
     implementation(project(":feature:start:domain"))
 

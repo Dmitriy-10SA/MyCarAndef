@@ -43,11 +43,17 @@ dependencies {
     //core:utils
     implementation(project(":core:utils"))
 
+    //Gson
+    implementation(libs.gson)
+
     //Custom Calendar
     implementation(libs.compose)
 
     //Coil
     implementation(libs.coil.compose)
+
+    //feature:backup:domain
+    implementation(project(":feature:backup:domain"))
 
     //feature:car:domain
     implementation(project(":feature:car:domain"))

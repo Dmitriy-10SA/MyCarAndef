@@ -77,6 +77,9 @@ dependencies {
     //osmdroid
     implementation(libs.osmdroid.android)
 
+    //Gson
+    implementation(libs.gson)
+
     //Custom Calendar
     implementation(libs.compose)
 
@@ -109,6 +112,7 @@ dependencies {
     //feature:backup
     implementation(project(":feature:backup:di"))
     implementation(project(":feature:backup:presentation"))
+    implementation(project(":feature:backup:domain"))
 
     //feature:expense
     implementation(project(":feature:expense:data"))

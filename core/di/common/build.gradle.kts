@@ -61,6 +61,7 @@ dependencies {
     //feature:backup
     implementation(project(":feature:backup:di"))
     implementation(project(":feature:backup:presentation"))
+    implementation(project(":feature:backup:domain"))
 
     //feature:reminder
     implementation(project(":feature:reminder:data"))

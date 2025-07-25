@@ -42,6 +42,9 @@ dependencies {
     //feature:backup:presentation
     implementation(project(":feature:backup:presentation"))
 
+    //feature:backup:domain
+    implementation(project(":feature:backup:domain"))
+
     //core:di:viewmodel
     implementation(project(":core:di:viewmodel"))
 

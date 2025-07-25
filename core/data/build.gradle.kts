@@ -52,6 +52,9 @@ dependencies {
     implementation(project(":feature:car:data"))
     implementation(project(":feature:car:domain"))
 
+    //feature:backup:domain
+    implementation(project(":feature:backup:domain"))
+
     //feature:start
     implementation(project(":feature:start:data"))
     implementation(project(":feature:start:domain"))
