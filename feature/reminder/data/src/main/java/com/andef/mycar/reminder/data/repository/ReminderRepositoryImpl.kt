@@ -104,8 +104,16 @@ class ReminderRepositoryImpl @Inject constructor(
         cancelNotification(id)
     }
 
-    override fun getRemindersByCarId(carId: Long): Flow<List<Reminder>> {
-        return reminderDao.getRemindersByCarId(carId).map { remindersDbo ->
+    override fun getRemindersByCarId(
+        carId: Long,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Flow<List<Reminder>> {
+        return reminderDao.getRemindersByCarId(
+            carId,
+            startDate.toInt(),
+            endDate.toInt()
+        ).map { remindersDbo ->
             remindersDbo.map { reminderDbo ->
                 reminderMapper.map(reminderDbo)
             }

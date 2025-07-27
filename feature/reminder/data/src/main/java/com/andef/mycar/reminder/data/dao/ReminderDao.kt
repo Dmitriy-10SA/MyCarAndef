@@ -30,6 +30,12 @@ interface ReminderDao {
     @Query("SELECT * FROM reminder WHERE id = :id")
     suspend fun getReminder(id: Long): ReminderDbo
 
-    @Query("SELECT * FROM reminder WHERE car_id = :carId ORDER BY time ASC, date ASC")
-    fun getRemindersByCarId(carId: Long): Flow<List<ReminderDbo>>
+    @Query(
+        """
+        SELECT * FROM reminder 
+        WHERE date >= :startDate AND date <= :endDate AND car_id = :carId 
+        ORDER BY time ASC, date ASC
+        """
+    )
+    fun getRemindersByCarId(carId: Long, startDate: Int, endDate: Int): Flow<List<ReminderDbo>>
 }
