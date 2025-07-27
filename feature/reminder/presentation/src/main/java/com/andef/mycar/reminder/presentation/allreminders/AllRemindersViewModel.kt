@@ -89,7 +89,10 @@ class AllRemindersViewModel @Inject constructor(
             lastCurrentCarId = carId
             job?.cancel()
             job = viewModelScope.launch {
-                getRemindersByCarIdUseCase.invoke(carId)
+                val today = LocalDate.now()
+                val previousMonday = today.minusWeeks(1).with(java.time.DayOfWeek.MONDAY)
+                val endSunday = today.plusWeeks(3).with(java.time.DayOfWeek.SUNDAY)
+                getRemindersByCarIdUseCase.invoke(carId, previousMonday, endSunday)
                     .onStart {
                         _state.value = _state.value.copy(isLoading = true, isError = false)
                     }

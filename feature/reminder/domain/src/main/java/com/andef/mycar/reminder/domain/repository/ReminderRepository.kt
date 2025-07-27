@@ -11,5 +11,9 @@ interface ReminderRepository {
     suspend fun changeReminder(id: Long, text: String, date: LocalDate, time: LocalTime)
     suspend fun getReminder(id: Long): Reminder
     suspend fun removeReminder(id: Long)
-    fun getRemindersByCarId(carId: Long): Flow<List<Reminder>>
+    fun getRemindersByCarId(
+        carId: Long,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Flow<List<Reminder>>
 }
