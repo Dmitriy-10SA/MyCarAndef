@@ -90,6 +90,7 @@ fun ExpenseMainScreen(
     val sheetState = rememberModalBottomSheetState()
     val loadAppSheetState = rememberModalBottomSheetState()
     val loadAppSheetVisible = remember { mutableStateOf(false) }
+    val confirmAddToMyFinanceDialogVisible = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -112,7 +113,8 @@ fun ExpenseMainScreen(
         state = state,
         scope = scope,
         snackbarHostState = snackbarHostState,
-        loadAppSheetVisible = loadAppSheetVisible
+        loadAppSheetVisible = loadAppSheetVisible,
+        confirmAddToMyFinanceDialogVisible = confirmAddToMyFinanceDialogVisible
     )
     LoadAppBottomSheet(LocalContext.current, loadAppSheetState, loadAppSheetVisible, isLightTheme)
     UiSnackbar(
@@ -175,7 +177,10 @@ private fun LoadAppBottomSheet(
                     contentDescription = "Иконка мои финансы",
                     text = "Мои финансы",
                     onClick = {
-                        Intent(Intent.ACTION_VIEW, "https://www.rustore.ru/catalog/app/com.andef.myfinance".toUri()).apply {
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://www.rustore.ru/catalog/app/com.andef.myfinance".toUri()
+                        ).apply {
                             context.startActivity(this)
                         }
                     }
@@ -228,9 +233,55 @@ private fun RowScope.AppItem(
     }
 }
 
+@Composable
+private fun ConfirmAddToMyFinanceDialog(
+    confirmAddToMyFinanceDialogVisible: MutableState<Boolean>,
+    viewModel: ExpenseMainViewModel,
+    context: Context,
+    expenseAmount: Double,
+    expenseDate: LocalDate,
+    expenseType: ExpenseType,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    loadAppSheetVisible: MutableState<Boolean>,
+    isLightTheme: Boolean
+) {
+    UiAlertDialog(
+        isLightTheme = isLightTheme,
+        title = "Вы уверены?",
+        onDismissRequest = { confirmAddToMyFinanceDialogVisible.value = false },
+        onYesClick = {
+            confirmAddToMyFinanceDialogVisible.value = false
+            viewModel.send(
+                ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
+            )
+            viewModel.send(
+                ExpenseMainIntent.AddToMyFinance(
+                    context = context,
+                    amount = expenseAmount,
+                    date = expenseDate,
+                    type = expenseType,
+                    onSuccess = { msg ->
+                        showSnackbar(scope, snackbarHostState, msg)
+                    },
+                    onAddError = { msg ->
+                        showSnackbar(scope, snackbarHostState, msg)
+                    },
+                    onError = {
+                        loadAppSheetVisible.value = true
+                    }
+                )
+            )
+        },
+        onCancelClick = { confirmAddToMyFinanceDialogVisible.value = false },
+        isVisible = confirmAddToMyFinanceDialogVisible.value
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheetWithDeleteDialog(
+    confirmAddToMyFinanceDialogVisible: MutableState<Boolean>,
     navHostController: NavHostController,
     viewModel: ExpenseMainViewModel,
     sheetState: SheetState,
@@ -267,26 +318,7 @@ private fun BottomSheetWithDeleteDialog(
                                 },
                                 expenseDate = expenseDate,
                                 onAddToMyFinanceClick = {
-                                    viewModel.send(
-                                        ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
-                                    )
-                                    viewModel.send(
-                                        ExpenseMainIntent.AddToMyFinance(
-                                            context = context,
-                                            amount = expenseAmount,
-                                            date = expenseDate,
-                                            type = expenseType,
-                                            onSuccess = { msg ->
-                                                showSnackbar(scope, snackbarHostState, msg)
-                                            },
-                                            onAddError = { msg ->
-                                                showSnackbar(scope, snackbarHostState, msg)
-                                            },
-                                            onError = {
-                                                loadAppSheetVisible.value = true
-                                            }
-                                        )
-                                    )
+                                    confirmAddToMyFinanceDialogVisible.value = true
                                 },
                                 onEditClick = {
                                     viewModel.send(
@@ -298,6 +330,18 @@ private fun BottomSheetWithDeleteDialog(
                                 }
                             )
                         }
+                        ConfirmAddToMyFinanceDialog(
+                            confirmAddToMyFinanceDialogVisible = confirmAddToMyFinanceDialogVisible,
+                            viewModel = viewModel,
+                            context = context,
+                            expenseAmount = expenseAmount,
+                            expenseDate = expenseDate,
+                            expenseType = expenseType,
+                            scope = scope,
+                            snackbarHostState = snackbarHostState,
+                            loadAppSheetVisible = loadAppSheetVisible,
+                            isLightTheme = isLightTheme
+                        )
                         DeleteDialog(
                             isLightTheme = isLightTheme,
                             expenseId = expenseId,
