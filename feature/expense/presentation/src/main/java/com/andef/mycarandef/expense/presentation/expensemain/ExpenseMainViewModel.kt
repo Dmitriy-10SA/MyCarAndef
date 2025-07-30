@@ -73,32 +73,36 @@ class ExpenseMainViewModel @Inject constructor(
         onAddError: (String) -> Unit,
         onError: () -> Unit
     ) {
-        _state.value = _state.value.copy(isLoading = true)
-        val uri = MY_FINANCE_URI.toUri()
-        val note = when (type) {
-            ExpenseType.FUEL -> "Заправка автомобиля"
-            ExpenseType.WORKS -> "Ремонт автомобиля"
-            ExpenseType.WASHING -> "Мойка автомобиля"
-            ExpenseType.OTHER -> "Автомобиль - другое"
-        }
-        val values = ContentValues().apply {
-            put(AMOUNT, amount)
-            put(DATE, date.toString())
-            put(NOTE, note)
-        }
-        try {
-            val resultUri = context.contentResolver.insert(uri, values)
-            if (resultUri != null) {
-                _state.value = _state.value.copy(isErrorSnackbar = false)
-                onSuccess("Успешно добавлено в Mои финансы!")
-            } else {
-                _state.value = _state.value.copy(isErrorSnackbar = true)
-                onAddError("Ошибка! Попробуйте ещё раз!")
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            val uri = MY_FINANCE_URI.toUri()
+            val note = when (type) {
+                ExpenseType.FUEL -> "Заправка автомобиля"
+                ExpenseType.WORKS -> "Ремонт автомобиля"
+                ExpenseType.WASHING -> "Мойка автомобиля"
+                ExpenseType.OTHER -> "Автомобиль - другое"
             }
-        } catch (_: Exception) {
-            onError()
-        } finally {
-            _state.value = _state.value.copy(isLoading = false)
+            val values = ContentValues().apply {
+                put(AMOUNT, amount)
+                put(DATE, date.toString())
+                put(NOTE, note)
+            }
+            try {
+                val resultUri = withContext(Dispatchers.IO) {
+                    context.contentResolver.insert(uri, values)
+                }
+                if (resultUri != null) {
+                    _state.value = _state.value.copy(isErrorSnackbar = false)
+                    onSuccess("Успешно добавлено в Mои финансы!")
+                } else {
+                    _state.value = _state.value.copy(isErrorSnackbar = true)
+                    onAddError("Ошибка! Попробуйте ещё раз!")
+                }
+            } catch (_: Exception) {
+                onError()
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
         }
     }
 

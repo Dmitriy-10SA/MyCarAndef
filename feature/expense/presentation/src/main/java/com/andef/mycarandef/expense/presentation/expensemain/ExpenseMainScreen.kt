@@ -145,6 +145,9 @@ private fun BottomSheetWithDeleteDialog(
                                 expenseDate = expenseDate,
                                 onAddToMyFinanceClick = {
                                     viewModel.send(
+                                        ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
+                                    )
+                                    viewModel.send(
                                         ExpenseMainIntent.AddToMyFinance(
                                             context = context,
                                             amount = expenseAmount,
@@ -388,7 +391,8 @@ private fun MainContent(
     UiLoading(
         isVisible = state.value.isLoading,
         paddingValues = paddingValues,
-        isLightTheme = isLightTheme
+        isLightTheme = isLightTheme,
+        withTouch = false
     )
     UiError(
         isVisible = state.value.isError,
