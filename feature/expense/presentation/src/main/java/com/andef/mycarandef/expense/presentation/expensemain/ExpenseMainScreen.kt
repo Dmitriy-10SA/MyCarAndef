@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +45,7 @@ import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.theme.Black
+import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.Red
@@ -96,7 +98,11 @@ fun ExpenseMainScreen(
     UiSnackbar(
         paddingValues = paddingValues,
         snackbarHostState = snackbarHostState,
-        type = UiSnackbarType.Error
+        type = if (state.value.isErrorSnackbar) {
+            UiSnackbarType.Error
+        } else {
+            UiSnackbarType.Success
+        }
     )
 }
 
@@ -111,6 +117,7 @@ private fun BottomSheetWithDeleteDialog(
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState
 ) {
+    val context = LocalContext.current
     state.value.expenseIdInBottomSheet?.let { expenseId ->
         state.value.expenseTypeInBottomSheet?.let { expenseType ->
             state.value.expenseAmountInBottomSheet?.let { expenseAmount ->
@@ -136,6 +143,25 @@ private fun BottomSheetWithDeleteDialog(
                                     )
                                 },
                                 expenseDate = expenseDate,
+                                onAddToMyFinanceClick = {
+                                    viewModel.send(
+                                        ExpenseMainIntent.AddToMyFinance(
+                                            context = context,
+                                            amount = expenseAmount,
+                                            date = expenseDate,
+                                            type = expenseType,
+                                            onSuccess = { msg ->
+                                                showSnackbar(scope, snackbarHostState, msg)
+                                            },
+                                            onAddError = { msg ->
+                                                showSnackbar(scope, snackbarHostState, msg)
+                                            },
+                                            onError = {
+                                                TODO()
+                                            }
+                                        )
+                                    )
+                                },
                                 onEditClick = {
                                     viewModel.send(
                                         ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
@@ -158,6 +184,16 @@ private fun BottomSheetWithDeleteDialog(
                 }
             }
         }
+    }
+}
+
+private fun showSnackbar(scope: CoroutineScope, snackbarHostState: SnackbarHostState, msg: String) {
+    scope.launch {
+        snackbarHostState.currentSnackbarData?.dismiss()
+        snackbarHostState.showSnackbar(
+            message = msg,
+            withDismissAction = true
+        )
     }
 }
 
@@ -215,6 +251,7 @@ private fun BottomSheetContent(
     expenseType: ExpenseType,
     expenseDate: LocalDate,
     expenseAmount: Double,
+    onAddToMyFinanceClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -239,6 +276,27 @@ private fun BottomSheetContent(
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onAddToMyFinanceClick)
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.my_finance_app_icon),
+                tint = Blue,
+                contentDescription = "Иконка Мои финансы"
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = "Добавить в Мои финансы",
+                color = Blue,
+                fontSize = 16.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()

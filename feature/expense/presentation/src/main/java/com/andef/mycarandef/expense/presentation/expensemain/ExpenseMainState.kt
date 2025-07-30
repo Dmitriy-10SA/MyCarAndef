@@ -14,5 +14,6 @@ data class ExpenseMainState(
     val carIdForExpenseBottomSheet: Long? = null,
     val deleteDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
-    val isError: Boolean = false
+    val isError: Boolean = false,
+    val isErrorSnackbar: Boolean = true
 )

@@ -1,5 +1,9 @@
 package com.andef.mycarandef.expense.presentation.expensemain
 
+import android.content.ContentValues
+import android.content.Context
+import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycarandef.expense.domain.entities.ExpenseDay
@@ -30,6 +34,16 @@ class ExpenseMainViewModel @Inject constructor(
                 currentCarId = intent.currentCarId
             )
 
+            is ExpenseMainIntent.AddToMyFinance -> addToMyFinance(
+                context = intent.context,
+                amount = intent.amount,
+                date = intent.date,
+                type = intent.type,
+                onSuccess = intent.onSuccess,
+                onAddError = intent.onAddError,
+                onError = intent.onError
+            )
+
             is ExpenseMainIntent.BottomSheetVisibleChange -> changeBottomSheetVisible(
                 isVisible = intent.isVisible,
                 expenseDate = intent.expenseDate,
@@ -50,6 +64,44 @@ class ExpenseMainViewModel @Inject constructor(
         }
     }
 
+    private fun addToMyFinance(
+        context: Context,
+        amount: Double,
+        date: LocalDate,
+        type: ExpenseType,
+        onSuccess: (String) -> Unit,
+        onAddError: (String) -> Unit,
+        onError: () -> Unit
+    ) {
+        _state.value = _state.value.copy(isLoading = true)
+        val uri = MY_FINANCE_URI.toUri()
+        val note = when (type) {
+            ExpenseType.FUEL -> "Заправка автомобиля"
+            ExpenseType.WORKS -> "Ремонт автомобиля"
+            ExpenseType.WASHING -> "Мойка автомобиля"
+            ExpenseType.OTHER -> "Автомобиль - другое"
+        }
+        val values = ContentValues().apply {
+            put(AMOUNT, amount)
+            put(DATE, date.toString())
+            put(NOTE, note)
+        }
+        try {
+            val resultUri = context.contentResolver.insert(uri, values)
+            if (resultUri != null) {
+                _state.value = _state.value.copy(isErrorSnackbar = false)
+                onSuccess("Успешно добавлено в Mои финансы!")
+            } else {
+                _state.value = _state.value.copy(isErrorSnackbar = true)
+                onAddError("Ошибка! Попробуйте ещё раз!")
+            }
+        } catch (_: Exception) {
+            onError()
+        } finally {
+            _state.value = _state.value.copy(isLoading = false)
+        }
+    }
+
     private fun changeDeleteDialogVisible(isVisible: Boolean) {
         _state.value = _state.value.copy(deleteDialogVisible = isVisible)
     }
@@ -60,6 +112,7 @@ class ExpenseMainViewModel @Inject constructor(
                 _state.value = _state.value.copy(isLoading = true)
                 withContext(Dispatchers.IO) { removeExpenseUseCase.invoke(expenseId) }
             } catch (_: Exception) {
+                _state.value = _state.value.copy(isErrorSnackbar = true)
                 onError("Ошибка! Попробуйте ещё раз!")
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
@@ -118,5 +171,13 @@ class ExpenseMainViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    companion object {
+        private const val MY_FINANCE_URI = "content://com.andef.myfinance.expenseprovider/expenses"
+
+        private const val AMOUNT = "amount"
+        private const val DATE = "date"
+        private const val NOTE = "note"
     }
 }
