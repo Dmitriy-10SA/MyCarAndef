@@ -1,20 +1,30 @@
 package com.andef.mycarandef.expense.presentation.expensemain
 
+import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
@@ -22,16 +32,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
@@ -44,6 +61,7 @@ import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.theme.Black
+import com.andef.mycarandef.design.theme.Blue
 import com.andef.mycarandef.design.theme.GrayForDark
 import com.andef.mycarandef.design.theme.GrayForLight
 import com.andef.mycarandef.design.theme.Red
@@ -70,6 +88,9 @@ fun ExpenseMainScreen(
     val state = viewModel.state.collectAsState()
 
     val sheetState = rememberModalBottomSheetState()
+    val loadAppSheetState = rememberModalBottomSheetState()
+    val loadAppSheetVisible = remember { mutableStateOf(false) }
+    val confirmAddToMyFinanceDialogVisible = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -91,26 +112,186 @@ fun ExpenseMainScreen(
         isLightTheme = isLightTheme,
         state = state,
         scope = scope,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        loadAppSheetVisible = loadAppSheetVisible,
+        confirmAddToMyFinanceDialogVisible = confirmAddToMyFinanceDialogVisible
     )
+    LoadAppBottomSheet(LocalContext.current, loadAppSheetState, loadAppSheetVisible, isLightTheme)
     UiSnackbar(
         paddingValues = paddingValues,
         snackbarHostState = snackbarHostState,
-        type = UiSnackbarType.Error
+        type = if (state.value.isErrorSnackbar) {
+            UiSnackbarType.Error
+        } else {
+            UiSnackbarType.Success
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LoadAppBottomSheet(
+    context: Context,
+    loadAppSheetState: SheetState,
+    loadAppSheetVisible: MutableState<Boolean>,
+    isLightTheme: Boolean
+) {
+    UiModalBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = loadAppSheetVisible.value,
+        onDismissRequest = { loadAppSheetVisible.value = false },
+        sheetState = loadAppSheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Установите приложение Мои финансы",
+                color = if (isLightTheme) GrayForLight else GrayForDark,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                textAlign = TextAlign.Center
+            )
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = if (isLightTheme) Black.copy(alpha = 0.2f) else White.copy(alpha = 0.2f)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppItem(
+                    isLightTheme = isLightTheme,
+                    icon = painterResource(R.drawable.my_finance_app_icon),
+                    contentDescription = "Иконка мои финансы",
+                    text = "Мои финансы",
+                    onClick = {
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://www.rustore.ru/catalog/app/com.andef.myfinance".toUri()
+                        ).apply {
+                            context.startActivity(this)
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.AppItem(
+    isLightTheme: Boolean,
+    icon: Painter,
+    contentDescription: String,
+    text: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .padding(3.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onClick)
+                .size(65.dp)
+                .background(color = White, shape = RoundedCornerShape(16.dp))
+                .border(
+                    width = 1.dp,
+                    color = if (isLightTheme) {
+                        GrayForLight.copy(alpha = 0.3f)
+                    } else {
+                        GrayForDark.copy(alpha = 0.3f)
+                    },
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(all = 7.dp),
+            painter = icon,
+            contentDescription = contentDescription
+        )
+        Text(
+            text = text,
+            color = if (isLightTheme) Black else White,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+private fun ConfirmAddToMyFinanceDialog(
+    confirmAddToMyFinanceDialogVisible: MutableState<Boolean>,
+    viewModel: ExpenseMainViewModel,
+    context: Context,
+    expenseAmount: Double,
+    expenseDate: LocalDate,
+    expenseType: ExpenseType,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    loadAppSheetVisible: MutableState<Boolean>,
+    isLightTheme: Boolean
+) {
+    UiAlertDialog(
+        isLightTheme = isLightTheme,
+        title = "Вы уверены?",
+        onDismissRequest = { confirmAddToMyFinanceDialogVisible.value = false },
+        onYesClick = {
+            confirmAddToMyFinanceDialogVisible.value = false
+            viewModel.send(
+                ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
+            )
+            viewModel.send(
+                ExpenseMainIntent.AddToMyFinance(
+                    context = context,
+                    amount = expenseAmount,
+                    date = expenseDate,
+                    type = expenseType,
+                    onSuccess = { msg ->
+                        showSnackbar(scope, snackbarHostState, msg)
+                    },
+                    onAddError = { msg ->
+                        showSnackbar(scope, snackbarHostState, msg)
+                    },
+                    onError = {
+                        loadAppSheetVisible.value = true
+                    }
+                )
+            )
+        },
+        onCancelClick = { confirmAddToMyFinanceDialogVisible.value = false },
+        isVisible = confirmAddToMyFinanceDialogVisible.value
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheetWithDeleteDialog(
+    confirmAddToMyFinanceDialogVisible: MutableState<Boolean>,
     navHostController: NavHostController,
     viewModel: ExpenseMainViewModel,
     sheetState: SheetState,
+    loadAppSheetVisible: MutableState<Boolean>,
     isLightTheme: Boolean,
     state: State<ExpenseMainState>,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState
 ) {
+    val context = LocalContext.current
     state.value.expenseIdInBottomSheet?.let { expenseId ->
         state.value.expenseTypeInBottomSheet?.let { expenseType ->
             state.value.expenseAmountInBottomSheet?.let { expenseAmount ->
@@ -136,6 +317,9 @@ private fun BottomSheetWithDeleteDialog(
                                     )
                                 },
                                 expenseDate = expenseDate,
+                                onAddToMyFinanceClick = {
+                                    confirmAddToMyFinanceDialogVisible.value = true
+                                },
                                 onEditClick = {
                                     viewModel.send(
                                         ExpenseMainIntent.BottomSheetVisibleChange(isVisible = false)
@@ -146,6 +330,18 @@ private fun BottomSheetWithDeleteDialog(
                                 }
                             )
                         }
+                        ConfirmAddToMyFinanceDialog(
+                            confirmAddToMyFinanceDialogVisible = confirmAddToMyFinanceDialogVisible,
+                            viewModel = viewModel,
+                            context = context,
+                            expenseAmount = expenseAmount,
+                            expenseDate = expenseDate,
+                            expenseType = expenseType,
+                            scope = scope,
+                            snackbarHostState = snackbarHostState,
+                            loadAppSheetVisible = loadAppSheetVisible,
+                            isLightTheme = isLightTheme
+                        )
                         DeleteDialog(
                             isLightTheme = isLightTheme,
                             expenseId = expenseId,
@@ -158,6 +354,16 @@ private fun BottomSheetWithDeleteDialog(
                 }
             }
         }
+    }
+}
+
+private fun showSnackbar(scope: CoroutineScope, snackbarHostState: SnackbarHostState, msg: String) {
+    scope.launch {
+        snackbarHostState.currentSnackbarData?.dismiss()
+        snackbarHostState.showSnackbar(
+            message = msg,
+            withDismissAction = true
+        )
     }
 }
 
@@ -215,6 +421,7 @@ private fun BottomSheetContent(
     expenseType: ExpenseType,
     expenseDate: LocalDate,
     expenseAmount: Double,
+    onAddToMyFinanceClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
@@ -239,6 +446,27 @@ private fun BottomSheetContent(
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onAddToMyFinanceClick)
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.my_finance_app_icon),
+                tint = Blue,
+                contentDescription = "Иконка Мои финансы"
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = "Добавить в Мои финансы",
+                color = Blue,
+                fontSize = 16.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -330,7 +558,8 @@ private fun MainContent(
     UiLoading(
         isVisible = state.value.isLoading,
         paddingValues = paddingValues,
-        isLightTheme = isLightTheme
+        isLightTheme = isLightTheme,
+        withTouch = false
     )
     UiError(
         isVisible = state.value.isError,
