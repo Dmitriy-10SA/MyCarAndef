@@ -230,7 +230,7 @@ fun AllRemindersScreen(
                     item { Spacer(modifier = Modifier.height(6.dp)) }
                     item {
                         Text(
-                            text = "Пока нет данных о расходах. Вот несколько предложений для Вас:",
+                            text = "Пока нет напоминаний. Вот несколько предложений для Вас:",
                             color = blackOrWhiteColor(isLightTheme),
                             fontSize = 16.sp,
                             modifier = Modifier
