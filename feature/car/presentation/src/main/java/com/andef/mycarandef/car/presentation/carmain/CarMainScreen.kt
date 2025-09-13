@@ -1,6 +1,9 @@
 package com.andef.mycarandef.car.presentation.carmain
 
+import android.app.Application
 import android.content.Context
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
@@ -33,10 +37,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
@@ -47,12 +56,27 @@ import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
+import com.andef.mycarandef.design.theme.BlackColor
+import com.andef.mycarandef.design.theme.DarkGrayColor
+import com.andef.mycarandef.design.theme.GrayForDarkColor
+import com.andef.mycarandef.design.theme.GrayForLightColor
 import com.andef.mycarandef.design.theme.GreenColor
 import com.andef.mycarandef.design.theme.RedColor
+import com.andef.mycarandef.design.theme.WhiteColor
+import com.andef.mycarandef.design.theme.YellowColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.viewmodel.ViewModelFactory
+import com.yandex.mobile.ads.nativeads.NativeAd
+import com.yandex.mobile.ads.nativeads.template.NativeBannerView
+import com.yandex.mobile.ads.nativeads.template.SizeConstraint
+import com.yandex.mobile.ads.nativeads.template.appearance.BannerAppearance
+import com.yandex.mobile.ads.nativeads.template.appearance.ButtonAppearance
+import com.yandex.mobile.ads.nativeads.template.appearance.ImageAppearance
+import com.yandex.mobile.ads.nativeads.template.appearance.NativeTemplateAppearance
+import com.yandex.mobile.ads.nativeads.template.appearance.RatingAppearance
+import com.yandex.mobile.ads.nativeads.template.appearance.TextAppearance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -67,6 +91,17 @@ fun CarMainScreen(
 ) {
     val viewModel: CarMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
+
+    val application = LocalContext.current.applicationContext as Application
+    val adsViewModel: CarMainAdsViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
+                return CarMainAdsViewModel(application) as T
+            }
+        }
+    )
+    val adViews = adsViewModel.adViews.collectAsState().value
 
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
@@ -96,7 +131,8 @@ fun CarMainScreen(
         viewModel = viewModel,
         isLightTheme = isLightTheme,
         context = context,
-        listState = listState
+        listState = listState,
+        adViews = adViews
     )
     BottomSheetWithDeleteDialog(
         navHostController = navHostController,
@@ -352,13 +388,13 @@ private fun MainContent(
     viewModel: CarMainViewModel,
     isLightTheme: Boolean,
     context: Context,
-    listState: LazyListState
+    listState: LazyListState,
+    adViews: List<NativeAd>
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues)
-            .padding(horizontal = 12.dp),
+            .padding(paddingValues),
         state = listState,
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -368,6 +404,7 @@ private fun MainContent(
             UiCarCard(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
                     .animateItem(),
                 onClick = {
                     viewModel.send(
@@ -388,6 +425,34 @@ private fun MainContent(
             )
         }
         item { Spacer(modifier = Modifier.height(0.dp)) }
+        item {
+            Text(
+                text = "Возможно, Вас заинтересует:",
+                color = blackOrWhiteColor(isLightTheme),
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 12.dp)
+                    .animateItem(tween(810, easing = FastOutSlowInEasing)),
+                textAlign = TextAlign.Center
+            )
+        }
+        items(adViews.size, key = { "$isLightTheme-$it" }) { index ->
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 2.dp)
+                    .animateItem(tween(810, easing = FastOutSlowInEasing)),
+                factory = { context ->
+                    NativeBannerView(context).apply {
+                        applyAppearance(nativeAdAppearance(isLightTheme))
+                        setAd(adViews[index])
+                    }
+                }
+            )
+        }
+        item { Spacer(modifier = Modifier.height(0.dp)) }
     }
     UiLoading(isVisible = state.value.isLoading, isLightTheme = isLightTheme)
     UiError(
@@ -396,4 +461,86 @@ private fun MainContent(
         isLightTheme = isLightTheme,
         onRetry = { viewModel.send(CarMainIntent.GetCars) }
     )
+}
+
+fun nativeAdAppearance(isLightTheme: Boolean): NativeTemplateAppearance {
+    val backgroundColor = if (isLightTheme) WhiteColor else DarkGrayColor
+    val titleColor = if (isLightTheme) BlackColor else WhiteColor
+    val bodyColor = if (isLightTheme) GrayForLightColor else GrayForDarkColor
+    val ageColor = if (isLightTheme) GrayForLightColor else GrayForDarkColor
+    val ratingStarColor = YellowColor
+
+    return NativeTemplateAppearance.Builder()
+        .withBannerAppearance(
+            BannerAppearance.Builder()
+                .setBackgroundColor(backgroundColor.toArgb())
+                .setBorderWidth(0.1f)
+                .setBorderColor(bodyColor.copy(alpha = 0.2f).toArgb())
+                .build()
+        )
+        .withImageAppearance(
+            ImageAppearance.Builder()
+                .setWidthConstraint(SizeConstraint(SizeConstraint.SizeConstraintType.FIXED, 60f))
+                .build()
+        )
+        .withCallToActionAppearance(
+            ButtonAppearance.Builder()
+                .setNormalColor(GreenColor.toArgb())
+                .setPressedColor(GreenColor.toArgb())
+                .setTextAppearance(
+                    TextAppearance.Builder()
+                        .setTextColor(WhiteColor.toArgb())
+                        .setTextSize(14f)
+                        .build()
+                )
+                .build()
+        )
+        .withDomainAppearance(
+            TextAppearance.Builder()
+                .setTextColor(bodyColor.toArgb())
+                .setTextSize(12f)
+                .build()
+        )
+        .withAgeAppearance(
+            TextAppearance.Builder()
+                .setTextColor(ageColor.toArgb())
+                .setTextSize(12f)
+                .build()
+        )
+        .withBodyAppearance(
+            TextAppearance.Builder()
+                .setTextColor(bodyColor.toArgb())
+                .setTextSize(12f)
+                .build()
+        )
+        .withRatingAppearance(
+            RatingAppearance.Builder()
+                .setProgressStarColor(ratingStarColor.toArgb())
+                .build()
+        )
+        .withTitleAppearance(
+            TextAppearance.Builder()
+                .setTextColor(titleColor.toArgb())
+                .setTextSize(14f)
+                .build()
+        )
+        .withReviewCountAppearance(
+            TextAppearance.Builder()
+                .setTextColor(bodyColor.toArgb())
+                .setTextSize(12f)
+                .build()
+        )
+        .withSponsoredAppearance(
+            TextAppearance.Builder()
+                .setTextColor(bodyColor.toArgb())
+                .setTextSize(10f)
+                .build()
+        )
+        .withWarningAppearance(
+            TextAppearance.Builder()
+                .setTextColor(bodyColor.toArgb())
+                .setTextSize(10f)
+                .build()
+        )
+        .build()
 }

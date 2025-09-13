@@ -713,7 +713,7 @@ fun nativeAdAppearance(isLightTheme: Boolean): NativeTemplateAppearance {
                 .setPressedColor(GreenColor.toArgb())
                 .setTextAppearance(
                     TextAppearance.Builder()
-                        .setTextColor(GreenColor.toArgb())
+                        .setTextColor(WhiteColor.toArgb())
                         .setTextSize(14f)
                         .build()
                 )
