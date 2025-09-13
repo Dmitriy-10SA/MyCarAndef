@@ -90,6 +90,9 @@ dependencies {
     //core:ads
     implementation(project(":core:ads"))
 
+    //ads
+    implementation(libs.mobileads)
+
     //core:data
     implementation(project(":core:data"))
 
