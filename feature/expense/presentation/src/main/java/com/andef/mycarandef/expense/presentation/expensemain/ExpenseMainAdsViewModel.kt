@@ -53,6 +53,6 @@ class ExpenseMainAdsViewModel(private val application: Application) :
     }
 
     companion object Companion {
-        private const val ID = "demo-native-content-yandex" //R-M-17186581-2
+        private const val ID = "R-M-17186581-2"
     }
 }

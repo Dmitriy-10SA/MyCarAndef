@@ -52,6 +52,6 @@ class CarMainAdsViewModel(private val application: Application) : AndroidViewMod
     }
 
     companion object Companion {
-        private const val ID = "demo-native-content-yandex" //R-M-17186581-3
+        private const val ID = "R-M-17186581-3"
     }
 }
