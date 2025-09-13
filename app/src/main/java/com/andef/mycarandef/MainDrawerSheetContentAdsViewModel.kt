@@ -37,13 +37,13 @@ class MainDrawerSheetContentAdsViewModel(private val application: Application) :
             NativeAdRequestConfiguration.Builder(ID)
                 .setContextTags(
                     listOf(
-                        "доходы",
-                        "деньги",
-                        "инвестиции",
-                        "автомобили"
+                        "бюджет",
+                        "автомобили",
+                        "автосервис",
+                        "автозапчасти",
                     )
                 )
-                .setContextQuery("уменьшение расходов на машину и увеличение доходов")
+                .setContextQuery("уменьшение расходов на машину")
                 .build()
         )
     }
