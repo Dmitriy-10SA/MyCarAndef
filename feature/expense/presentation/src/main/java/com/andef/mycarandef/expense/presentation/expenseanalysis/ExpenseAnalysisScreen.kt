@@ -286,7 +286,7 @@ fun ExpenseAnalysisScreen(
                                         textAlign = TextAlign.Center
                                     )
                                     Text(
-                                        text = formatPriceRuble(sum),
+                                        text = "-${formatPriceRuble(sum)}",
                                         fontSize = 18.sp,
                                         color = blackOrWhiteColor(isLightTheme),
                                         modifier = Modifier.fillMaxWidth(),
@@ -382,6 +382,7 @@ private fun LegendRow(
     amount: Double,
     scrollState: ScrollState
 ) {
+    val price = if (amount == 0.0) formatPriceRuble(amount) else "-${formatPriceRuble(amount)}"
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -404,7 +405,7 @@ private fun LegendRow(
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = formatPriceRuble(amount),
+            text = price,
             color = blackOrWhiteColor(isLightTheme),
             fontSize = 16.sp
         )
