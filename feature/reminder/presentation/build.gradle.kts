@@ -43,9 +43,6 @@ dependencies {
     //core:utils
     implementation(project(":core:utils"))
 
-    //ads
-    implementation(libs.mobileads)
-
     //Coil
     implementation(libs.coil.compose)
 

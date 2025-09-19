@@ -1,12 +1,9 @@
 package com.andef.mycarandef.expense.presentation.expensemain
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -49,17 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
@@ -71,14 +64,9 @@ import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
-import com.andef.mycarandef.design.theme.BlackColor
-import com.andef.mycarandef.design.theme.DarkGrayColor
-import com.andef.mycarandef.design.theme.GrayForDarkColor
-import com.andef.mycarandef.design.theme.GrayForLightColor
 import com.andef.mycarandef.design.theme.GreenColor
 import com.andef.mycarandef.design.theme.RedColor
 import com.andef.mycarandef.design.theme.WhiteColor
-import com.andef.mycarandef.design.theme.YellowColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
@@ -86,15 +74,6 @@ import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatPriceRuble
 import com.andef.mycarandef.viewmodel.ViewModelFactory
-import com.yandex.mobile.ads.nativeads.NativeAd
-import com.yandex.mobile.ads.nativeads.template.NativeBannerView
-import com.yandex.mobile.ads.nativeads.template.SizeConstraint
-import com.yandex.mobile.ads.nativeads.template.appearance.BannerAppearance
-import com.yandex.mobile.ads.nativeads.template.appearance.ButtonAppearance
-import com.yandex.mobile.ads.nativeads.template.appearance.ImageAppearance
-import com.yandex.mobile.ads.nativeads.template.appearance.NativeTemplateAppearance
-import com.yandex.mobile.ads.nativeads.template.appearance.RatingAppearance
-import com.yandex.mobile.ads.nativeads.template.appearance.TextAppearance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -112,17 +91,6 @@ fun ExpenseMainScreen(
 ) {
     val viewModel: ExpenseMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
-
-    val application = LocalContext.current.applicationContext as Application
-    val adsViewModel: ExpenseMainAdsViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return ExpenseMainAdsViewModel(application) as T
-            }
-        }
-    )
-    val adViews = adsViewModel.adViews.collectAsState().value
 
     val sheetState = rememberModalBottomSheetState()
     val loadAppSheetState = rememberModalBottomSheetState()
@@ -158,8 +126,7 @@ fun ExpenseMainScreen(
         currentCarId = currentCarId,
         startDate = startDate,
         endDate = endDate,
-        listState = listState,
-        adViews = adViews
+        listState = listState
     )
     BottomSheetWithDeleteDialog(
         navHostController = navHostController,
@@ -570,8 +537,7 @@ private fun MainContent(
     currentCarId: Long,
     startDate: LocalDate,
     endDate: LocalDate,
-    listState: LazyListState,
-    adViews: List<NativeAd>
+    listState: LazyListState
 ) {
     LazyColumn(
         modifier = Modifier
@@ -581,91 +547,53 @@ private fun MainContent(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (state.value.expenses.isNotEmpty()) {
-            stickyHeader {
-                UiDateAndAmountRow(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 12.dp)
-                        .animateItem(tween(400, easing = FastOutSlowInEasing)),
-                    isIncome = false,
-                    totalAmount = state.value.totalExpenses,
-                    isLightTheme = isLightTheme,
-                    startDate = startDate,
-                    endDate = endDate
-                )
-            }
+        stickyHeader {
+            UiDateAndAmountRow(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 12.dp),
+                isIncome = false,
+                totalAmount = state.value.totalExpenses,
+                isLightTheme = isLightTheme,
+                startDate = startDate,
+                endDate = endDate
+            )
         }
         item { Spacer(modifier = Modifier.height(6.dp)) }
-        when (state.value.expenses.isEmpty()) {
-            true -> {
-                item {
-                    Text(
-                        text = "Пока нет данных о расходах. Вот несколько предложений для Вас:",
-                        color = blackOrWhiteColor(isLightTheme),
-                        fontSize = 16.sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 16.dp)
-                            .padding(bottom = 16.dp)
-                            .animateItem(tween(810, easing = FastOutSlowInEasing)),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                items(adViews.size, key = { "$isLightTheme-$it" }) { index ->
-                    AndroidView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 14.dp)
-                            .animateItem(tween(810, easing = FastOutSlowInEasing)),
-                        factory = { context ->
-                            NativeBannerView(context).apply {
-                                applyAppearance(nativeAdAppearance(isLightTheme))
-                                setAd(adViews[index])
-                            }
-                        }
-                    )
-                }
+        state.value.expenses.forEach { expensesForLazyColumn ->
+            item(key = "date-${expensesForLazyColumn.date}") {
+                Spacer(modifier = Modifier.height(18.dp))
+                UiDateAndAmountRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 4.dp)
+                        .animateItem(tween(800, easing = FastOutSlowInEasing)),
+                    isIncome = false,
+                    isLightTheme = isLightTheme,
+                    date = expensesForLazyColumn.date,
+                    amount = expensesForLazyColumn.totalAmount
+                )
             }
-
-            false -> {
-                state.value.expenses.forEach { expensesForLazyColumn ->
-                    item(key = "date-${expensesForLazyColumn.date}") {
-                        Spacer(modifier = Modifier.height(18.dp))
-                        UiDateAndAmountRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp, bottom = 4.dp)
-                                .animateItem(),
-                            isIncome = false,
-                            isLightTheme = isLightTheme,
-                            date = expensesForLazyColumn.date,
-                            amount = expensesForLazyColumn.totalAmount
+            items(items = expensesForLazyColumn.expenses, key = { it.id }) { expense ->
+                UiExpenseCard(
+                    onClick = {
+                        viewModel.send(
+                            ExpenseMainIntent.BottomSheetVisibleChange(
+                                isVisible = true,
+                                expenseType = expense.type,
+                                expenseAmount = expense.amount,
+                                expenseId = expense.id,
+                                expenseDate = expense.date,
+                                carId = expense.carId
+                            )
                         )
-                    }
-                    items(items = expensesForLazyColumn.expenses, key = { it.id }) { expense ->
-                        UiExpenseCard(
-                            onClick = {
-                                viewModel.send(
-                                    ExpenseMainIntent.BottomSheetVisibleChange(
-                                        isVisible = true,
-                                        expenseType = expense.type,
-                                        expenseAmount = expense.amount,
-                                        expenseId = expense.id,
-                                        expenseDate = expense.date,
-                                        carId = expense.carId
-                                    )
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItem(),
-                            isLightTheme = isLightTheme,
-                            expense = expense
-                        )
-                    }
-                }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem(tween(800, easing = FastOutSlowInEasing)),
+                    isLightTheme = isLightTheme,
+                    expense = expense
+                )
             }
         }
         item { Spacer(modifier = Modifier.height(12.dp)) }
@@ -685,86 +613,4 @@ private fun MainContent(
             )
         }
     )
-}
-
-fun nativeAdAppearance(isLightTheme: Boolean): NativeTemplateAppearance {
-    val backgroundColor = if (isLightTheme) WhiteColor else DarkGrayColor
-    val titleColor = if (isLightTheme) BlackColor else WhiteColor
-    val bodyColor = if (isLightTheme) GrayForLightColor else GrayForDarkColor
-    val ageColor = if (isLightTheme) GrayForLightColor else GrayForDarkColor
-    val ratingStarColor = YellowColor
-
-    return NativeTemplateAppearance.Builder()
-        .withBannerAppearance(
-            BannerAppearance.Builder()
-                .setBackgroundColor(backgroundColor.toArgb())
-                .setBorderWidth(0.1f)
-                .setBorderColor(bodyColor.copy(alpha = 0.2f).toArgb())
-                .build()
-        )
-        .withImageAppearance(
-            ImageAppearance.Builder()
-                .setWidthConstraint(SizeConstraint(SizeConstraint.SizeConstraintType.FIXED, 60f))
-                .build()
-        )
-        .withCallToActionAppearance(
-            ButtonAppearance.Builder()
-                .setNormalColor(GreenColor.toArgb())
-                .setPressedColor(GreenColor.toArgb())
-                .setTextAppearance(
-                    TextAppearance.Builder()
-                        .setTextColor(WhiteColor.toArgb())
-                        .setTextSize(14f)
-                        .build()
-                )
-                .build()
-        )
-        .withDomainAppearance(
-            TextAppearance.Builder()
-                .setTextColor(bodyColor.toArgb())
-                .setTextSize(12f)
-                .build()
-        )
-        .withAgeAppearance(
-            TextAppearance.Builder()
-                .setTextColor(ageColor.toArgb())
-                .setTextSize(12f)
-                .build()
-        )
-        .withBodyAppearance(
-            TextAppearance.Builder()
-                .setTextColor(bodyColor.toArgb())
-                .setTextSize(12f)
-                .build()
-        )
-        .withRatingAppearance(
-            RatingAppearance.Builder()
-                .setProgressStarColor(ratingStarColor.toArgb())
-                .build()
-        )
-        .withTitleAppearance(
-            TextAppearance.Builder()
-                .setTextColor(titleColor.toArgb())
-                .setTextSize(14f)
-                .build()
-        )
-        .withReviewCountAppearance(
-            TextAppearance.Builder()
-                .setTextColor(bodyColor.toArgb())
-                .setTextSize(12f)
-                .build()
-        )
-        .withSponsoredAppearance(
-            TextAppearance.Builder()
-                .setTextColor(bodyColor.toArgb())
-                .setTextSize(10f)
-                .build()
-        )
-        .withWarningAppearance(
-            TextAppearance.Builder()
-                .setTextColor(bodyColor.toArgb())
-                .setTextSize(10f)
-                .build()
-        )
-        .build()
 }

@@ -1,13 +1,7 @@
 package com.andef.mycarandef.expense.presentation.expenseanalysis
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -58,9 +52,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -81,7 +72,6 @@ import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
-import com.andef.mycarandef.expense.presentation.expensemain.nativeAdAppearance
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatPriceRuble
 import com.andef.mycarandef.viewmodel.ViewModelFactory
@@ -89,7 +79,6 @@ import com.github.tehras.charts.piechart.PieChart
 import com.github.tehras.charts.piechart.PieChartData
 import com.github.tehras.charts.piechart.animation.simpleChartAnimation
 import com.github.tehras.charts.piechart.renderer.SimpleSliceDrawer
-import com.yandex.mobile.ads.nativeads.template.NativeBannerView
 import java.time.LocalDate
 import java.util.Locale
 
@@ -112,17 +101,6 @@ fun ExpenseAnalysisScreen(
     val sheetState = rememberModalBottomSheetState()
     val sheetVisible = rememberSaveable { mutableStateOf(false) }
     val legendScrollState = rememberScrollState()
-
-    val application = LocalContext.current.applicationContext as Application
-    val adsViewModel: ExpenseAnalysisAdsViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return ExpenseAnalysisAdsViewModel(application) as T
-            }
-        }
-    )
-    val adViews = adsViewModel.adViews.collectAsState().value
 
     LaunchedEffect(carId) { viewModel.send(ExpenseAnalysisIntent.LoadExpenses(carId)) }
 
@@ -202,129 +180,76 @@ fun ExpenseAnalysisScreen(
             )
         }
     ) { topBarPadding ->
-        when (state.value.totalSumForScreen == 0.0) {
-            true -> {
-                AnimatedVisibility(
-                    visible = state.value.totalSumForScreen == 0.0,
-                    enter = fadeIn(tween(400, easing = FastOutSlowInEasing)),
-                    exit = fadeOut(tween(400, easing = FastOutSlowInEasing))
-                ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topBarPadding.calculateTopPadding())
+                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            state.value.totalSumForScreen?.let { sum ->
+                state.value.expensesInfoForScreen.let { expensesInfo ->
+                    Spacer(modifier = Modifier.height(16.dp))
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = topBarPadding.calculateTopPadding())
-                            .navigationBarsPadding()
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        val dateText =
+                            if (state.value.startDate == state.value.endDate) {
+                                formatLocalDate(state.value.startDate)
+                            } else {
+                                "${formatLocalDate(state.value.startDate)} " +
+                                        "- ${formatLocalDate(state.value.endDate)}"
+                            }
                         Text(
-                            text = "Пока нет данных о расходах. Вот несколько предложений для Вас:",
-                            color = blackOrWhiteColor(isLightTheme),
-                            fontSize = 16.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 16.dp)
-                                .padding(bottom = 16.dp),
+                            text = dateText,
+                            fontSize = 14.sp,
+                            color = grayColor(isLightTheme),
+                            modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
-                        adViews.forEach { adView ->
-                            AndroidView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 14.dp),
-                                factory = { context ->
-                                    NativeBannerView(context).apply {
-                                        applyAppearance(nativeAdAppearance(isLightTheme))
-                                        setAd(adView)
-                                    }
-                                }
+                        Text(
+                            text = if (sum == 0.0) formatPriceRuble(sum) else "-${formatPriceRuble(sum)}",
+                            fontSize = 18.sp,
+                            color = blackOrWhiteColor(isLightTheme),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    val slices = mutableListOf<PieChartData.Slice>().apply {
+                        Expense.allExpenseTypes.forEach { type ->
+                            add(
+                                PieChartData.Slice(
+                                    value = expensesInfo[type]?.first ?: 0.0f,
+                                    color = getColorForExpenseType(type)
+                                )
                             )
                         }
                     }
-                }
-            }
-
-            false -> {
-                AnimatedVisibility(
-                    visible = state.value.totalSumForScreen != 0.0,
-                    enter = fadeIn(tween(400, easing = FastOutSlowInEasing)),
-                    exit = fadeOut(tween(400, easing = FastOutSlowInEasing))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = topBarPadding.calculateTopPadding())
-                            .navigationBarsPadding()
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top
-                    ) {
-                        state.value.totalSumForScreen?.let { sum ->
-                            state.value.expensesInfoForScreen.let { expensesInfo ->
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 12.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    val dateText =
-                                        if (state.value.startDate == state.value.endDate) {
-                                            formatLocalDate(state.value.startDate)
-                                        } else {
-                                            "${formatLocalDate(state.value.startDate)} " +
-                                                    "- ${formatLocalDate(state.value.endDate)}"
-                                        }
-                                    Text(
-                                        text = dateText,
-                                        fontSize = 14.sp,
-                                        color = grayColor(isLightTheme),
-                                        modifier = Modifier.fillMaxWidth(),
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Text(
-                                        text = "-${formatPriceRuble(sum)}",
-                                        fontSize = 18.sp,
-                                        color = blackOrWhiteColor(isLightTheme),
-                                        modifier = Modifier.fillMaxWidth(),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(20.dp))
-                                val slices = mutableListOf<PieChartData.Slice>().apply {
-                                    Expense.allExpenseTypes.forEach { type ->
-                                        add(
-                                            PieChartData.Slice(
-                                                value = expensesInfo[type]?.first ?: 0.0f,
-                                                color = getColorForExpenseType(type)
-                                            )
-                                        )
-                                    }
-                                }
-                                PieChart(
-                                    modifier = Modifier.size(300.dp),
-                                    pieChartData = PieChartData(slices = slices),
-                                    animation = simpleChartAnimation(),
-                                    sliceDrawer = SimpleSliceDrawer()
-                                )
-                                Expense.allExpenseTypes.forEachIndexed { index, type ->
-                                    Spacer(modifier = Modifier.height(20.dp))
-                                    LegendRow(
-                                        isLightTheme = isLightTheme,
-                                        color = getColorForExpenseType(type),
-                                        title = type.title,
-                                        percent = expensesInfo[type]?.first ?: 0.0f,
-                                        amount = expensesInfo[type]?.second ?: 0.0,
-                                        scrollState = legendScrollState
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
-                        }
+                    PieChart(
+                        modifier = Modifier.size(300.dp),
+                        pieChartData = PieChartData(slices = slices),
+                        animation = simpleChartAnimation(),
+                        sliceDrawer = SimpleSliceDrawer()
+                    )
+                    Expense.allExpenseTypes.forEachIndexed { index, type ->
+                        Spacer(modifier = Modifier.height(20.dp))
+                        LegendRow(
+                            isLightTheme = isLightTheme,
+                            color = getColorForExpenseType(type),
+                            title = type.title,
+                            percent = expensesInfo[type]?.first ?: 0.0f,
+                            amount = expensesInfo[type]?.second ?: 0.0,
+                            scrollState = legendScrollState
+                        )
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }

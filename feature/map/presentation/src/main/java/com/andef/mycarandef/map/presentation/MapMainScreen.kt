@@ -46,7 +46,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.andef.mycar.core.ads.InterstitialAdManager
 import com.andef.mycarandef.design.alertdialog.ui.UiAlertDialog
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.error.ui.UiError
@@ -74,8 +73,7 @@ fun MapMainScreen(
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isLightTheme: Boolean,
-    currentCarId: Long,
-    interstitialAdManager: InterstitialAdManager
+    currentCarId: Long
 ) {
     val viewModel: MapMainViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
@@ -157,8 +155,7 @@ fun MapMainScreen(
         paddingValues = paddingValues,
         scope = scope,
         snackbarHostState = snackbarHostState,
-        settingLauncher = settingsLauncher,
-        interstitialAdManager = interstitialAdManager
+        settingLauncher = settingsLauncher
     )
     UiSnackbar(
         paddingValues = paddingValues,
@@ -175,8 +172,7 @@ fun MapMainScreen(
         state = state,
         scope = scope,
         context = context,
-        snackbarHostState = snackbarHostState,
-        interstitialAdManager = interstitialAdManager
+        snackbarHostState = snackbarHostState
     )
     MapMainBottomSheet(
         sheetState = sheetState,
@@ -196,8 +192,7 @@ fun MapMainScreen(
         lon = state.value.lonInBottomSheet,
         viewModel = viewModel,
         scope = scope,
-        snackbarHostState = snackbarHostState,
-        interstitialAdManager = interstitialAdManager
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -212,8 +207,7 @@ private fun MainContent(
     settingLauncher: ManagedActivityResultLauncher<Intent, androidx.activity.result.ActivityResult>,
     currentCarId: Long,
     isLightTheme: Boolean,
-    paddingValues: PaddingValues,
-    interstitialAdManager: InterstitialAdManager
+    paddingValues: PaddingValues
 ) {
     Column(
         modifier = Modifier
@@ -304,8 +298,7 @@ private fun ConfirmDialog(
     context: Context,
     state: State<MapMainState>,
     scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
-    interstitialAdManager: InterstitialAdManager
+    snackbarHostState: SnackbarHostState
 ) {
     UiAlertDialog(
         isLightTheme = isLightTheme,
@@ -319,33 +312,31 @@ private fun ConfirmDialog(
             viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
         },
         onYesClick = {
-            interstitialAdManager.showAd {
-                viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
-                viewModel.send(
-                    MapMainIntent.SaveCarCoordinates(
-                        onSuccess = { msg ->
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar(
-                                    message = msg,
-                                    withDismissAction = true
-                                )
-                            }
-                        },
-                        context = context,
-                        onError = { msg ->
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar(
-                                    message = msg,
-                                    withDismissAction = true,
-                                    duration = SnackbarDuration.Long
-                                )
-                            }
+            viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))
+            viewModel.send(
+                MapMainIntent.SaveCarCoordinates(
+                    onSuccess = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true
+                            )
                         }
-                    )
+                    },
+                    context = context,
+                    onError = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long
+                            )
+                        }
+                    }
                 )
-            }
+            )
         },
         onCancelClick = {
             viewModel.send(MapMainIntent.ConfirmDialogVisibleChange(isVisible = false))

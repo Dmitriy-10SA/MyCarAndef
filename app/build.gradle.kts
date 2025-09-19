@@ -19,8 +19,8 @@ android {
         minSdk = 26
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 9
-        versionName = "9.0"
+        versionCode = 10
+        versionName = "10.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -86,12 +86,6 @@ dependencies {
 
     //Google Play Services Location
     implementation(libs.play.services.location)
-
-    //core:ads
-    implementation(project(":core:ads"))
-
-    //ads
-    implementation(libs.mobileads)
 
     //core:data
     implementation(project(":core:data"))

@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import com.andef.mycar.core.ads.InterstitialAdManager
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.theme.WhiteColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
@@ -54,8 +53,7 @@ fun MapMainBottomSheet(
     lat: Double?,
     lon: Double?,
     scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
-    interstitialAdManager: InterstitialAdManager
+    snackbarHostState: SnackbarHostState
 ) {
     lat?.let {
         lon?.let {
@@ -98,29 +96,25 @@ fun MapMainBottomSheet(
                             contentDescription = "Иконка яндекс карты",
                             text = "Яндекс Карты",
                             onClick = {
-                                interstitialAdManager.showAd {
-                                    onDismissRequest()
-                                    launchApp(
-                                        context = context,
-                                        intent = buildYandexMapsIntent(lat = lat, lon = lon),
-                                        viewModel = viewModel,
-                                        scope = scope,
-                                        snackbarHostState = snackbarHostState
-                                    )
-                                }
-                            }
-                        )
-                        DGISItem(isLightTheme = isLightTheme) {
-                            interstitialAdManager.showAd {
                                 onDismissRequest()
                                 launchApp(
                                     context = context,
-                                    intent = build2GisNavIntent(lat = lat, lon = lon),
+                                    intent = buildYandexMapsIntent(lat = lat, lon = lon),
                                     viewModel = viewModel,
                                     scope = scope,
                                     snackbarHostState = snackbarHostState
                                 )
                             }
+                        )
+                        DGISItem(isLightTheme = isLightTheme) {
+                            onDismissRequest()
+                            launchApp(
+                                context = context,
+                                intent = build2GisNavIntent(lat = lat, lon = lon),
+                                viewModel = viewModel,
+                                scope = scope,
+                                snackbarHostState = snackbarHostState
+                            )
                         }
                         AppItem(
                             isLightTheme = isLightTheme,
@@ -128,16 +122,14 @@ fun MapMainBottomSheet(
                             contentDescription = "Иконка гугл карты",
                             text = "Google Карты",
                             onClick = {
-                                interstitialAdManager.showAd {
-                                    onDismissRequest()
-                                    launchApp(
-                                        context = context,
-                                        intent = buildGoogleMapsNavIntent(lat = lat, lon = lon),
-                                        viewModel = viewModel,
-                                        scope = scope,
-                                        snackbarHostState = snackbarHostState
-                                    )
-                                }
+                                onDismissRequest()
+                                launchApp(
+                                    context = context,
+                                    intent = buildGoogleMapsNavIntent(lat = lat, lon = lon),
+                                    viewModel = viewModel,
+                                    scope = scope,
+                                    snackbarHostState = snackbarHostState
+                                )
                             }
                         )
                     }

@@ -6,6 +6,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +46,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.andef.mycar.core.ads.InterstitialAdManager
 import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.R
@@ -67,7 +69,6 @@ import java.time.LocalDate
 class MainActivity : ComponentActivity() {
     private val component by lazy { (application as MyCarApp).component }
 
-    lateinit var interstitialAdManager: InterstitialAdManager
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,13 +76,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-        interstitialAdManager = InterstitialAdManager(this, INTERSTITIAL_ID)
         setContent {
             val isLightTheme = component.getIsLightThemeUseCase(isSystemInDarkTheme())
             val isLightThemeAsFlow = component.getIsLightThemeAsFlowUseCase
                 .invoke()
                 .collectAsState(isLightTheme)
-            interstitialAdManager.setLightTheme(isLightThemeAsFlow.value)
             val systemUiController = rememberSystemUiController()
             val navHostController = rememberNavController()
             val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
@@ -134,8 +133,7 @@ class MainActivity : ComponentActivity() {
                 lastSelectedTabIndex = lastSelectedTabId,
                 startDate = startDate,
                 endDate = endDate,
-                datePickerVisible = datePickerVisible,
-                interstitialAdManager = interstitialAdManager
+                datePickerVisible = datePickerVisible
             )
             UiRangeDatePickerDialog(
                 isVisible = datePickerVisible.value,
@@ -153,22 +151,18 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        interstitialAdManager.destroy()
-    }
 }
-
-private const val INTERSTITIAL_ID = "R-M-17186581-1"
 
 @Composable
 private fun SystemUiSettings(systemUiController: SystemUiController, isLightTheme: Boolean) {
     with(systemUiController) {
-        val color = when (isLightTheme) {
-            true -> WhiteColor
-            false -> DarkGrayColor
-        }
+        val color = animateColorAsState(
+            when (isLightTheme) {
+                true -> WhiteColor
+                false -> DarkGrayColor
+            },
+            tween(800, easing = FastOutSlowInEasing)
+        ).value
         setNavigationBarColor(color = color, darkIcons = isLightTheme)
         setStatusBarColor(color = color, darkIcons = isLightTheme)
     }
@@ -196,8 +190,7 @@ private fun MainContent(
     lastSelectedTabIndex: MutableState<Int>,
     startDate: MutableState<LocalDate>,
     endDate: MutableState<LocalDate>,
-    datePickerVisible: MutableState<Boolean>,
-    interstitialAdManager: InterstitialAdManager
+    datePickerVisible: MutableState<Boolean>
 ) {
     MyCarAndefTheme(darkTheme = !isLightTheme) {
         ModalNavigationDrawer(
@@ -210,8 +203,7 @@ private fun MainContent(
                     drawerState = drawerState,
                     component = component,
                     isLightTheme = isLightTheme,
-                    navHostController = navHostController,
-                    interstitialAdManager = interstitialAdManager
+                    navHostController = navHostController
                 )
             },
             content = {
@@ -261,8 +253,7 @@ private fun MainContent(
                         currentCarName = currentCarName,
                         currentCarImageUri = currentCarImageUri,
                         startDate = startDate.value,
-                        endDate = endDate.value,
-                        interstitialAdManager = interstitialAdManager
+                        endDate = endDate.value
                     )
                     MainBottomSheet(
                         isLightTheme = isLightTheme,

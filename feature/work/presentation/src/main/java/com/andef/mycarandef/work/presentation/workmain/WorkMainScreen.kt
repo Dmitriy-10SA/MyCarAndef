@@ -1,5 +1,7 @@
 package com.andef.mycarandef.work.presentation.workmain
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -310,7 +312,7 @@ private fun MainContent(
             UiWorkCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateItem(),
+                    .animateItem(tween(800, easing = FastOutSlowInEasing)),
                 isFirst = work == state.value.works[0],
                 onClick = {
                     viewModel.send(

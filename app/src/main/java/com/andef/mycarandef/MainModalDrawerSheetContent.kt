@@ -1,13 +1,6 @@
 package com.andef.mycarandef
 
-import android.app.Application
-import android.content.Context
 import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -45,9 +37,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,14 +56,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.andef.mycar.core.ads.InterstitialAdManager
-import com.andef.mycarandef.car.presentation.carmain.nativeAdAppearance
 import com.andef.mycarandef.common.MyCarComponent
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.button.ui.UiButton
@@ -87,10 +71,7 @@ import com.andef.mycarandef.design.theme.blackOrWhiteColor
 import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.routes.Screen
-import com.yandex.mobile.ads.nativeads.NativeAd
-import com.yandex.mobile.ads.nativeads.template.NativeBannerView
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,8 +82,7 @@ fun MainModalDrawerSheetContent(
     drawerState: DrawerState,
     scope: CoroutineScope,
     component: MyCarComponent,
-    navHostController: NavHostController,
-    interstitialAdManager: InterstitialAdManager
+    navHostController: NavHostController
 ) {
     val nameChangeSheetState = rememberModalBottomSheetState()
     val nameChangeSheetVisible = rememberSaveable { mutableStateOf(false) }
@@ -112,17 +92,6 @@ fun MainModalDrawerSheetContent(
     val feedbackSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
-
-    val application = LocalContext.current.applicationContext as Application
-    val adsViewModel: MainDrawerSheetContentAdsViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return MainDrawerSheetContentAdsViewModel(application) as T
-            }
-        }
-    )
-    val addView = adsViewModel.adView.collectAsState().value
 
     ModalDrawerSheet(
         drawerState = drawerState,
@@ -143,10 +112,7 @@ fun MainModalDrawerSheetContent(
             navHostController = navHostController,
             scope = scope,
             drawerState = drawerState,
-            context = context,
-            feedbackSheetVisible = feedbackSheetVisible,
-            interstitialAdManager = interstitialAdManager,
-            addView = addView
+            feedbackSheetVisible = feedbackSheetVisible
         )
     }
     UiModalBottomSheet(
@@ -296,20 +262,10 @@ private fun InnerContent(
     navHostController: NavHostController,
     scope: CoroutineScope,
     drawerState: DrawerState,
-    context: Context,
     nameChangeSheetVisible: MutableState<Boolean>,
     feedbackSheetVisible: MutableState<Boolean>,
-    component: MyCarComponent,
-    interstitialAdManager: InterstitialAdManager,
-    addView: NativeAd?
+    component: MyCarComponent
 ) {
-    var adVisible by remember { mutableStateOf(true) }
-    LaunchedEffect(isLightTheme) {
-        adVisible = false
-        delay(1400)
-        adVisible = true
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -336,36 +292,8 @@ private fun InnerContent(
             thickness = 1.dp,
             color = blackOrWhiteColor(isLightTheme).copy(alpha = 0.2f)
         )
-        AnimatedVisibility(
-            visible = adVisible,
-            enter = fadeIn(tween(400, easing = FastOutSlowInEasing)),
-            exit = fadeOut(tween(400, easing = FastOutSlowInEasing))
-        ) {
-            addView?.let {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 200.dp),
-                    factory = { context ->
-                        NativeBannerView(context).apply {
-                            applyAppearance(nativeAdAppearance(isLightTheme))
-                            setAd(addView)
-                        }
-                    }
-                )
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = blackOrWhiteColor(isLightTheme).copy(alpha = 0.2f)
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
         LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start
         ) {
             item {
@@ -405,9 +333,7 @@ private fun InnerContent(
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            interstitialAdManager.showAd {
-                                navHostController.navigate(Screen.BackupMainScreen.route)
-                            }
+                            navHostController.navigate(Screen.BackupMainScreen.route)
                         }
                     }
                 )
@@ -422,7 +348,6 @@ private fun InnerContent(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
@@ -445,9 +370,8 @@ private fun InnerContentItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {

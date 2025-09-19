@@ -14,7 +14,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.andef.mycar.backup.presentation.backupmain.BackupMainScreen
 import com.andef.mycar.backup.presentation.backupstart.BackupStartScreen
-import com.andef.mycar.core.ads.InterstitialAdManager
 import com.andef.mycar.reminder.presentation.allreminders.AllRemindersScreen
 import com.andef.mycar.reminder.presentation.reminderadd.ReminderAddScreen
 import com.andef.mycarandef.car.domain.entities.Car
@@ -39,8 +38,7 @@ fun MyCarNavGraph(
     currentCarImageUri: State<String?>,
     currentCarId: Long,
     startDate: LocalDate,
-    endDate: LocalDate,
-    interstitialAdManager: InterstitialAdManager
+    endDate: LocalDate
 ) {
     NavHost(
         navController = navHostController,
@@ -63,8 +61,7 @@ fun MyCarNavGraph(
             mainContentIsVisible = mainContentIsVisible,
             currentCarId = currentCarId,
             startDate = startDate,
-            endDate = endDate,
-            interstitialAdManager = interstitialAdManager
+            endDate = endDate
         )
         composable(
             route = Screen.WorkScreen.route,
