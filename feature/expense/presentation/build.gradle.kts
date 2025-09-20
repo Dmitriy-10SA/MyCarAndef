@@ -40,9 +40,6 @@ android {
 }
 
 dependencies {
-    //ads
-    implementation(libs.mobileads)
-
     //core:utils
     implementation(project(":core:utils"))
 

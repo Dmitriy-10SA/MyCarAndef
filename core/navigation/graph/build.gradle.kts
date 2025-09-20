@@ -37,9 +37,6 @@ android {
 }
 
 dependencies {
-    //core:ads
-    implementation(project(":core:ads"))
-
     //feature:work:presentation
     implementation(project(":feature:work:presentation"))
 

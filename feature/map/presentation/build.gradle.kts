@@ -43,9 +43,6 @@ dependencies {
     //Coil
     implementation(libs.coil.compose)
 
-    //core:ads
-    implementation(project(":core:ads"))
-
     //core:design
     implementation(project(":core:design"))
 
