@@ -9,7 +9,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.andef.mycar.core.ads.InterstitialAdManager
 import com.andef.mycarandef.car.presentation.carmain.CarMainScreen
 import com.andef.mycarandef.expense.presentation.expensemain.ExpenseMainScreen
 import com.andef.mycarandef.map.presentation.MapMainScreen
@@ -26,8 +25,7 @@ fun NavGraphBuilder.mainScreensGraph(
     mainContentIsVisible: Boolean,
     currentCarId: Long,
     startDate: LocalDate,
-    endDate: LocalDate,
-    interstitialAdManager: InterstitialAdManager
+    endDate: LocalDate
 ) {
     navigation(
         route = Screen.MainScreens.route,
@@ -73,8 +71,7 @@ fun NavGraphBuilder.mainScreensGraph(
                     viewModelFactory = viewModelFactory,
                     paddingValues = paddingValues,
                     isLightTheme = isLightTheme,
-                    currentCarId = currentCarId,
-                    interstitialAdManager = interstitialAdManager
+                    currentCarId = currentCarId
                 )
             }
         }
