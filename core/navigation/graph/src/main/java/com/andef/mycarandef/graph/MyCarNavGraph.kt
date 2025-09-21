@@ -38,7 +38,9 @@ fun MyCarNavGraph(
     currentCarImageUri: State<String?>,
     currentCarId: Long,
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    onMainLeftSwipe: () -> Unit,
+    onMainRightSwipe: () -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -61,7 +63,9 @@ fun MyCarNavGraph(
             mainContentIsVisible = mainContentIsVisible,
             currentCarId = currentCarId,
             startDate = startDate,
-            endDate = endDate
+            endDate = endDate,
+            onLeftSwipe = onMainLeftSwipe,
+            onRightSwipe = onMainRightSwipe
         )
         composable(
             route = Screen.WorkScreen.route,

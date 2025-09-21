@@ -249,6 +249,7 @@ private fun MainContent(
                     modifier = modifier,
                     containerColor = darkGrayOrWhiteColor(isLightTheme),
                     contentColor = blackOrWhiteColor(isLightTheme),
+                    divider = {},
                     indicator = {
                         Box(
                             modifier = Modifier
