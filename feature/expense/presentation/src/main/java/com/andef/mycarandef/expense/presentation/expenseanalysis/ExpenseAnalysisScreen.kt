@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,12 +39,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -100,7 +105,6 @@ fun ExpenseAnalysisScreen(
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
     val sheetVisible = rememberSaveable { mutableStateOf(false) }
-    val legendScrollState = rememberScrollState()
 
     LaunchedEffect(carId) { viewModel.send(ExpenseAnalysisIntent.LoadExpenses(carId)) }
 
@@ -113,41 +117,7 @@ fun ExpenseAnalysisScreen(
                     tabs = dateTabs,
                     selectedTabIndex = state.value.selectedDateTabId,
                     onTabClick = { tab ->
-                        viewModel.send(ExpenseAnalysisIntent.SelectedTabIdChange(tab.id))
-                        val now = LocalDate.now()
-                        if (tab.id == dateTabs[0].id) {
-                            viewModel.send(
-                                ExpenseAnalysisIntent.DatesChange(
-                                    startDate = now, endDate = now
-                                )
-                            )
-                        } else if (tab.id == dateTabs[1].id) {
-                            viewModel.send(
-                                ExpenseAnalysisIntent.DatesChange(
-                                    startDate = now.minusWeeks(1), endDate = now
-                                )
-                            )
-                        } else if (tab.id == dateTabs[2].id) {
-                            viewModel.send(
-                                ExpenseAnalysisIntent.DatesChange(
-                                    startDate = now.minusMonths(1), endDate = now
-                                )
-                            )
-                        } else if (tab.id == dateTabs[3].id) {
-                            viewModel.send(
-                                ExpenseAnalysisIntent.DatesChange(
-                                    startDate = now.minusMonths(6), endDate = now
-                                )
-                            )
-                        } else if (tab.id == dateTabs[4].id) {
-                            viewModel.send(
-                                ExpenseAnalysisIntent.DatesChange(
-                                    startDate = now.minusYears(1), endDate = now
-                                )
-                            )
-                        } else {
-                            viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(true))
-                        }
+                        onDateTabClick(viewModel = viewModel, tab = tab)
                     }
                 ),
                 title = currentCarName.value,
@@ -180,12 +150,38 @@ fun ExpenseAnalysisScreen(
             )
         }
     ) { topBarPadding ->
+        var totalDrag by remember { mutableStateOf(0f) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = topBarPadding.calculateTopPadding())
                 .navigationBarsPadding()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { totalDrag = 0f },
+                        onHorizontalDrag = { _, dragAmount ->
+                            totalDrag += dragAmount
+                        },
+                        onDragEnd = {
+                            if (totalDrag > 100) {
+                                if (state.value.selectedDateTabId in 1..5) {
+                                    onDateTabClick(
+                                        viewModel = viewModel,
+                                        tab = dateTabs[state.value.selectedDateTabId - 1]
+                                    )
+                                }
+                            } else if (totalDrag < -100) {
+                                if (state.value.selectedDateTabId in 0..4) {
+                                    onDateTabClick(
+                                        viewModel = viewModel,
+                                        tab = dateTabs[state.value.selectedDateTabId + 1]
+                                    )
+                                }
+                            }
+                        }
+                    )
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -214,14 +210,18 @@ fun ExpenseAnalysisScreen(
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = if (sum == 0.0) formatPriceRuble(sum) else "-${formatPriceRuble(sum)}",
+                            text = if (sum == 0.0) formatPriceRuble(sum) else "-${
+                                formatPriceRuble(
+                                    sum
+                                )
+                            }",
                             fontSize = 18.sp,
                             color = blackOrWhiteColor(isLightTheme),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                     val slices = mutableListOf<PieChartData.Slice>().apply {
                         Expense.allExpenseTypes.forEach { type ->
                             add(
@@ -238,6 +238,7 @@ fun ExpenseAnalysisScreen(
                         animation = simpleChartAnimation(),
                         sliceDrawer = SimpleSliceDrawer()
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
                     Expense.allExpenseTypes.forEachIndexed { index, type ->
                         Spacer(modifier = Modifier.height(20.dp))
                         LegendRow(
@@ -245,8 +246,7 @@ fun ExpenseAnalysisScreen(
                             color = getColorForExpenseType(type),
                             title = type.title,
                             percent = expensesInfo[type]?.first ?: 0.0f,
-                            amount = expensesInfo[type]?.second ?: 0.0,
-                            scrollState = legendScrollState
+                            amount = expensesInfo[type]?.second ?: 0.0
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -289,6 +289,44 @@ fun ExpenseAnalysisScreen(
     )
 }
 
+private fun onDateTabClick(viewModel: ExpenseAnalysisViewModel, tab: UiTopBarTab) {
+    viewModel.send(ExpenseAnalysisIntent.SelectedTabIdChange(tab.id))
+    val now = LocalDate.now()
+    if (tab.id == dateTabs[0].id) {
+        viewModel.send(
+            ExpenseAnalysisIntent.DatesChange(
+                startDate = now, endDate = now
+            )
+        )
+    } else if (tab.id == dateTabs[1].id) {
+        viewModel.send(
+            ExpenseAnalysisIntent.DatesChange(
+                startDate = now.minusWeeks(1), endDate = now
+            )
+        )
+    } else if (tab.id == dateTabs[2].id) {
+        viewModel.send(
+            ExpenseAnalysisIntent.DatesChange(
+                startDate = now.minusMonths(1), endDate = now
+            )
+        )
+    } else if (tab.id == dateTabs[3].id) {
+        viewModel.send(
+            ExpenseAnalysisIntent.DatesChange(
+                startDate = now.minusMonths(6), endDate = now
+            )
+        )
+    } else if (tab.id == dateTabs[4].id) {
+        viewModel.send(
+            ExpenseAnalysisIntent.DatesChange(
+                startDate = now.minusYears(1), endDate = now
+            )
+        )
+    } else {
+        viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(true))
+    }
+}
+
 private fun getColorForExpenseType(type: ExpenseType): Color {
     return when (type) {
         ExpenseType.FUEL -> Color(0xFFFF6B6B)
@@ -304,37 +342,34 @@ private fun LegendRow(
     color: Color,
     title: String,
     percent: Float,
-    amount: Double,
-    scrollState: ScrollState
+    amount: Double
 ) {
     val price = if (amount == 0.0) formatPriceRuble(amount) else "-${formatPriceRuble(amount)}"
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(scrollState),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
         Box(
             modifier = Modifier
                 .size(12.dp)
                 .background(color = color, shape = CircleShape)
         )
         Text(
+            modifier = Modifier.weight(1f),
             text = "$title (${String.format(Locale.US, "%.2f", percent)}%)",
             fontSize = 16.sp,
             color = grayColor(isLightTheme),
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = price,
             color = blackOrWhiteColor(isLightTheme),
             fontSize = 16.sp
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
     }
 }
 
