@@ -64,6 +64,7 @@ import com.andef.mycarandef.routes.Screen
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
@@ -195,7 +196,11 @@ private fun MainContent(
     MyCarAndefTheme(darkTheme = !isLightTheme) {
         ModalNavigationDrawer(
             drawerState = drawerState,
-            gesturesEnabled = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes,
+            gesturesEnabled = drawerState.isOpen || currentRoute in listOf(
+                Screen.MainScreens.WorksMainScreen.route,
+                Screen.MainScreens.MapsMainScreen.route,
+                Screen.MainScreens.CarsMainScreen.route
+            ),
             drawerContent = {
                 MainModalDrawerSheetContent(
                     username = username,
@@ -253,7 +258,33 @@ private fun MainContent(
                         currentCarName = currentCarName,
                         currentCarImageUri = currentCarImageUri,
                         startDate = startDate.value,
-                        endDate = endDate.value
+                        endDate = endDate.value,
+                        onMainLeftSwipe = {
+                            if (selectedTabIndex.value in 0..4) {
+                                onDateTabClick(
+                                    selectedTabIndex = selectedTabIndex,
+                                    lastSelectedTabIndex = lastSelectedTabIndex,
+                                    startDate = startDate,
+                                    endDate = endDate,
+                                    datePickerVisible = datePickerVisible,
+                                    tab = dateTabs[selectedTabIndex.value + 1]
+                                )
+                            }
+                        },
+                        onMainRightSwipe = {
+                            if (selectedTabIndex.value in 1..5) {
+                                onDateTabClick(
+                                    selectedTabIndex = selectedTabIndex,
+                                    lastSelectedTabIndex = lastSelectedTabIndex,
+                                    startDate = startDate,
+                                    endDate = endDate,
+                                    datePickerVisible = datePickerVisible,
+                                    tab = dateTabs[selectedTabIndex.value - 1]
+                                )
+                            } else {
+                                scope.launch { drawerState.open() }
+                            }
+                        }
                     )
                     MainBottomSheet(
                         isLightTheme = isLightTheme,

@@ -25,7 +25,9 @@ fun NavGraphBuilder.mainScreensGraph(
     mainContentIsVisible: Boolean,
     currentCarId: Long,
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    onLeftSwipe: () -> Unit,
+    onRightSwipe: () -> Unit
 ) {
     navigation(
         route = Screen.MainScreens.route,
@@ -58,7 +60,9 @@ fun NavGraphBuilder.mainScreensGraph(
                     isLightTheme = isLightTheme,
                     currentCarId = currentCarId,
                     startDate = startDate,
-                    endDate = endDate
+                    endDate = endDate,
+                    onLeftSwipe = onLeftSwipe,
+                    onRightSwipe = onRightSwipe
                 )
             }
         }

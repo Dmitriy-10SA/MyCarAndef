@@ -59,8 +59,8 @@ fun MainTopBar(
     AnimatedContent(
         targetState = currentRoute,
         transitionSpec = {
-            (fadeIn(animationSpec = tween(400, easing = FastOutSlowInEasing)))
-                .togetherWith(fadeOut(animationSpec = tween(400, easing = FastOutSlowInEasing)))
+            (fadeIn(animationSpec = tween(800, easing = FastOutSlowInEasing)))
+                .togetherWith(fadeOut(animationSpec = tween(800, easing = FastOutSlowInEasing)))
         }
     ) { state ->
         when (state == Screen.MainScreens.ExpensesMainScreen.route) {
@@ -198,7 +198,7 @@ private fun TopBarWithTabs(
     )
 }
 
-private fun onDateTabClick(
+fun onDateTabClick(
     selectedTabIndex: MutableState<Int>,
     lastSelectedTabIndex: MutableState<Int>,
     startDate: MutableState<LocalDate>,
@@ -228,7 +228,7 @@ private fun onDateTabClick(
     }
 }
 
-private val dateTabs = listOf(
+val dateTabs = listOf(
     UiTopBarTab(id = 0, title = "День"),
     UiTopBarTab(id = 1, title = "Неделя"),
     UiTopBarTab(id = 2, title = "Месяц"),
