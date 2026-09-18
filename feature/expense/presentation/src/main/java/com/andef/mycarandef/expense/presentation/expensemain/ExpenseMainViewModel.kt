@@ -176,8 +176,9 @@ class ExpenseMainViewModel @Inject constructor(
                             .toList()
                             .sortedByDescending { it.first }
                             .map { (date, items) ->
-                                val totalAmount = items.sumOf { it.amount }
-                                ExpenseForLazyColumn(date, totalAmount, items)
+                                val sortedItems = items.sortedByDescending { it.id }
+                                val totalAmount = sortedItems.sumOf { it.amount }
+                                ExpenseForLazyColumn(date, totalAmount, sortedItems)
                             }
                         expenses to expensesList.sumOf { it.amount }
                     }
