@@ -269,10 +269,8 @@ private fun ColumnScope.MainContent(
             onClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(true)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Дата",
-            leadingIcon = painterResource(R.drawable.my_car_schedule),
-            leadingIconContentDescription = "Значок часов",
-            trailingIcon = painterResource(R.drawable.my_car_calendar),
-            trailingIconContentDescription = "Значок календаря"
+            leadingIcon = painterResource(R.drawable.my_car_calendar),
+            leadingIconContentDescription = "Значок календаря"
         )
         Spacer(modifier = Modifier.height(28.dp))
         Text(
