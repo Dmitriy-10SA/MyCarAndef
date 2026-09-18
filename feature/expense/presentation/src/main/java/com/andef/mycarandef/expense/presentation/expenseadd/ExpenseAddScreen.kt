@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +65,6 @@ import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
-import com.andef.mycarandef.utils.RubleAmountVisualTransformation
 import com.andef.mycarandef.utils.formatAmountForEdit
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.normalizeAmountInput
@@ -180,8 +180,14 @@ private fun ColumnScope.MainContent(
     state: State<ExpenseAddState>,
     viewModel: ExpenseAddViewModel
 ) {
-    var localAmount by remember(state.value.amount) {
-        mutableStateOf(state.value.amount?.let { formatAmountForEdit(it) } ?: "")
+    var localAmount by rememberSaveable { mutableStateOf("") }
+    var initializedAmount by rememberSaveable { mutableStateOf<Long?>(null) }
+    LaunchedEffect(state.value.amount) {
+        val amount = state.value.amount
+        if (amount != null && localAmount.isBlank() && initializedAmount != amount) {
+            localAmount = formatAmountForEdit(amount)
+            initializedAmount = amount
+        }
     }
     var typeExpanded by remember { mutableStateOf(false) }
     Column(
@@ -232,8 +238,7 @@ private fun ColumnScope.MainContent(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
-            ),
-            visualTransformation = RubleAmountVisualTransformation()
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiMenu(
