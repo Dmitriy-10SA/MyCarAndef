@@ -4,6 +4,6 @@ import java.time.LocalDate
 
 data class ExpenseForLazyColumn(
     val date: LocalDate,
-    val totalAmount: Double,
+    val totalAmount: Long,
     val expenses: List<Expense>
 )

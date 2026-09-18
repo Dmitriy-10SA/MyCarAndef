@@ -25,7 +25,7 @@ class ExpenseRepositoryImpl @Inject constructor(
 
     override suspend fun changeExpense(
         id: Long,
-        amount: Double,
+        amount: Long,
         note: String?,
         type: ExpenseType,
         date: LocalDate

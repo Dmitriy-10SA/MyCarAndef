@@ -113,7 +113,7 @@ class ExpenseAnalysisViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getTotalSumForScreen(filterByDateExpenses: List<Expense>): Double {
+    private suspend fun getTotalSumForScreen(filterByDateExpenses: List<Expense>): Long {
         return withContext(Dispatchers.IO) {
             filterByDateExpenses.sumOf { it.amount }
         }
@@ -133,10 +133,10 @@ class ExpenseAnalysisViewModel @Inject constructor(
 
     private suspend fun getExpensesInfoForScreen(
         filterByDateExpenses: List<Expense>,
-        totalSumForScreen: Double
-    ): Map<ExpenseType, Pair<Float, Double>> {
+        totalSumForScreen: Long
+    ): Map<ExpenseType, Pair<Float, Long>> {
         return withContext(Dispatchers.IO) {
-            mutableMapOf<ExpenseType, Pair<Float, Double>>().apply {
+            mutableMapOf<ExpenseType, Pair<Float, Long>>().apply {
                 filterByDateExpenses
                     .groupBy { it.type }
                     .map {
@@ -150,8 +150,8 @@ class ExpenseAnalysisViewModel @Inject constructor(
         }
     }
 
-    private fun share(amount: Double, total: Double): Float =
-        if (total > 0.0) ((amount / total) * 100f).toFloat() else 0f
+    private fun share(amount: Long, total: Long): Float =
+        if (total > 0L) (amount.toDouble() / total.toDouble() * 100.0).toFloat() else 0f
 
     private fun currentCarChoose(car: Car) {
         setCurrentCarIdUseCase.invoke(car.id)

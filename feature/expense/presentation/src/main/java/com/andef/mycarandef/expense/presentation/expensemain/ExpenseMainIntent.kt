@@ -15,7 +15,7 @@ sealed class ExpenseMainIntent {
         val isVisible: Boolean,
         val expenseDate: LocalDate? = null,
         val expenseType: ExpenseType? = null,
-        val expenseAmount: Double? = null,
+        val expenseAmount: Long? = null,
         val expenseId: Long? = null,
         val carId: Long? = null
     ) : ExpenseMainIntent()
@@ -27,7 +27,7 @@ sealed class ExpenseMainIntent {
 
     data class AddToMyFinance(
         val context: Context,
-        val amount: Double,
+        val amount: Long,
         val date: LocalDate,
         val type: ExpenseType,
         val onSuccess: (String) -> Unit,

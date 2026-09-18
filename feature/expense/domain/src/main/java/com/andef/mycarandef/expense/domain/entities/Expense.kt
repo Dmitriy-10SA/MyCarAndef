@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 data class Expense(
     val id: Long,
-    val amount: Double,
+    val amount: Long,
     val note: String?,
     val type: ExpenseType,
     val date: LocalDate,

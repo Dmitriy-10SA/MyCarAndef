@@ -76,7 +76,7 @@ class ExpenseMainViewModel @Inject constructor(
 
     private fun addToMyFinance(
         context: Context,
-        amount: Double,
+        amount: Long,
         date: LocalDate,
         type: ExpenseType,
         onSuccess: (String) -> Unit,
@@ -93,7 +93,7 @@ class ExpenseMainViewModel @Inject constructor(
                 ExpenseType.OTHER -> "Автомобиль - другое"
             }
             val values = ContentValues().apply {
-                put(AMOUNT, amount)
+                put(AMOUNT, amount / KOPECKS_IN_RUBLE)
                 put(DATE, date.toString())
                 put(NOTE, note)
             }
@@ -138,7 +138,7 @@ class ExpenseMainViewModel @Inject constructor(
     private fun changeBottomSheetVisible(
         isVisible: Boolean,
         expenseType: ExpenseType? = null,
-        expenseAmount: Double? = null,
+        expenseAmount: Long? = null,
         expenseId: Long? = null,
         expenseDate: LocalDate? = null,
         carId: Long? = null
@@ -211,5 +211,6 @@ class ExpenseMainViewModel @Inject constructor(
         private const val AMOUNT = "amount"
         private const val DATE = "date"
         private const val NOTE = "note"
+        private const val KOPECKS_IN_RUBLE = 100.0
     }
 }

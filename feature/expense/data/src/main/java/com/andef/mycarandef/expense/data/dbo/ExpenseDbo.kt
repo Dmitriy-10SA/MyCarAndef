@@ -23,7 +23,7 @@ import com.andef.mycarandef.expense.domain.entities.ExpenseType
 data class ExpenseDbo(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    val amount: Double,
+    val amount: Long,
     val note: String?,
     val type: ExpenseType,
     val date: Int,

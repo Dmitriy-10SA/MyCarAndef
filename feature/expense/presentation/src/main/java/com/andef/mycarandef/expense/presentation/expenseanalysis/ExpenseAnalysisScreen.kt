@@ -210,7 +210,7 @@ fun ExpenseAnalysisScreen(
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = if (sum == 0.0) formatPriceRuble(sum) else "-${
+                            text = if (sum == 0L) formatPriceRuble(sum) else "-${
                                 formatPriceRuble(
                                     sum
                                 )
@@ -246,7 +246,7 @@ fun ExpenseAnalysisScreen(
                             color = getColorForExpenseType(type),
                             title = type.title,
                             percent = expensesInfo[type]?.first ?: 0.0f,
-                            amount = expensesInfo[type]?.second ?: 0.0
+                            amount = expensesInfo[type]?.second ?: 0L
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -342,9 +342,9 @@ private fun LegendRow(
     color: Color,
     title: String,
     percent: Float,
-    amount: Double
+    amount: Long
 ) {
-    val price = if (amount == 0.0) formatPriceRuble(amount) else "-${formatPriceRuble(amount)}"
+    val price = if (amount == 0L) formatPriceRuble(amount) else "-${formatPriceRuble(amount)}"
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),

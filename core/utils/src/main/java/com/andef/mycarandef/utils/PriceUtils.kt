@@ -1,14 +1,15 @@
 package com.andef.mycarandef.utils
 
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.Locale
+import kotlin.math.abs
 
-fun formatPriceRuble(value: Double): String {
-    val symbols = DecimalFormatSymbols(Locale.getDefault()).apply {
-        groupingSeparator = ' '
-        decimalSeparator = '.'
-    }
-    val formatter = DecimalFormat("#,##0.00", symbols)
-    return "${formatter.format(value)}₽"
+fun formatPriceRuble(value: Long): String {
+    val rubles = value / 100
+    val kopecks = abs(value % 100).toString().padStart(2, '0')
+    val groupedRubles = rubles.toString()
+        .reversed()
+        .chunked(3)
+        .joinToString(" ")
+        .reversed()
+
+    return "$groupedRubles.$kopecks₽"
 }

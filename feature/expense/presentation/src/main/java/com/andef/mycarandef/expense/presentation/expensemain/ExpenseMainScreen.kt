@@ -261,7 +261,7 @@ private fun ConfirmAddToMyFinanceDialog(
     confirmAddToMyFinanceDialogVisible: MutableState<Boolean>,
     viewModel: ExpenseMainViewModel,
     context: Context,
-    expenseAmount: Double,
+    expenseAmount: Long,
     expenseDate: LocalDate,
     expenseType: ExpenseType,
     scope: CoroutineScope,
@@ -453,7 +453,7 @@ private fun BottomSheetContent(
     isLightTheme: Boolean,
     expenseType: ExpenseType,
     expenseDate: LocalDate,
-    expenseAmount: Double,
+    expenseAmount: Long,
     onAddToMyFinanceClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onEditClick: () -> Unit

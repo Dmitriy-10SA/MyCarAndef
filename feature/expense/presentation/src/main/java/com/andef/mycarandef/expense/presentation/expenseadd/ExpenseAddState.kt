@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 data class ExpenseAddState(
     val expenseId: Long? = null,
-    val amount: Double? = null,
+    val amount: Long? = null,
     val type: ExpenseType? = null,
     val date: LocalDate? = LocalDate.now(),
     val note: String? = null,

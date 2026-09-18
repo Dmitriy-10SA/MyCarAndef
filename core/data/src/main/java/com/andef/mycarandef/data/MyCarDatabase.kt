@@ -21,7 +21,7 @@ import com.andef.mycarandef.work.data.dbo.WorkDbo
         ReminderDbo::class
     ],
     exportSchema = false,
-    version = 1
+    version = 2
 )
 abstract class MyCarDatabase : RoomDatabase() {
     abstract val carDao: CarDao
@@ -41,7 +41,9 @@ abstract class MyCarDatabase : RoomDatabase() {
                         application,
                         MyCarDatabase::class.java,
                         DB_NAME
-                    ).build()
+                    )
+                        .addMigrations(MIGRATION_1_2)
+                        .build()
                 }
                 return instance!!
             }

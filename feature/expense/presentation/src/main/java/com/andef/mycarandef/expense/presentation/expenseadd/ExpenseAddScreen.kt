@@ -65,9 +65,10 @@ import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.utils.RubleAmountVisualTransformation
-import com.andef.mycarandef.utils.clampToTwoDecimals
 import com.andef.mycarandef.utils.formatAmountForEdit
 import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.normalizeAmountInput
+import com.andef.mycarandef.utils.parseAmountToKopecks
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -219,10 +220,9 @@ private fun ColumnScope.MainContent(
             isLightTheme = isLightTheme,
             value = localAmount,
             onValueChange = { newText ->
-                val filtered = newText.filter { it.isDigit() || it == ',' || it == '.' }
-                val clamped = clampToTwoDecimals(filtered)
-                localAmount = clamped
-                val parsed = clamped.replace(',', '.').toDoubleOrNull()
+                val normalized = normalizeAmountInput(newText)
+                localAmount = normalized
+                val parsed = parseAmountToKopecks(normalized)
                 viewModel.send(ExpenseAddIntent.ChangeAmount(parsed))
             },
             modifier = Modifier.fillMaxWidth(),
@@ -230,7 +230,7 @@ private fun ColumnScope.MainContent(
             leadingIcon = painterResource(R.drawable.my_car_ruble),
             contentDescription = "Значок рубля",
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
+                keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
             ),
             visualTransformation = RubleAmountVisualTransformation()
