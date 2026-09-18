@@ -6,7 +6,7 @@ data class WorkAddState(
     val workId: Long? = null,
     val workTitle: String = "",
     val mileage: Int? = null,
-    val date: LocalDate? = null,
+    val date: LocalDate? = LocalDate.now(),
     val note: String? = null,
     val isLoading: Boolean = false,
     val datePickerVisible: Boolean = false,

@@ -7,7 +7,7 @@ data class ExpenseAddState(
     val expenseId: Long? = null,
     val amount: Double? = null,
     val type: ExpenseType? = null,
-    val date: LocalDate? = null,
+    val date: LocalDate? = LocalDate.now(),
     val note: String? = null,
     val isLoading: Boolean = false,
     val datePickerVisible: Boolean = false,
