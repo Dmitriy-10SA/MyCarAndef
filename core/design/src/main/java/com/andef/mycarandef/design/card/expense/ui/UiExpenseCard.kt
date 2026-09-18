@@ -100,7 +100,13 @@ fun getImageForExpense(type: ExpenseType): Painter {
         when (type) {
             ExpenseType.FUEL -> R.drawable.my_car_fuel_photo
             ExpenseType.WORKS -> R.drawable.my_car_works_photo
+            ExpenseType.PARTS -> R.drawable.my_car_spare_parts_photo
             ExpenseType.WASHING -> R.drawable.my_car_washing_photo
+            ExpenseType.PARKING -> R.drawable.my_car_parking_photo
+            ExpenseType.TOLL_ROADS -> R.drawable.my_car_toll_roads_photo
+            ExpenseType.FINES -> R.drawable.my_car_fines_photo
+            ExpenseType.INSURANCE -> R.drawable.my_car_insurance_photo
+            ExpenseType.TAXES -> R.drawable.my_car_taxes_photo
             ExpenseType.OTHER -> R.drawable.my_car_other_photo
         }
     )

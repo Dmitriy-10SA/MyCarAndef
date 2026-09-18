@@ -1,9 +1,5 @@
 package com.andef.mycarandef.expense.domain.entities
 
-import com.andef.mycarandef.expense.domain.entities.ExpenseType.FUEL
-import com.andef.mycarandef.expense.domain.entities.ExpenseType.OTHER
-import com.andef.mycarandef.expense.domain.entities.ExpenseType.WASHING
-import com.andef.mycarandef.expense.domain.entities.ExpenseType.WORKS
 import java.time.LocalDate
 
 data class Expense(
@@ -21,13 +17,19 @@ data class Expense(
     }
 
     companion object {
-        val allExpenseTypes = listOf<ExpenseType>(FUEL, WORKS, WASHING, OTHER)
+        val allExpenseTypes = ExpenseType.entries.toList()
     }
 }
 
 enum class ExpenseType(val title: String) {
     FUEL(title = "Бензин"),
     WORKS(title = "Работы"),
+    PARTS(title = "Запчасти"),
     WASHING(title = "Мойка"),
+    PARKING(title = "Парковки"),
+    TOLL_ROADS(title = "Платные дороги"),
+    FINES(title = "Штрафы"),
+    INSURANCE(title = "Страховка"),
+    TAXES(title = "Налоги"),
     OTHER(title = "Другое")
 }

@@ -89,7 +89,13 @@ class ExpenseMainViewModel @Inject constructor(
             val note = when (type) {
                 ExpenseType.FUEL -> "Заправка автомобиля"
                 ExpenseType.WORKS -> "Ремонт автомобиля"
+                ExpenseType.PARTS -> "Запчасти для автомобиля"
                 ExpenseType.WASHING -> "Мойка автомобиля"
+                ExpenseType.PARKING -> "Парковка автомобиля"
+                ExpenseType.TOLL_ROADS -> "Платная дорога"
+                ExpenseType.FINES -> "Штраф автомобиля"
+                ExpenseType.INSURANCE -> "Страховка автомобиля"
+                ExpenseType.TAXES -> "Налог на автомобиль"
                 ExpenseType.OTHER -> "Автомобиль - другое"
             }
             val values = ContentValues().apply {

@@ -1,6 +1,7 @@
 package com.andef.mycar.backup.presentation
 
 import com.andef.mycarandef.expense.domain.entities.Expense
+import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.google.gson.JsonParser
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -30,5 +31,19 @@ class GsonForBackupTest {
             .asBigDecimal
 
         assertEquals(0, BigDecimal("123.45").compareTo(amount))
+    }
+
+    @Test
+    fun backupRoundTrip_supportsEveryExpenseType() {
+        ExpenseType.entries.forEach { type ->
+            val expense = gson.fromJson(
+                """{"id":1,"amount":123.45,"note":null,"type":"${type.name}","date":"2026-09-18","carId":7}""",
+                Expense::class.java
+            )
+
+            val restored = gson.fromJson(gson.toJson(expense), Expense::class.java)
+
+            assertEquals(type, restored.type)
+        }
     }
 }

@@ -347,7 +347,13 @@ private fun getColorForExpenseType(type: ExpenseType): Color {
     return when (type) {
         ExpenseType.FUEL -> Color(0xFFFF6B6B)
         ExpenseType.WORKS -> Color(0xFF4BCFA9)
+        ExpenseType.PARTS -> Color(0xFF9B72CF)
         ExpenseType.WASHING -> Color(0xFF4A9FF5)
+        ExpenseType.PARKING -> Color(0xFF5C7AEA)
+        ExpenseType.TOLL_ROADS -> Color(0xFF7A8B99)
+        ExpenseType.FINES -> Color(0xFFE85D75)
+        ExpenseType.INSURANCE -> Color(0xFF3FB8AF)
+        ExpenseType.TAXES -> Color(0xFFE09F3E)
         ExpenseType.OTHER -> Color(0xFFFFD166)
     }
 }
