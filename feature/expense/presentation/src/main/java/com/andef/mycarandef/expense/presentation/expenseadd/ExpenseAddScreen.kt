@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,10 +65,10 @@ import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
-import com.andef.mycarandef.utils.RubleAmountVisualTransformation
-import com.andef.mycarandef.utils.clampToTwoDecimals
 import com.andef.mycarandef.utils.formatAmountForEdit
 import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.normalizeAmountInput
+import com.andef.mycarandef.utils.parseAmountToKopecks
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -179,8 +180,14 @@ private fun ColumnScope.MainContent(
     state: State<ExpenseAddState>,
     viewModel: ExpenseAddViewModel
 ) {
-    var localAmount by remember(state.value.amount) {
-        mutableStateOf(state.value.amount?.let { formatAmountForEdit(it) } ?: "")
+    var localAmount by rememberSaveable { mutableStateOf("") }
+    var initializedAmount by rememberSaveable { mutableStateOf<Long?>(null) }
+    LaunchedEffect(state.value.amount) {
+        val amount = state.value.amount
+        if (amount != null && localAmount.isBlank() && initializedAmount != amount) {
+            localAmount = formatAmountForEdit(amount)
+            initializedAmount = amount
+        }
     }
     var typeExpanded by remember { mutableStateOf(false) }
     Column(
@@ -219,10 +226,9 @@ private fun ColumnScope.MainContent(
             isLightTheme = isLightTheme,
             value = localAmount,
             onValueChange = { newText ->
-                val filtered = newText.filter { it.isDigit() || it == ',' || it == '.' }
-                val clamped = clampToTwoDecimals(filtered)
-                localAmount = clamped
-                val parsed = clamped.replace(',', '.').toDoubleOrNull()
+                val normalized = normalizeAmountInput(newText)
+                localAmount = normalized
+                val parsed = parseAmountToKopecks(normalized)
                 viewModel.send(ExpenseAddIntent.ChangeAmount(parsed))
             },
             modifier = Modifier.fillMaxWidth(),
@@ -230,10 +236,9 @@ private fun ColumnScope.MainContent(
             leadingIcon = painterResource(R.drawable.my_car_ruble),
             contentDescription = "Значок рубля",
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
+                keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
-            ),
-            visualTransformation = RubleAmountVisualTransformation()
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiMenu(
@@ -269,10 +274,8 @@ private fun ColumnScope.MainContent(
             onClick = { viewModel.send(ExpenseAddIntent.ChangeDatePickerVisible(true)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Дата",
-            leadingIcon = painterResource(R.drawable.my_car_schedule),
-            leadingIconContentDescription = "Значок часов",
-            trailingIcon = painterResource(R.drawable.my_car_calendar),
-            trailingIconContentDescription = "Значок календаря"
+            leadingIcon = painterResource(R.drawable.my_car_calendar),
+            leadingIconContentDescription = "Значок календаря"
         )
         Spacer(modifier = Modifier.height(28.dp))
         Text(

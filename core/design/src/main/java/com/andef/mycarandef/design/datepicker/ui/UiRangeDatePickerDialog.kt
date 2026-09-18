@@ -23,10 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -247,6 +248,20 @@ private fun DayText(
         isEnd -> RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
         else -> RoundedCornerShape(0.dp)
     }
+    val todayIndicatorModifier = if (isToday && !isChoose) {
+        Modifier.drawBehind {
+            drawCircle(
+                color = GreenColor,
+                radius = 2.5.dp.toPx(),
+                center = Offset(
+                    x = size.width / 2f,
+                    y = size.height - 3.dp.toPx()
+                )
+            )
+        }
+    } else {
+        Modifier
+    }
     val modifier = when (isChoose && inMonth) {
         true -> Modifier
             .fillMaxWidth()
@@ -260,11 +275,8 @@ private fun DayText(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .clickable(enabled = inMonth, onClick = { onClick(date) })
+            .then(todayIndicatorModifier)
             .padding(vertical = 6.dp)
-    }
-    val textDecoration = when {
-        isToday && !isChoose -> TextDecoration.Underline
-        else -> null
     }
     val color = when {
         inMonth && isChoose -> WhiteColor
@@ -276,7 +288,6 @@ private fun DayText(
         fontSize = 14.sp,
         text = "${date.dayOfMonth}",
         textAlign = TextAlign.Center,
-        textDecoration = textDecoration,
         color = color
     )
 }

@@ -234,10 +234,8 @@ private fun ColumnScope.MainContent(
             onClick = { viewModel.send(ReminderAddIntent.ChangeDatePickerVisible(true)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Дата",
-            leadingIcon = painterResource(R.drawable.my_car_schedule),
-            leadingIconContentDescription = "Значок часов",
-            trailingIcon = painterResource(R.drawable.my_car_calendar),
-            trailingIconContentDescription = "Значок календаря"
+            leadingIcon = painterResource(R.drawable.my_car_calendar),
+            leadingIconContentDescription = "Значок календаря"
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiChooser(
@@ -246,10 +244,8 @@ private fun ColumnScope.MainContent(
             onClick = { viewModel.send(ReminderAddIntent.ChangeTimePickerVisible(true)) },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Время",
-            leadingIcon = painterResource(R.drawable.my_car_time_sand),
-            leadingIconContentDescription = "Иконка песочные часы",
-            trailingIcon = painterResource(R.drawable.my_car_time_picker),
-            trailingIconContentDescription = "Иконка выбор времени"
+            leadingIcon = painterResource(R.drawable.my_car_time_picker),
+            leadingIconContentDescription = "Иконка выбор времени"
         )
         Spacer(modifier = Modifier.height(6.dp))
     }

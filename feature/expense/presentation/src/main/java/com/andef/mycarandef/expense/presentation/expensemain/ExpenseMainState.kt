@@ -5,12 +5,12 @@ import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import java.time.LocalDate
 
 data class ExpenseMainState(
-    val totalExpenses: Double = 0.0,
+    val totalExpenses: Long = 0L,
     val expenses: List<ExpenseForLazyColumn> = emptyList(),
     val showBottomSheet: Boolean = false,
     val expenseTypeInBottomSheet: ExpenseType? = null,
     val expenseDateInBottomSheet: LocalDate? = null,
-    val expenseAmountInBottomSheet: Double? = null,
+    val expenseAmountInBottomSheet: Long? = null,
     val expenseIdInBottomSheet: Long? = null,
     val carIdForExpenseBottomSheet: Long? = null,
     val deleteDialogVisible: Boolean = false,

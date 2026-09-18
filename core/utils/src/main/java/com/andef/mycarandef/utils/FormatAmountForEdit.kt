@@ -1,7 +1,9 @@
 package com.andef.mycarandef.utils
 
-import java.util.Locale
+import kotlin.math.abs
 
-fun formatAmountForEdit(value: Double): String {
-    return String.format(Locale("ru", "RU"), "%.2f", value).replace('.', ',')
+fun formatAmountForEdit(value: Long): String {
+    val rubles = value / 100
+    val kopecks = abs(value % 100).toString().padStart(2, '0')
+    return "$rubles,$kopecks"
 }

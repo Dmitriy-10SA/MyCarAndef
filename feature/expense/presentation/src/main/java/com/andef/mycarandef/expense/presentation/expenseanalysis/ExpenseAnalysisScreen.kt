@@ -66,6 +66,8 @@ import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.datepicker.ui.UiRangeDatePickerDialog
+import com.andef.mycarandef.design.datepicker.ui.UiMonthPickerDialog
+import com.andef.mycarandef.design.datepicker.ui.UiYearPickerDialog
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
@@ -77,8 +79,11 @@ import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
 import com.andef.mycarandef.expense.domain.entities.ExpenseType
-import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.currentDateRangeForTab
+import com.andef.mycarandef.utils.formatLocalDateRange
 import com.andef.mycarandef.utils.formatPriceRuble
+import com.andef.mycarandef.utils.selectedMonthRange
+import com.andef.mycarandef.utils.selectedYearRange
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import com.github.tehras.charts.piechart.PieChart
 import com.github.tehras.charts.piechart.PieChartData
@@ -165,14 +170,14 @@ fun ExpenseAnalysisScreen(
                         },
                         onDragEnd = {
                             if (totalDrag > 100) {
-                                if (state.value.selectedDateTabId in 1..5) {
+                                if (state.value.selectedDateTabId in 1..4) {
                                     onDateTabClick(
                                         viewModel = viewModel,
                                         tab = dateTabs[state.value.selectedDateTabId - 1]
                                     )
                                 }
                             } else if (totalDrag < -100) {
-                                if (state.value.selectedDateTabId in 0..4) {
+                                if (state.value.selectedDateTabId in 0..3) {
                                     onDateTabClick(
                                         viewModel = viewModel,
                                         tab = dateTabs[state.value.selectedDateTabId + 1]
@@ -195,13 +200,10 @@ fun ExpenseAnalysisScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        val dateText =
-                            if (state.value.startDate == state.value.endDate) {
-                                formatLocalDate(state.value.startDate)
-                            } else {
-                                "${formatLocalDate(state.value.startDate)} " +
-                                        "- ${formatLocalDate(state.value.endDate)}"
-                            }
+                        val dateText = formatLocalDateRange(
+                            startDate = state.value.startDate,
+                            endDate = state.value.endDate
+                        )
                         Text(
                             text = dateText,
                             fontSize = 14.sp,
@@ -210,7 +212,7 @@ fun ExpenseAnalysisScreen(
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = if (sum == 0.0) formatPriceRuble(sum) else "-${
+                            text = if (sum == 0L) formatPriceRuble(sum) else "-${
                                 formatPriceRuble(
                                     sum
                                 )
@@ -246,7 +248,7 @@ fun ExpenseAnalysisScreen(
                             color = getColorForExpenseType(type),
                             title = type.title,
                             percent = expensesInfo[type]?.first ?: 0.0f,
-                            amount = expensesInfo[type]?.second ?: 0.0
+                            amount = expensesInfo[type]?.second ?: 0L
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -269,6 +271,7 @@ fun ExpenseAnalysisScreen(
             viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(false))
         },
         onOkClick = { startDate, endDate ->
+            viewModel.send(ExpenseAnalysisIntent.SelectedTabIdChange(4))
             viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(false))
             viewModel.send(
                 ExpenseAnalysisIntent.DatesChange(
@@ -276,6 +279,33 @@ fun ExpenseAnalysisScreen(
                     endDate = endDate
                 )
             )
+        }
+    )
+    UiMonthPickerDialog(
+        isVisible = state.value.monthPickerVisible,
+        isLightTheme = isLightTheme,
+        initialYear = state.value.startDate.year,
+        initialMonth = state.value.startDate.monthValue,
+        onDismissRequest = {
+            viewModel.send(ExpenseAnalysisIntent.MonthPickerVisibleChange(false))
+        },
+        onOkClick = { year, month ->
+            val range = selectedMonthRange(year, month)
+            viewModel.send(ExpenseAnalysisIntent.DatesChange(range.first, range.second))
+            viewModel.send(ExpenseAnalysisIntent.MonthPickerVisibleChange(false))
+        }
+    )
+    UiYearPickerDialog(
+        isVisible = state.value.yearPickerVisible,
+        isLightTheme = isLightTheme,
+        initialYear = state.value.startDate.year,
+        onDismissRequest = {
+            viewModel.send(ExpenseAnalysisIntent.YearPickerVisibleChange(false))
+        },
+        onOkClick = { year ->
+            val range = selectedYearRange(year)
+            viewModel.send(ExpenseAnalysisIntent.DatesChange(range.first, range.second))
+            viewModel.send(ExpenseAnalysisIntent.YearPickerVisibleChange(false))
         }
     )
     BottomSheet(
@@ -290,40 +320,26 @@ fun ExpenseAnalysisScreen(
 }
 
 private fun onDateTabClick(viewModel: ExpenseAnalysisViewModel, tab: UiTopBarTab) {
-    viewModel.send(ExpenseAnalysisIntent.SelectedTabIdChange(tab.id))
-    val now = LocalDate.now()
-    if (tab.id == dateTabs[0].id) {
-        viewModel.send(
-            ExpenseAnalysisIntent.DatesChange(
-                startDate = now, endDate = now
-            )
-        )
-    } else if (tab.id == dateTabs[1].id) {
-        viewModel.send(
-            ExpenseAnalysisIntent.DatesChange(
-                startDate = now.minusWeeks(1), endDate = now
-            )
-        )
-    } else if (tab.id == dateTabs[2].id) {
-        viewModel.send(
-            ExpenseAnalysisIntent.DatesChange(
-                startDate = now.minusMonths(1), endDate = now
-            )
-        )
-    } else if (tab.id == dateTabs[3].id) {
-        viewModel.send(
-            ExpenseAnalysisIntent.DatesChange(
-                startDate = now.minusMonths(6), endDate = now
-            )
-        )
-    } else if (tab.id == dateTabs[4].id) {
-        viewModel.send(
-            ExpenseAnalysisIntent.DatesChange(
-                startDate = now.minusYears(1), endDate = now
-            )
-        )
-    } else {
-        viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(true))
+    val selectedTabId = viewModel.state.value.selectedDateTabId
+    when {
+        tab.id == selectedTabId && tab.id == 2 -> {
+            viewModel.send(ExpenseAnalysisIntent.MonthPickerVisibleChange(true))
+        }
+
+        tab.id == selectedTabId && tab.id == 3 -> {
+            viewModel.send(ExpenseAnalysisIntent.YearPickerVisibleChange(true))
+        }
+
+        tab.id != selectedTabId && tab.id in 0..3 -> {
+            val range = currentDateRangeForTab(tab.id, LocalDate.now())
+            viewModel.send(ExpenseAnalysisIntent.SelectedTabIdChange(tab.id))
+            viewModel.send(ExpenseAnalysisIntent.DatesChange(range.first, range.second))
+        }
+
+        tab.id == 4 -> {
+            viewModel.send(ExpenseAnalysisIntent.SelectedTabIdChange(tab.id))
+            viewModel.send(ExpenseAnalysisIntent.RangePickerVisibleChange(true))
+        }
     }
 }
 
@@ -331,7 +347,13 @@ private fun getColorForExpenseType(type: ExpenseType): Color {
     return when (type) {
         ExpenseType.FUEL -> Color(0xFFFF6B6B)
         ExpenseType.WORKS -> Color(0xFF4BCFA9)
+        ExpenseType.PARTS -> Color(0xFF9B72CF)
         ExpenseType.WASHING -> Color(0xFF4A9FF5)
+        ExpenseType.PARKING -> Color(0xFF5C7AEA)
+        ExpenseType.TOLL_ROADS -> Color(0xFF7A8B99)
+        ExpenseType.FINES -> Color(0xFFE85D75)
+        ExpenseType.INSURANCE -> Color(0xFF3FB8AF)
+        ExpenseType.TAXES -> Color(0xFFE09F3E)
         ExpenseType.OTHER -> Color(0xFFFFD166)
     }
 }
@@ -342,9 +364,9 @@ private fun LegendRow(
     color: Color,
     title: String,
     percent: Float,
-    amount: Double
+    amount: Long
 ) {
-    val price = if (amount == 0.0) formatPriceRuble(amount) else "-${formatPriceRuble(amount)}"
+    val price = if (amount == 0L) formatPriceRuble(amount) else "-${formatPriceRuble(amount)}"
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -482,7 +504,6 @@ private val dateTabs = listOf(
     UiTopBarTab(id = 0, title = "День"),
     UiTopBarTab(id = 1, title = "Неделя"),
     UiTopBarTab(id = 2, title = "Месяц"),
-    UiTopBarTab(id = 3, title = "Полгода"),
-    UiTopBarTab(id = 4, title = "Год"),
-    UiTopBarTab(id = 5, title = "Период")
+    UiTopBarTab(id = 3, title = "Год"),
+    UiTopBarTab(id = 4, title = "Период")
 )

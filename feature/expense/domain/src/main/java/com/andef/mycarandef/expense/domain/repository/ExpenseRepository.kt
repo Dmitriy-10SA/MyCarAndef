@@ -10,7 +10,7 @@ interface ExpenseRepository {
     suspend fun addExpense(expense: Expense)
     suspend fun changeExpense(
         id: Long,
-        amount: Double,
+        amount: Long,
         note: String?,
         type: ExpenseType,
         date: LocalDate

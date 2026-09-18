@@ -76,7 +76,7 @@ class ExpenseMainViewModel @Inject constructor(
 
     private fun addToMyFinance(
         context: Context,
-        amount: Double,
+        amount: Long,
         date: LocalDate,
         type: ExpenseType,
         onSuccess: (String) -> Unit,
@@ -89,11 +89,17 @@ class ExpenseMainViewModel @Inject constructor(
             val note = when (type) {
                 ExpenseType.FUEL -> "Заправка автомобиля"
                 ExpenseType.WORKS -> "Ремонт автомобиля"
+                ExpenseType.PARTS -> "Запчасти для автомобиля"
                 ExpenseType.WASHING -> "Мойка автомобиля"
+                ExpenseType.PARKING -> "Парковка автомобиля"
+                ExpenseType.TOLL_ROADS -> "Платная дорога"
+                ExpenseType.FINES -> "Штраф автомобиля"
+                ExpenseType.INSURANCE -> "Страховка автомобиля"
+                ExpenseType.TAXES -> "Налог на автомобиль"
                 ExpenseType.OTHER -> "Автомобиль - другое"
             }
             val values = ContentValues().apply {
-                put(AMOUNT, amount)
+                put(AMOUNT, amount / KOPECKS_IN_RUBLE)
                 put(DATE, date.toString())
                 put(NOTE, note)
             }
@@ -138,7 +144,7 @@ class ExpenseMainViewModel @Inject constructor(
     private fun changeBottomSheetVisible(
         isVisible: Boolean,
         expenseType: ExpenseType? = null,
-        expenseAmount: Double? = null,
+        expenseAmount: Long? = null,
         expenseId: Long? = null,
         expenseDate: LocalDate? = null,
         carId: Long? = null
@@ -176,8 +182,9 @@ class ExpenseMainViewModel @Inject constructor(
                             .toList()
                             .sortedByDescending { it.first }
                             .map { (date, items) ->
-                                val totalAmount = items.sumOf { it.amount }
-                                ExpenseForLazyColumn(date, totalAmount, items)
+                                val sortedItems = items.sortedByDescending { it.id }
+                                val totalAmount = sortedItems.sumOf { it.amount }
+                                ExpenseForLazyColumn(date, totalAmount, sortedItems)
                             }
                         expenses to expensesList.sumOf { it.amount }
                     }
@@ -210,5 +217,6 @@ class ExpenseMainViewModel @Inject constructor(
         private const val AMOUNT = "amount"
         private const val DATE = "date"
         private const val NOTE = "note"
+        private const val KOPECKS_IN_RUBLE = 100.0
     }
 }

@@ -8,7 +8,7 @@ import javax.inject.Inject
 class ChangeExpenseUseCase @Inject constructor(private val repository: ExpenseRepository) {
     suspend operator fun invoke(
         id: Long,
-        amount: Double,
+        amount: Long,
         note: String?,
         type: ExpenseType,
         date: LocalDate

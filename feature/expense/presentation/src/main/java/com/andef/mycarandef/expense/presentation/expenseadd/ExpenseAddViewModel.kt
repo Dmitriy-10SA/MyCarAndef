@@ -79,7 +79,7 @@ class ExpenseAddViewModel @Inject constructor(
     private fun saveClick(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
-        amount: Double?,
+        amount: Long?,
         type: ExpenseType?,
         note: String?,
         date: LocalDate?,
@@ -122,7 +122,7 @@ class ExpenseAddViewModel @Inject constructor(
     }
 
     private fun changeInput(
-        amount: Double? = _state.value.amount,
+        amount: Long? = _state.value.amount,
         type: ExpenseType? = _state.value.type,
         note: String? = _state.value.note,
         date: LocalDate? = _state.value.date
@@ -132,7 +132,7 @@ class ExpenseAddViewModel @Inject constructor(
             type = type,
             note = note,
             date = date,
-            saveButtonEnabled = amount != null && amount != 0.0 && type != null && date != null
+            saveButtonEnabled = amount != null && amount != 0L && type != null && date != null
         )
     }
 }

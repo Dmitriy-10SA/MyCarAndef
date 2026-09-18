@@ -245,9 +245,7 @@ private fun ColumnScope.MainContent(
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Фото",
             leadingIcon = painterResource(R.drawable.my_car_image),
-            leadingIconContentDescription = "Значок фото",
-            trailingIcon = painterResource(R.drawable.my_car_attach),
-            trailingIconContentDescription = "Значок скрепки"
+            leadingIconContentDescription = "Значок фото"
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiTextField(
@@ -263,8 +261,8 @@ private fun ColumnScope.MainContent(
             },
             modifier = Modifier.fillMaxWidth(),
             placeholderText = "Год выпуска",
-            leadingIcon = painterResource(R.drawable.my_car_schedule),
-            contentDescription = "Значок часов",
+            leadingIcon = painterResource(R.drawable.my_car_calendar),
+            contentDescription = "Значок календаря",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Next

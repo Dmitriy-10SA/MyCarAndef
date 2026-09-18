@@ -4,7 +4,7 @@ import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import java.time.LocalDate
 
 sealed class ExpenseAddIntent {
-    data class ChangeAmount(val amount: Double?) : ExpenseAddIntent()
+    data class ChangeAmount(val amount: Long?) : ExpenseAddIntent()
     data class ChangeType(val type: ExpenseType) : ExpenseAddIntent()
     data class ChangeNote(val note: String?) : ExpenseAddIntent()
     data class ChangeDate(val date: LocalDate) : ExpenseAddIntent()
