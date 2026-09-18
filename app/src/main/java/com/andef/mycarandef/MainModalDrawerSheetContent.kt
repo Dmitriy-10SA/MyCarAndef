@@ -1,5 +1,6 @@
 package com.andef.mycarandef
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -112,7 +113,8 @@ fun MainModalDrawerSheetContent(
             navHostController = navHostController,
             scope = scope,
             drawerState = drawerState,
-            feedbackSheetVisible = feedbackSheetVisible
+            feedbackSheetVisible = feedbackSheetVisible,
+            context = context
         )
     }
     UiModalBottomSheet(
@@ -264,7 +266,8 @@ private fun InnerContent(
     drawerState: DrawerState,
     nameChangeSheetVisible: MutableState<Boolean>,
     feedbackSheetVisible: MutableState<Boolean>,
-    component: MyCarComponent
+    component: MyCarComponent,
+    context: Context
 ) {
     Column(
         modifier = Modifier
@@ -347,6 +350,35 @@ private fun InnerContent(
                     onClick = { feedbackSheetVisible.value = true }
                 )
             }
+            item {
+                Column {
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp)
+                            .padding(top = 14.dp),
+                        text = "Другие приложения:",
+                        fontSize = 16.sp,
+                        color = grayColor(isLightTheme)
+                    )
+                    InnerContentItem(
+                        isLightTheme = isLightTheme,
+                        icon = painterResource(
+                            com.andef.mycarandef.design.R.drawable.my_finance_app_icon
+                        ),
+                        iconContentDescription = "Иконка Мои финансы",
+                        itemText = "Мои финансы",
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                context.openAppOrLink(
+                                    appId = MY_FINANCE_APP_ID,
+                                    fallbackUrl = MY_FINANCE_URL
+                                )
+                            }
+                        }
+                    )
+                }
+            }
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
@@ -358,6 +390,20 @@ private fun InnerContent(
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
+
+private fun Context.openAppOrLink(appId: String, fallbackUrl: String) {
+    val launchIntent = packageManager.getLaunchIntentForPackage(appId)
+    if (launchIntent == null) {
+        startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri()))
+        return
+    }
+
+    runCatching { startActivity(launchIntent) }
+        .onFailure { startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri())) }
+}
+
+private const val MY_FINANCE_URL = "https://www.rustore.ru/catalog/app/com.andef.myfinance"
+private const val MY_FINANCE_APP_ID = "com.andef.myfinance"
 
 @Composable
 private fun InnerContentItem(
