@@ -13,6 +13,8 @@ data class ExpenseAnalysisState(
     val startDate: LocalDate = LocalDate.now(),
     val endDate: LocalDate = LocalDate.now(),
     val dateRangePickerVisible: Boolean = false,
+    val monthPickerVisible: Boolean = false,
+    val yearPickerVisible: Boolean = false,
     val isLoading: Boolean = false,
     val isError: Boolean = false
 )

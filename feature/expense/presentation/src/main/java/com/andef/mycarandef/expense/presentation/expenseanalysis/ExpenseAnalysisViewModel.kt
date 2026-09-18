@@ -54,6 +54,14 @@ class ExpenseAnalysisViewModel @Inject constructor(
                 _state.value = _state.value.copy(dateRangePickerVisible = intent.isVisible)
             }
 
+            is ExpenseAnalysisIntent.MonthPickerVisibleChange -> {
+                _state.value = _state.value.copy(monthPickerVisible = intent.isVisible)
+            }
+
+            is ExpenseAnalysisIntent.YearPickerVisibleChange -> {
+                _state.value = _state.value.copy(yearPickerVisible = intent.isVisible)
+            }
+
             is ExpenseAnalysisIntent.LoadExpenses -> loadExpenses(carId = intent.carId)
         }
     }

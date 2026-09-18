@@ -34,6 +34,7 @@ import com.andef.mycarandef.design.topbar.type.UiTopBarTab
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.routes.Screen
+import com.andef.mycarandef.utils.currentDateRangeForTab
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -54,6 +55,8 @@ fun MainTopBar(
     startDate: MutableState<LocalDate>,
     endDate: MutableState<LocalDate>,
     datePickerVisible: MutableState<Boolean>,
+    monthPickerVisible: MutableState<Boolean>,
+    yearPickerVisible: MutableState<Boolean>,
     currentRoute: String?
 ) {
     AnimatedContent(
@@ -78,7 +81,9 @@ fun MainTopBar(
                     lastSelectedTabIndex = lastSelectedTabIndex,
                     startDate = startDate,
                     endDate = endDate,
-                    datePickerVisible = datePickerVisible
+                    datePickerVisible = datePickerVisible,
+                    monthPickerVisible = monthPickerVisible,
+                    yearPickerVisible = yearPickerVisible
                 )
             }
 
@@ -152,7 +157,9 @@ private fun TopBarWithTabs(
     lastSelectedTabIndex: MutableState<Int>,
     startDate: MutableState<LocalDate>,
     endDate: MutableState<LocalDate>,
-    datePickerVisible: MutableState<Boolean>
+    datePickerVisible: MutableState<Boolean>,
+    monthPickerVisible: MutableState<Boolean>,
+    yearPickerVisible: MutableState<Boolean>
 ) {
     UiTopBar(
         isLightTheme = isLightTheme,
@@ -166,7 +173,9 @@ private fun TopBarWithTabs(
                     startDate = startDate,
                     endDate = endDate,
                     tab = it,
-                    datePickerVisible = datePickerVisible
+                    datePickerVisible = datePickerVisible,
+                    monthPickerVisible = monthPickerVisible,
+                    yearPickerVisible = yearPickerVisible
                 )
             }
         ),
@@ -204,24 +213,28 @@ fun onDateTabClick(
     startDate: MutableState<LocalDate>,
     endDate: MutableState<LocalDate>,
     datePickerVisible: MutableState<Boolean>,
+    monthPickerVisible: MutableState<Boolean>,
+    yearPickerVisible: MutableState<Boolean>,
     tab: UiTopBarTab
 ) {
-    if (tab.id != selectedTabIndex.value || tab.id == 5) {
-        val now = LocalDate.now()
-        val newLastTabIndexAndDates: Pair<Int, Pair<LocalDate, LocalDate>>? = when (tab.id) {
-            0 -> tab.id to (now to now)
-            1 -> tab.id to (now.minusDays(7) to now)
-            2 -> tab.id to (now.minusMonths(1) to now)
-            3 -> tab.id to (now.minusMonths(6) to now)
-            4 -> tab.id to (now.minusYears(1) to now)
-            else -> null
+    when {
+        tab.id == selectedTabIndex.value && tab.id == 2 -> {
+            monthPickerVisible.value = true
         }
-        if (newLastTabIndexAndDates != null) {
+
+        tab.id == selectedTabIndex.value && tab.id == 3 -> {
+            yearPickerVisible.value = true
+        }
+
+        tab.id != selectedTabIndex.value && tab.id in 0..3 -> {
+            val range = currentDateRangeForTab(tab.id, LocalDate.now())
             selectedTabIndex.value = tab.id
-            lastSelectedTabIndex.value = newLastTabIndexAndDates.first
-            startDate.value = newLastTabIndexAndDates.second.first
-            endDate.value = newLastTabIndexAndDates.second.second
-        } else {
+            lastSelectedTabIndex.value = tab.id
+            startDate.value = range.first
+            endDate.value = range.second
+        }
+
+        tab.id == 4 -> {
             selectedTabIndex.value = tab.id
             datePickerVisible.value = true
         }
@@ -232,9 +245,8 @@ val dateTabs = listOf(
     UiTopBarTab(id = 0, title = "День"),
     UiTopBarTab(id = 1, title = "Неделя"),
     UiTopBarTab(id = 2, title = "Месяц"),
-    UiTopBarTab(id = 3, title = "Полгода"),
-    UiTopBarTab(id = 4, title = "Год"),
-    UiTopBarTab(id = 5, title = "Период")
+    UiTopBarTab(id = 3, title = "Год"),
+    UiTopBarTab(id = 4, title = "Период")
 )
 
 @Composable

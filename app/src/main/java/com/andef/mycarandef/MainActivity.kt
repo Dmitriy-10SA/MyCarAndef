@@ -52,6 +52,8 @@ import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.datepicker.ui.UiRangeDatePickerDialog
+import com.andef.mycarandef.design.datepicker.ui.UiMonthPickerDialog
+import com.andef.mycarandef.design.datepicker.ui.UiYearPickerDialog
 import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.theme.DarkGrayColor
@@ -61,6 +63,8 @@ import com.andef.mycarandef.design.theme.blackOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.graph.MyCarNavGraph
 import com.andef.mycarandef.routes.Screen
+import com.andef.mycarandef.utils.selectedMonthRange
+import com.andef.mycarandef.utils.selectedYearRange
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
@@ -109,6 +113,8 @@ class MainActivity : ComponentActivity() {
             val startDate = remember { mutableStateOf(LocalDate.now()) }
             val endDate = remember { mutableStateOf(LocalDate.now()) }
             val datePickerVisible = remember { mutableStateOf(false) }
+            val monthPickerVisible = remember { mutableStateOf(false) }
+            val yearPickerVisible = remember { mutableStateOf(false) }
 
             SystemUiSettings(
                 systemUiController = systemUiController,
@@ -134,7 +140,9 @@ class MainActivity : ComponentActivity() {
                 lastSelectedTabIndex = lastSelectedTabId,
                 startDate = startDate,
                 endDate = endDate,
-                datePickerVisible = datePickerVisible
+                datePickerVisible = datePickerVisible,
+                monthPickerVisible = monthPickerVisible,
+                yearPickerVisible = yearPickerVisible
             )
             UiRangeDatePickerDialog(
                 isVisible = datePickerVisible.value,
@@ -146,8 +154,35 @@ class MainActivity : ComponentActivity() {
                 onOkClick = { s, e ->
                     startDate.value = s
                     endDate.value = e
-                    lastSelectedTabId.value = 5
+                    lastSelectedTabId.value = 4
                     datePickerVisible.value = false
+                }
+            )
+            UiMonthPickerDialog(
+                isVisible = monthPickerVisible.value,
+                isLightTheme = isLightTheme,
+                initialYear = startDate.value.year,
+                initialMonth = startDate.value.monthValue,
+                onDismissRequest = { monthPickerVisible.value = false },
+                onOkClick = { year, month ->
+                    val range = selectedMonthRange(year, month)
+                    startDate.value = range.first
+                    endDate.value = range.second
+                    lastSelectedTabId.value = 2
+                    monthPickerVisible.value = false
+                }
+            )
+            UiYearPickerDialog(
+                isVisible = yearPickerVisible.value,
+                isLightTheme = isLightTheme,
+                initialYear = startDate.value.year,
+                onDismissRequest = { yearPickerVisible.value = false },
+                onOkClick = { year ->
+                    val range = selectedYearRange(year)
+                    startDate.value = range.first
+                    endDate.value = range.second
+                    lastSelectedTabId.value = 3
+                    yearPickerVisible.value = false
                 }
             )
         }
@@ -191,7 +226,9 @@ private fun MainContent(
     lastSelectedTabIndex: MutableState<Int>,
     startDate: MutableState<LocalDate>,
     endDate: MutableState<LocalDate>,
-    datePickerVisible: MutableState<Boolean>
+    datePickerVisible: MutableState<Boolean>,
+    monthPickerVisible: MutableState<Boolean>,
+    yearPickerVisible: MutableState<Boolean>
 ) {
     MyCarAndefTheme(darkTheme = !isLightTheme) {
         ModalNavigationDrawer(
@@ -236,7 +273,9 @@ private fun MainContent(
                             lastSelectedTabIndex = lastSelectedTabIndex,
                             startDate = startDate,
                             endDate = endDate,
-                            datePickerVisible = datePickerVisible
+                            datePickerVisible = datePickerVisible,
+                            monthPickerVisible = monthPickerVisible,
+                            yearPickerVisible = yearPickerVisible
                         )
                     },
                     floatingActionButton = {
@@ -260,25 +299,29 @@ private fun MainContent(
                         startDate = startDate.value,
                         endDate = endDate.value,
                         onMainLeftSwipe = {
-                            if (selectedTabIndex.value in 0..4) {
+                            if (selectedTabIndex.value in 0..3) {
                                 onDateTabClick(
                                     selectedTabIndex = selectedTabIndex,
                                     lastSelectedTabIndex = lastSelectedTabIndex,
                                     startDate = startDate,
                                     endDate = endDate,
                                     datePickerVisible = datePickerVisible,
+                                    monthPickerVisible = monthPickerVisible,
+                                    yearPickerVisible = yearPickerVisible,
                                     tab = dateTabs[selectedTabIndex.value + 1]
                                 )
                             }
                         },
                         onMainRightSwipe = {
-                            if (selectedTabIndex.value in 1..5) {
+                            if (selectedTabIndex.value in 1..4) {
                                 onDateTabClick(
                                     selectedTabIndex = selectedTabIndex,
                                     lastSelectedTabIndex = lastSelectedTabIndex,
                                     startDate = startDate,
                                     endDate = endDate,
                                     datePickerVisible = datePickerVisible,
+                                    monthPickerVisible = monthPickerVisible,
+                                    yearPickerVisible = yearPickerVisible,
                                     tab = dateTabs[selectedTabIndex.value - 1]
                                 )
                             } else {

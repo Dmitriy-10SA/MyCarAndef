@@ -8,6 +8,8 @@ sealed class ExpenseAnalysisIntent {
     data class CurrentCarChoose(val car: Car) : ExpenseAnalysisIntent()
     data class SelectedTabIdChange(val id: Int) : ExpenseAnalysisIntent()
     data class RangePickerVisibleChange(val isVisible: Boolean) : ExpenseAnalysisIntent()
+    data class MonthPickerVisibleChange(val isVisible: Boolean) : ExpenseAnalysisIntent()
+    data class YearPickerVisibleChange(val isVisible: Boolean) : ExpenseAnalysisIntent()
     data class DatesChange(
         val startDate: LocalDate,
         val endDate: LocalDate

@@ -23,6 +23,7 @@ import com.andef.mycarandef.design.theme.blackOrWhiteColor
 import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.utils.formatLocalDate
+import com.andef.mycarandef.utils.formatLocalDateRange
 import com.andef.mycarandef.utils.formatPriceRuble
 import java.time.LocalDate
 import kotlin.math.abs
@@ -85,11 +86,7 @@ fun UiDateAndAmountRow(
     endDate: LocalDate,
     totalAmount: Long
 ) {
-    val dates = if (startDate == endDate) {
-        formatLocalDate(startDate)
-    } else {
-        "${formatLocalDate(startDate)} - ${formatLocalDate(endDate)}"
-    }
+    val dates = formatLocalDateRange(startDate, endDate)
     val sign = when (totalAmount != 0L) {
         true -> if (isIncome) "+" else "-"
         false -> ""
