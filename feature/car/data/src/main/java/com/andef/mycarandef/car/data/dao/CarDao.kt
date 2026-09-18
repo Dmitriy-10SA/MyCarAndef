@@ -12,7 +12,7 @@ interface CarDao {
     @Query("SELECT * FROM car ORDER BY LOWER(brand || ' ' || model) ASC")
     suspend fun getAllCarsAsList(): List<CarDbo>
 
-    @Query("SELECT * FROM car ORDER BY LOWER(brand || ' ' || model) ASC")
+    @Query("SELECT * FROM car ORDER BY LOWER(brand || ' ' || model) ASC, id DESC")
     fun getAllCars(): Flow<List<CarDbo>>
 
     @Query("SELECT * FROM car WHERE id = :id")
