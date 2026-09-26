@@ -19,16 +19,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.card.expense.ui.getImageForExpense
 import com.andef.mycarandef.design.chooser.ui.UiChooser
@@ -66,7 +67,6 @@ import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.GreenColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
-import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
@@ -200,7 +200,8 @@ private fun ColumnScope.MainContent(
         }
     }
     var typeExpanded by remember { mutableStateOf(false) }
-    var defaultTypeExpanded by remember { mutableStateOf(false) }
+    var defaultTypeSheetVisible by remember { mutableStateOf(false) }
+    val defaultTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     Column(
         modifier = Modifier
             .weight(1f)
@@ -271,46 +272,9 @@ private fun ColumnScope.MainContent(
                 expanded = typeExpanded,
                 onLongClick = {
                     typeExpanded = false
-                    defaultTypeExpanded = true
+                    defaultTypeSheetVisible = true
                 }
             )
-            DropdownMenu(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, grayColor(isLightTheme), shape = RoundedCornerShape(16.dp)),
-                expanded = defaultTypeExpanded,
-                onDismissRequest = { defaultTypeExpanded = false },
-                containerColor = darkGrayOrWhiteColor(isLightTheme)
-            ) {
-                Text(
-                    text = "Тип расхода по умолчанию",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                    color = blackOrWhiteColor(isLightTheme),
-                    fontSize = 16.sp
-                )
-                HorizontalDivider(color = grayColor(isLightTheme).copy(alpha = 0.3f))
-                DefaultTypeMenuItem(
-                    title = "Не выбирать автоматически",
-                    selected = state.value.defaultType == null,
-                    isLightTheme = isLightTheme,
-                    onClick = {
-                        defaultTypeExpanded = false
-                        viewModel.send(ExpenseAddIntent.SetDefaultType(null))
-                    }
-                )
-                Expense.allExpenseTypes.forEach { type ->
-                    DefaultTypeMenuItem(
-                        title = type.title,
-                        selected = state.value.defaultType == type,
-                        isLightTheme = isLightTheme,
-                        leadingIcon = { ExpenseTypeIcon(type) },
-                        onClick = {
-                            defaultTypeExpanded = false
-                            viewModel.send(ExpenseAddIntent.SetDefaultType(type))
-                        }
-                    )
-                }
-            }
         }
         state.value.defaultType?.let { defaultType ->
             Spacer(modifier = Modifier.height(4.dp))
@@ -356,6 +320,69 @@ private fun ColumnScope.MainContent(
             )
         )
         Spacer(modifier = Modifier.height(6.dp))
+    }
+    DefaultTypeBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = defaultTypeSheetVisible,
+        sheetState = defaultTypeSheetState,
+        selectedType = state.value.defaultType,
+        onDismissRequest = { defaultTypeSheetVisible = false },
+        onTypeClick = { type ->
+            defaultTypeSheetVisible = false
+            viewModel.send(ExpenseAddIntent.SetDefaultType(type))
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DefaultTypeBottomSheet(
+    isLightTheme: Boolean,
+    isVisible: Boolean,
+    sheetState: SheetState,
+    selectedType: ExpenseType?,
+    onDismissRequest: () -> Unit,
+    onTypeClick: (ExpenseType?) -> Unit
+) {
+    UiModalBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = isVisible,
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
+                .padding(bottom = 12.dp)
+        ) {
+            Text(
+                text = "Тип расхода по умолчанию",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                textAlign = TextAlign.Center,
+                color = grayColor(isLightTheme),
+                fontSize = 16.sp
+            )
+            HorizontalDivider(color = grayColor(isLightTheme).copy(alpha = 0.3f))
+            DefaultTypeMenuItem(
+                title = "Не выбирать автоматически",
+                selected = selectedType == null,
+                isLightTheme = isLightTheme,
+                onClick = { onTypeClick(null) }
+            )
+            Expense.allExpenseTypes.forEach { type ->
+                DefaultTypeMenuItem(
+                    title = type.title,
+                    selected = selectedType == type,
+                    isLightTheme = isLightTheme,
+                    leadingIcon = { ExpenseTypeIcon(type) },
+                    onClick = { onTypeClick(type) }
+                )
+            }
+        }
     }
 }
 
