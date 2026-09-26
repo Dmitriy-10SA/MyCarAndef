@@ -99,7 +99,15 @@ fun MainModalDrawerSheetContent(
     val feedbackSheetState = rememberModalBottomSheetState()
     val feedbackSheetVisible = rememberSaveable { mutableStateOf(false) }
 
+    val privacyPolicySheetState = rememberModalBottomSheetState()
+    val privacyPolicySheetVisible = rememberSaveable { mutableStateOf(false) }
+
     val context = LocalContext.current
+    val privacyPolicyText = remember(context) {
+        context.resources.openRawResource(R.raw.privacy_policy)
+            .bufferedReader()
+            .use { it.readText() }
+    }
 
     ModalDrawerSheet(
         drawerState = drawerState,
@@ -121,6 +129,7 @@ fun MainModalDrawerSheetContent(
             scope = scope,
             drawerState = drawerState,
             feedbackSheetVisible = feedbackSheetVisible,
+            privacyPolicySheetVisible = privacyPolicySheetVisible,
             context = context
         )
     }
@@ -223,6 +232,28 @@ fun MainModalDrawerSheetContent(
             }
         }
     }
+    UiModalBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = privacyPolicySheetVisible.value,
+        onDismissRequest = { privacyPolicySheetVisible.value = false },
+        sheetState = privacyPolicySheetState
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            item {
+                Text(
+                    text = privacyPolicyText,
+                    color = blackOrWhiteColor(isLightTheme),
+                    fontSize = 15.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 24.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -273,6 +304,7 @@ private fun InnerContent(
     drawerState: DrawerState,
     nameChangeSheetVisible: MutableState<Boolean>,
     feedbackSheetVisible: MutableState<Boolean>,
+    privacyPolicySheetVisible: MutableState<Boolean>,
     component: MyCarComponent,
     context: Context
 ) {
@@ -355,6 +387,22 @@ private fun InnerContent(
                     iconContentDescription = "Иконка почты",
                     itemText = "Обратная связь",
                     onClick = { feedbackSheetVisible.value = true }
+                )
+            }
+            item {
+                InnerContentItem(
+                    isLightTheme = isLightTheme,
+                    icon = painterResource(
+                        com.andef.mycarandef.design.R.drawable.my_car_privacy_policy
+                    ),
+                    iconContentDescription = "Иконка документа",
+                    itemText = "Политика конфиденциальности",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            privacyPolicySheetVisible.value = true
+                        }
+                    }
                 )
             }
             item {
