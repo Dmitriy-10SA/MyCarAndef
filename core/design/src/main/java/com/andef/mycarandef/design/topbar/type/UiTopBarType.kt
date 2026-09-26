@@ -14,6 +14,7 @@ sealed class UiTopBarType {
     data class WithCalendar(
         val weekCalendarState: WeekCalendarState,
         val currentDay: LocalDate,
+        val calendarTitle: String? = null,
         val onDayClick: (LocalDate) -> Unit,
         val withEvent: (LocalDate) -> Boolean
     ) : UiTopBarType()

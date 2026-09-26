@@ -8,9 +8,11 @@ import android.provider.Settings
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,6 +78,7 @@ import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
 import com.andef.mycarandef.design.card.reminder.ui.UiReminderCard
+import com.andef.mycarandef.design.datepicker.ui.UiReminderDatePickerDialog
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.fab.ui.UiFAB
 import com.andef.mycarandef.design.loading.ui.UiLoading
@@ -97,6 +102,8 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.TextStyle
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,12 +126,27 @@ fun AllRemindersScreen(
     val carChooserSheet = rememberModalBottomSheetState()
     val reminderSheet = rememberModalBottomSheetState()
     val permissionsSheet = rememberModalBottomSheetState()
+    val today = remember { LocalDate.now() }
+    val calendarStartDate = remember(today) { today.minusWeeks(1) }
+    val calendarEndDate = remember(today) { today.plusYears(2) }
     val weekCalendarState = rememberWeekCalendarState(
-        startDate = LocalDate.now().minusWeeks(1),
-        endDate = LocalDate.now().plusWeeks(3),
-        firstVisibleWeekDate = LocalDate.now(),
+        startDate = calendarStartDate,
+        endDate = calendarEndDate,
+        firstVisibleWeekDate = today,
         firstDayOfWeek = DayOfWeek.MONDAY
     )
+    val visibleMonthTitle by remember {
+        derivedStateOf {
+            val visibleWeekDays = weekCalendarState.firstVisibleWeek.days
+            val selectedDate = state.value.currentDate
+            val titleDate = if (visibleWeekDays.any { it.date == selectedDate }) {
+                selectedDate
+            } else {
+                visibleWeekDays[visibleWeekDays.size / 2].date
+            }
+            formatMonthAndYear(titleDate)
+        }
+    }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val carChooserSheetVisible = rememberSaveable { mutableStateOf(false) }
@@ -140,6 +162,7 @@ fun AllRemindersScreen(
                 type = UiTopBarType.WithCalendar(
                     weekCalendarState = weekCalendarState,
                     currentDay = state.value.currentDate,
+                    calendarTitle = visibleMonthTitle,
                     onDayClick = { viewModel.send(AllRemindersIntent.DateSelected(it)) },
                     withEvent = { state.value.remindersLocalDatesForScreenAsSet.contains(it) }
                 ),
@@ -151,24 +174,18 @@ fun AllRemindersScreen(
                     if (!state.value.isLoading) navHostController.popBackStack()
                 },
                 actions = {
-                    CarPhoto(
-                        currentCarImageUri = currentCarImageUri,
-                        isLightTheme = isLightTheme,
-                        context = context
+                    CalendarActionButton(
+                        onClick = {
+                            viewModel.send(AllRemindersIntent.CalendarVisibleChange(true))
+                        }
                     )
-                    IconButton(
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = blackOrWhiteColor(isLightTheme)
-                        ),
+                    CarChooserActionButton(
+                        currentCarImageUri = currentCarImageUri,
+                        currentCarName = currentCarName.value,
+                        isLightTheme = isLightTheme,
+                        context = context,
                         onClick = { carChooserSheetVisible.value = true }
-                    ) {
-                        Icon(
-                            tint = blackOrWhiteColor(isLightTheme),
-                            painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
-                            contentDescription = "Выбор машины"
-                        )
-                    }
+                    )
                 }
             )
         },
@@ -219,6 +236,22 @@ fun AllRemindersScreen(
         }
     }
     UiLoading(isVisible = state.value.isLoading, isLightTheme = isLightTheme)
+    UiReminderDatePickerDialog(
+        isVisible = state.value.calendarVisible,
+        isLightTheme = isLightTheme,
+        onDismissRequest = {
+            viewModel.send(AllRemindersIntent.CalendarVisibleChange(false))
+        },
+        onOkClick = { date ->
+            viewModel.send(AllRemindersIntent.DateSelected(date))
+            viewModel.send(AllRemindersIntent.CalendarVisibleChange(false))
+            scope.launch { weekCalendarState.animateScrollToWeek(date) }
+        },
+        initialSelectedDate = state.value.currentDate,
+        startDate = calendarStartDate,
+        endDate = calendarEndDate,
+        reminderDates = state.value.remindersLocalDatesForScreenAsSet
+    )
     UiError(
         isVisible = state.value.isError,
         paddingValues = paddingValues,
@@ -555,7 +588,76 @@ private fun CarChooserBottomSheet(
 }
 
 @Composable
+private fun CalendarActionButton(
+    onClick: () -> Unit
+) {
+    IconButton(
+        modifier = Modifier.size(42.dp),
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = GreenColor.copy(alpha = 0.1f),
+            contentColor = GreenColor
+        ),
+        onClick = onClick
+    ) {
+        Icon(
+            modifier = Modifier.size(22.dp),
+            tint = GreenColor,
+            painter = painterResource(R.drawable.my_car_calendar),
+            contentDescription = "Открыть календарь напоминаний"
+        )
+    }
+}
+
+@Composable
+private fun CarChooserActionButton(
+    currentCarImageUri: State<String?>,
+    currentCarName: String,
+    isLightTheme: Boolean,
+    context: Context,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(modifier = Modifier.size(40.dp)) {
+            CarPhoto(
+                modifier = Modifier.align(Alignment.Center),
+                currentCarImageUri = currentCarImageUri,
+                isLightTheme = isLightTheme,
+                context = context
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = (-1).dp, y = (-1).dp)
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .background(darkGrayOrWhiteColor(isLightTheme))
+                    .border(
+                        width = 1.dp,
+                        color = grayColor(isLightTheme).copy(alpha = 0.35f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(12.dp),
+                    tint = blackOrWhiteColor(isLightTheme),
+                    painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
+                    contentDescription = "Выбор машины: $currentCarName"
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun CarPhoto(
+    modifier: Modifier = Modifier,
     currentCarImageUri: State<String?>,
     isLightTheme: Boolean,
     context: Context
@@ -568,7 +670,7 @@ private fun CarPhoto(
                 .build(),
             placeholder = painterResource(R.drawable.my_car_car_wo_photo),
             error = painterResource(R.drawable.my_car_car_wo_photo),
-            modifier = Modifier
+            modifier = modifier
                 .size(36.dp)
                 .clip(CircleShape)
                 .border(
@@ -581,7 +683,7 @@ private fun CarPhoto(
         )
     } else {
         Image(
-            modifier = Modifier
+            modifier = modifier
                 .size(36.dp)
                 .clip(CircleShape)
                 .border(
@@ -594,6 +696,13 @@ private fun CarPhoto(
             contentDescription = "Иконка машины"
         )
     }
+}
+
+private fun formatMonthAndYear(date: LocalDate): String {
+    val locale = Locale("ru")
+    val month = date.month.getDisplayName(TextStyle.FULL_STANDALONE, locale)
+        .replaceFirstChar { it.titlecase(locale) }
+    return "$month ${date.year}"
 }
 
 @Composable

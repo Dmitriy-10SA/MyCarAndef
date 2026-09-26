@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -197,6 +198,20 @@ private fun MainContent(
                     windowInsets = windowInsets,
                     colors = colors(isLightTheme = isLightTheme)
                 )
+                type.calendarTitle?.let { calendarTitle ->
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        text = calendarTitle,
+                        color = blackOrWhiteColor(isLightTheme),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 WeekCalendar(
                     modifier = Modifier
                         .padding(horizontal = 1.dp, vertical = 3.dp)

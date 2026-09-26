@@ -8,19 +8,22 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -29,6 +32,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
+import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarTab
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
@@ -120,27 +124,63 @@ private fun UsualTopBar(
         navigationIconContentDescription = "Меню",
         onNavigationIconClick = { scope.launch { drawerState.open() } },
         actions = {
+            CarChooserActionButton(
+                currentCarImageUri = currentCarImageUri,
+                currentCarName = currentCarName.value,
+                isLightTheme = isLightTheme,
+                context = context,
+                onClick = { sheetVisible.value = true }
+            )
+        },
+        isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
+    )
+}
+
+@Composable
+private fun CarChooserActionButton(
+    currentCarImageUri: State<String?>,
+    currentCarName: String,
+    isLightTheme: Boolean,
+    context: Context,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(modifier = Modifier.size(40.dp)) {
             CarPhoto(
+                modifier = Modifier.align(Alignment.Center),
                 currentCarImageUri = currentCarImageUri,
                 isLightTheme = isLightTheme,
                 context = context
             )
-            IconButton(
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = blackOrWhiteColor(isLightTheme)
-                ),
-                onClick = { sheetVisible.value = true }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = (-1).dp, y = (-1).dp)
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .background(darkGrayOrWhiteColor(isLightTheme))
+                    .border(
+                        width = 1.dp,
+                        color = grayColor(isLightTheme).copy(alpha = 0.35f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
+                    modifier = Modifier.size(12.dp),
                     tint = blackOrWhiteColor(isLightTheme),
                     painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
-                    contentDescription = "Выбор машины"
+                    contentDescription = "Выбор машины: $currentCarName"
                 )
             }
-        },
-        isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
-    )
+        }
+    }
 }
 
 @Composable
@@ -184,24 +224,13 @@ private fun TopBarWithTabs(
         navigationIconContentDescription = "Меню",
         onNavigationIconClick = { scope.launch { drawerState.open() } },
         actions = {
-            CarPhoto(
+            CarChooserActionButton(
                 currentCarImageUri = currentCarImageUri,
+                currentCarName = currentCarName.value,
                 isLightTheme = isLightTheme,
-                context = context
-            )
-            IconButton(
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = blackOrWhiteColor(isLightTheme)
-                ),
+                context = context,
                 onClick = { sheetVisible.value = true }
-            ) {
-                Icon(
-                    tint = blackOrWhiteColor(isLightTheme),
-                    painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
-                    contentDescription = "Выбор машины"
-                )
-            }
+            )
         },
         isVisible = navBackStackEntry?.destination?.route in Screen.MainScreens.allRoutes
     )
@@ -251,7 +280,8 @@ val dateTabs = listOf(
 
 @Composable
 private fun CarPhoto(
-    currentCarImageUri: androidx.compose.runtime.State<String?>,
+    modifier: Modifier = Modifier,
+    currentCarImageUri: State<String?>,
     isLightTheme: Boolean,
     context: Context
 ) {
@@ -263,7 +293,7 @@ private fun CarPhoto(
                 .build(),
             placeholder = painterResource(R.drawable.my_car_car_wo_photo),
             error = painterResource(R.drawable.my_car_car_wo_photo),
-            modifier = Modifier
+            modifier = modifier
                 .size(36.dp)
                 .clip(CircleShape)
                 .border(
@@ -276,7 +306,7 @@ private fun CarPhoto(
         )
     } else {
         Image(
-            modifier = Modifier
+            modifier = modifier
                 .size(36.dp)
                 .clip(CircleShape)
                 .border(
