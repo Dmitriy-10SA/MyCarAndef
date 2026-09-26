@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.andef.mycarandef.car.data.dbo.CarDbo
 
@@ -17,7 +18,8 @@ import com.andef.mycarandef.car.data.dbo.CarDbo
             onDelete = CASCADE,
             onUpdate = CASCADE
         )
-    ]
+    ],
+    indices = [Index(value = ["repeat_type", "date"], name = "index_reminder_repeat_type_date")]
 )
 data class ReminderDbo(
     @PrimaryKey(autoGenerate = true)
@@ -28,5 +30,7 @@ data class ReminderDbo(
     @ColumnInfo(name = "car_id")
     val carId: Long,
     @ColumnInfo(name = "car_name")
-    val carName: String
+    val carName: String,
+    @ColumnInfo(name = "repeat_type")
+    val repeatType: String?
 )

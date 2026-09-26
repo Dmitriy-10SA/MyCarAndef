@@ -24,12 +24,10 @@ navigationCompose = "2.9.2"
 osmdroidAndroid = "6.1.16"
 playServicesLocation = "21.3.0"
 roomKtx = "2.7.2"
-mobileads = "7.15.2"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-mobileads = { module = "com.yandex.android:mobileads", version.ref = "mobileads" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }

@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.chooser.ui.UiChooser
 import com.andef.mycarandef.design.datepicker.ui.UiDatePickerDialog
 import com.andef.mycarandef.design.loading.ui.UiLoading
+import com.andef.mycarandef.design.menu.ui.UiMenu
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
@@ -62,6 +64,7 @@ import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.formatLocalTimeToString
 import com.andef.mycarandef.viewmodel.ViewModelFactory
+import com.andef.mycar.reminder.domain.entities.ReminderRepeatType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -182,6 +185,7 @@ private fun ColumnScope.MainContent(
     state: State<ReminderAddState>,
     viewModel: ReminderAddViewModel
 ) {
+    val repeatMenuExpanded = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .weight(1f)
@@ -246,6 +250,31 @@ private fun ColumnScope.MainContent(
             placeholderText = "Время",
             leadingIcon = painterResource(R.drawable.my_car_time_picker),
             leadingIconContentDescription = "Иконка выбор времени"
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = "Необязательные поля:",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start,
+            color = grayColor(isLightTheme),
+            fontSize = 16.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        UiMenu(
+            items = listOf<ReminderRepeatType?>(null) + ReminderRepeatType.entries,
+            modifier = Modifier.fillMaxWidth(),
+            itemToString = { it?.titleForUser ?: "Не повторять" },
+            isLightTheme = isLightTheme,
+            value = state.value.repeatType?.titleForUser.orEmpty(),
+            placeholderText = "Повтор",
+            textFieldLeadingIcon = painterResource(R.drawable.my_car_schedule),
+            textFieldLeadingIconContentDescription = "Значок повтора",
+            onItemClick = { repeatType ->
+                repeatMenuExpanded.value = false
+                viewModel.send(ReminderAddIntent.ChangeRepeatType(repeatType))
+            },
+            expanded = repeatMenuExpanded.value,
+            onExpandedChange = { repeatMenuExpanded.value = it }
         )
         Spacer(modifier = Modifier.height(6.dp))
     }

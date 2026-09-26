@@ -1,5 +1,6 @@
 package com.andef.mycar.reminder.presentation.allreminders
 
+import com.andef.mycar.reminder.domain.entities.ReminderRepeatType
 import com.andef.mycarandef.car.domain.entities.Car
 import java.time.LocalDate
 import java.time.LocalTime
@@ -15,6 +16,7 @@ sealed class AllRemindersIntent {
         val reminderId: Long? = null,
         val reminderText: String? = null,
         val reminderDate: LocalDate? = null,
-        val reminderTime: LocalTime? = null
+        val reminderTime: LocalTime? = null,
+        val reminderRepeatType: ReminderRepeatType? = null
     ) : AllRemindersIntent()
 }

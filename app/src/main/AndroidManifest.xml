@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.andef.mycarandef"
-    android:versionCode="12"
-    android:versionName="12.0">
+    android:versionCode="13"
+    android:versionName="13.0">
 
     <uses-permission android:name="com.andef.myfinance.permission.ACCESS_EXPENSE_PROVIDER" />
 
@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
@@ -44,7 +45,18 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.andef.mycar.reminder.presentation.ReminderReceiver" />
+        <receiver
+            android:name="com.andef.mycar.reminder.presentation.ReminderReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".ReminderBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"

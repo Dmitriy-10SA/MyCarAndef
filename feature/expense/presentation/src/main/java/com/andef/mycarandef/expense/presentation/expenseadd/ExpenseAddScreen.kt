@@ -1,13 +1,16 @@
 package com.andef.mycarandef.expense.presentation.expenseadd
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,14 +19,23 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -49,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.card.expense.ui.getImageForExpense
 import com.andef.mycarandef.design.chooser.ui.UiChooser
@@ -61,10 +74,12 @@ import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.GreenColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
+import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
+import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.utils.formatAmountForEdit
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.normalizeAmountInput
@@ -92,7 +107,10 @@ fun ExpenseAddScreen(
     val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
-        expenseId?.let {
+        viewModel.send(
+            ExpenseAddIntent.InitDefaultType(applyToExpense = expenseId == null)
+        )
+        if (expenseId != null) {
             viewModel.send(
                 ExpenseAddIntent.InitExpenseByLateExpense(
                     expenseId = expenseId,
@@ -190,6 +208,8 @@ private fun ColumnScope.MainContent(
         }
     }
     var typeExpanded by remember { mutableStateOf(false) }
+    var defaultTypeSheetVisible by remember { mutableStateOf(false) }
+    val defaultTypeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     Column(
         modifier = Modifier
             .weight(1f)
@@ -245,16 +265,7 @@ private fun ColumnScope.MainContent(
             items = Expense.allExpenseTypes,
             modifier = Modifier.fillMaxWidth(),
             itemToString = { item -> item.title },
-            itemToLeadingIcon = { item ->
-                Image(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                    painter = getImageForExpense(item),
-                    contentDescription = "Значок для типа траты"
-                )
-            },
+            itemToLeadingIcon = { item -> ExpenseTypeIcon(item) },
             isLightTheme = isLightTheme,
             value = state.value.type?.title ?: "",
             placeholderText = "Тип",
@@ -265,7 +276,19 @@ private fun ColumnScope.MainContent(
                 viewModel.send(ExpenseAddIntent.ChangeType(item))
             },
             onExpandedChange = { typeExpanded = it },
-            expanded = typeExpanded,
+            expanded = typeExpanded
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = state.value.defaultType?.let { defaultType ->
+                "По умолчанию: ${defaultType.title}. Нажмите, чтобы изменить"
+            } ?: "Нажмите для выбора типа по умолчанию",
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { defaultTypeSheetVisible = true },
+            color = grayColor(isLightTheme),
+            fontSize = 13.sp
         )
         Spacer(modifier = Modifier.height(16.dp))
         UiChooser(
@@ -303,7 +326,148 @@ private fun ColumnScope.MainContent(
         )
         Spacer(modifier = Modifier.height(6.dp))
     }
+    DefaultTypeBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = defaultTypeSheetVisible,
+        sheetState = defaultTypeSheetState,
+        selectedType = state.value.defaultType,
+        onDismissRequest = { defaultTypeSheetVisible = false },
+        onTypeClick = { type ->
+            defaultTypeSheetVisible = false
+            viewModel.send(ExpenseAddIntent.SetDefaultType(type))
+        }
+    )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DefaultTypeBottomSheet(
+    isLightTheme: Boolean,
+    isVisible: Boolean,
+    sheetState: SheetState,
+    selectedType: ExpenseType?,
+    onDismissRequest: () -> Unit,
+    onTypeClick: (ExpenseType?) -> Unit
+) {
+    UiModalBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = isVisible,
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState
+    ) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            textAlign = TextAlign.Center,
+            text = "Выбор типа расхода по умолчанию:",
+            fontSize = 16.sp,
+            color = grayColor(isLightTheme)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = blackOrWhiteColor(isLightTheme).copy(alpha = 0.2f)
+        )
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            item { Spacer(modifier = Modifier.height(0.dp)) }
+            item(key = "no-default-type") {
+                DefaultTypeCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .animateItem(),
+                    title = "Не выбирать автоматически",
+                    selected = selectedType == null,
+                    isLightTheme = isLightTheme,
+                    onClick = { onTypeClick(null) }
+                )
+            }
+            items(items = Expense.allExpenseTypes, key = { it.name }) { type ->
+                DefaultTypeCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .animateItem(),
+                    title = type.title,
+                    selected = selectedType == type,
+                    isLightTheme = isLightTheme,
+                    leadingIcon = { ExpenseTypeIcon(type) },
+                    onClick = { onTypeClick(type) }
+                )
+            }
+            item { Spacer(modifier = Modifier.height(0.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun ExpenseTypeIcon(type: ExpenseType) {
+    Image(
+        modifier = Modifier
+            .size(expenseTypeIconSize)
+            .clip(CircleShape),
+        painter = getImageForExpense(type),
+        contentDescription = "Значок типа траты ${type.title}",
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+private fun DefaultTypeCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    selected: Boolean,
+    isLightTheme: Boolean,
+    onClick: () -> Unit,
+    leadingIcon: (@Composable () -> Unit)? = null
+) {
+    Card(
+        modifier = modifier,
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = darkGrayOrWhiteColor(isLightTheme),
+            contentColor = blackOrWhiteColor(isLightTheme)
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (selected) GreenColor else grayColor(isLightTheme).copy(alpha = 0.3f)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            if (leadingIcon != null) {
+                leadingIcon()
+            } else {
+                Icon(
+                    modifier = Modifier.size(expenseTypeIconSize),
+                    painter = painterResource(R.drawable.my_car_more_horiz),
+                    contentDescription = null,
+                    tint = blackOrWhiteColor(isLightTheme)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                modifier = Modifier.weight(1f),
+                text = title,
+                fontSize = 16.sp,
+                color = blackOrWhiteColor(isLightTheme),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private val expenseTypeIconSize = 24.dp
 
 @Composable
 private fun ColumnScope.DownButton(

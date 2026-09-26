@@ -75,6 +75,13 @@ import com.andef.mycarandef.routes.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+private const val FITNESS_SDK_URL =
+    "https://www.rustore.ru/catalog/app/com.fitnesssdk.kmpfit.android"
+private const val FITNESS_SDK_APP_ID = "com.fitnesssdk.kmpfit.android"
+
+private const val MY_FINANCE_URL = "https://www.rustore.ru/catalog/app/com.andef.myfinance"
+private const val MY_FINANCE_APP_ID = "com.andef.myfinance"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainModalDrawerSheetContent(
@@ -92,7 +99,15 @@ fun MainModalDrawerSheetContent(
     val feedbackSheetState = rememberModalBottomSheetState()
     val feedbackSheetVisible = rememberSaveable { mutableStateOf(false) }
 
+    val privacyPolicySheetState = rememberModalBottomSheetState()
+    val privacyPolicySheetVisible = rememberSaveable { mutableStateOf(false) }
+
     val context = LocalContext.current
+    val privacyPolicyText = remember(context) {
+        context.resources.openRawResource(R.raw.privacy_policy)
+            .bufferedReader()
+            .use { it.readText() }
+    }
 
     ModalDrawerSheet(
         drawerState = drawerState,
@@ -114,6 +129,7 @@ fun MainModalDrawerSheetContent(
             scope = scope,
             drawerState = drawerState,
             feedbackSheetVisible = feedbackSheetVisible,
+            privacyPolicySheetVisible = privacyPolicySheetVisible,
             context = context
         )
     }
@@ -216,6 +232,28 @@ fun MainModalDrawerSheetContent(
             }
         }
     }
+    UiModalBottomSheet(
+        isLightTheme = isLightTheme,
+        isVisible = privacyPolicySheetVisible.value,
+        onDismissRequest = { privacyPolicySheetVisible.value = false },
+        sheetState = privacyPolicySheetState
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            item {
+                Text(
+                    text = privacyPolicyText,
+                    color = blackOrWhiteColor(isLightTheme),
+                    fontSize = 15.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 24.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -266,6 +304,7 @@ private fun InnerContent(
     drawerState: DrawerState,
     nameChangeSheetVisible: MutableState<Boolean>,
     feedbackSheetVisible: MutableState<Boolean>,
+    privacyPolicySheetVisible: MutableState<Boolean>,
     component: MyCarComponent,
     context: Context
 ) {
@@ -351,6 +390,22 @@ private fun InnerContent(
                 )
             }
             item {
+                InnerContentItem(
+                    isLightTheme = isLightTheme,
+                    icon = painterResource(
+                        com.andef.mycarandef.design.R.drawable.my_car_privacy_policy
+                    ),
+                    iconContentDescription = "Иконка документа",
+                    itemText = "Политика конфиденциальности",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            privacyPolicySheetVisible.value = true
+                        }
+                    }
+                )
+            }
+            item {
                 Column {
                     Text(
                         modifier = Modifier
@@ -373,6 +428,23 @@ private fun InnerContent(
                                 context.openAppOrLink(
                                     appId = MY_FINANCE_APP_ID,
                                     fallbackUrl = MY_FINANCE_URL
+                                )
+                            }
+                        }
+                    )
+                    InnerContentItem(
+                        isLightTheme = isLightTheme,
+                        icon = painterResource(
+                            com.andef.mycarandef.design.R.drawable.fitnesssdk_app_icon
+                        ),
+                        iconContentDescription = "Иконка FitnessSDK",
+                        itemText = "FitnessSDK",
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                context.openAppOrLink(
+                                    appId = FITNESS_SDK_APP_ID,
+                                    fallbackUrl = FITNESS_SDK_URL
                                 )
                             }
                         }
@@ -401,9 +473,6 @@ private fun Context.openAppOrLink(appId: String, fallbackUrl: String) {
     runCatching { startActivity(launchIntent) }
         .onFailure { startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri())) }
 }
-
-private const val MY_FINANCE_URL = "https://www.rustore.ru/catalog/app/com.andef.myfinance"
-private const val MY_FINANCE_APP_ID = "com.andef.myfinance"
 
 @Composable
 private fun InnerContentItem(

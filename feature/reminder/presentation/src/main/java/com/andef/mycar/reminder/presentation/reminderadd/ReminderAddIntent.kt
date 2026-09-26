@@ -1,5 +1,6 @@
 package com.andef.mycar.reminder.presentation.reminderadd
 
+import com.andef.mycar.reminder.domain.entities.ReminderRepeatType
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -7,6 +8,7 @@ sealed class ReminderAddIntent {
     data class ChangeReminderText(val text: String) : ReminderAddIntent()
     data class ChangeReminderDate(val date: LocalDate?) : ReminderAddIntent()
     data class ChangeReminderTime(val time: LocalTime?) : ReminderAddIntent()
+    data class ChangeRepeatType(val repeatType: ReminderRepeatType?) : ReminderAddIntent()
     data class ChangeDatePickerVisible(val isVisible: Boolean) : ReminderAddIntent()
     data class ChangeTimePickerVisible(val isVisible: Boolean) : ReminderAddIntent()
     data class SaveClick(

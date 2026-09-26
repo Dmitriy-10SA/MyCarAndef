@@ -26,3 +26,11 @@ val MIGRATION_1_2 = Migration(1, 2) { database ->
     database.execSQL("DROP TABLE expense")
     database.execSQL("ALTER TABLE expense_new RENAME TO expense")
 }
+
+val MIGRATION_2_3 = Migration(2, 3) { database ->
+    database.execSQL("ALTER TABLE reminder ADD COLUMN repeat_type TEXT")
+    database.execSQL(
+        "CREATE INDEX IF NOT EXISTS index_reminder_repeat_type_date " +
+            "ON reminder(repeat_type, date)"
+    )
+}

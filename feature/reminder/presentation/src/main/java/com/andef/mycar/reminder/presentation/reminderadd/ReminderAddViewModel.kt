@@ -3,6 +3,7 @@ package com.andef.mycar.reminder.presentation.reminderadd
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andef.mycar.reminder.domain.entities.Reminder
+import com.andef.mycar.reminder.domain.entities.ReminderRepeatType
 import com.andef.mycar.reminder.domain.usecases.AddReminderUseCase
 import com.andef.mycar.reminder.domain.usecases.ChangeReminderUseCase
 import com.andef.mycar.reminder.domain.usecases.GetReminderUseCase
@@ -41,6 +42,10 @@ class ReminderAddViewModel @Inject constructor(
                 reminderTime = intent.time
             )
 
+            is ReminderAddIntent.ChangeRepeatType -> changeInput(
+                repeatType = intent.repeatType
+            )
+
             is ReminderAddIntent.ChangeTimePickerVisible -> changeTimePickerVisible(
                 isVisible = intent.isVisible
             )
@@ -57,7 +62,8 @@ class ReminderAddViewModel @Inject constructor(
                 carId = intent.carId,
                 reminderText = _state.value.reminderText,
                 reminderDate = _state.value.reminderDate ?: throw IllegalArgumentException(),
-                reminderTime = _state.value.reminderTime ?: throw IllegalArgumentException()
+                reminderTime = _state.value.reminderTime ?: throw IllegalArgumentException(),
+                repeatType = _state.value.repeatType
             )
         }
     }
@@ -70,7 +76,8 @@ class ReminderAddViewModel @Inject constructor(
                 changeInput(
                     reminderText = reminder.text,
                     reminderDate = reminder.date,
-                    reminderTime = reminder.time
+                    reminderTime = reminder.time,
+                    repeatType = reminder.repeatType
                 )
                 _state.value = _state.value.copy(isAdd = false, reminderId = reminderId)
             } catch (_: Exception) {
@@ -96,7 +103,8 @@ class ReminderAddViewModel @Inject constructor(
         reminderDate: LocalDate,
         reminderTime: LocalTime,
         carId: Long,
-        carName: String
+        carName: String,
+        repeatType: ReminderRepeatType?
     ) {
         viewModelScope.launch {
             try {
@@ -112,7 +120,8 @@ class ReminderAddViewModel @Inject constructor(
                                 date = reminderDate,
                                 time = reminderTime,
                                 carId = carId,
-                                carName = carName
+                                carName = carName,
+                                repeatType = repeatType
                             )
                         )
                     } else {
@@ -120,7 +129,8 @@ class ReminderAddViewModel @Inject constructor(
                             id = reminderId ?: throw IllegalArgumentException(),
                             text = reminderText,
                             date = reminderDate,
-                            time = reminderTime
+                            time = reminderTime,
+                            repeatType = repeatType
                         )
                     }
                 }
@@ -136,12 +146,14 @@ class ReminderAddViewModel @Inject constructor(
     private fun changeInput(
         reminderText: String = _state.value.reminderText,
         reminderDate: LocalDate? = _state.value.reminderDate,
-        reminderTime: LocalTime? = _state.value.reminderTime
+        reminderTime: LocalTime? = _state.value.reminderTime,
+        repeatType: ReminderRepeatType? = _state.value.repeatType
     ) {
         _state.value = _state.value.copy(
             reminderText = reminderText,
             reminderDate = reminderDate,
             reminderTime = reminderTime,
+            repeatType = repeatType,
             saveButtonEnabled = reminderText.isNotEmpty() && reminderDate != null && reminderTime != null
         )
     }

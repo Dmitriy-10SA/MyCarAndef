@@ -7,6 +7,8 @@ import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.expense.domain.usecases.AddExpenseUseCase
 import com.andef.mycarandef.expense.domain.usecases.ChangeExpenseUseCase
 import com.andef.mycarandef.expense.domain.usecases.GetExpenseByIdUseCase
+import com.andef.mycarandef.expense.domain.usecases.GetDefaultExpenseTypeUseCase
+import com.andef.mycarandef.expense.domain.usecases.SetDefaultExpenseTypeUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +20,9 @@ import javax.inject.Inject
 class ExpenseAddViewModel @Inject constructor(
     private val addExpenseUseCase: AddExpenseUseCase,
     private val changeExpenseUseCase: ChangeExpenseUseCase,
-    private val getExpenseByIdUseCase: GetExpenseByIdUseCase
+    private val getExpenseByIdUseCase: GetExpenseByIdUseCase,
+    private val getDefaultExpenseTypeUseCase: GetDefaultExpenseTypeUseCase,
+    private val setDefaultExpenseTypeUseCase: SetDefaultExpenseTypeUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExpenseAddState())
     val state: StateFlow<ExpenseAddState> = _state
@@ -33,6 +37,8 @@ class ExpenseAddViewModel @Inject constructor(
 
             is ExpenseAddIntent.ChangeNote -> changeInput(note = intent.note)
             is ExpenseAddIntent.ChangeType -> changeInput(type = intent.type)
+            is ExpenseAddIntent.InitDefaultType -> initDefaultType(intent.applyToExpense)
+            is ExpenseAddIntent.SetDefaultType -> setDefaultType(intent.type)
             is ExpenseAddIntent.InitExpenseByLateExpense -> initExpenseByLateExpense(
                 expenseId = intent.expenseId,
                 onError = intent.onError
@@ -48,6 +54,18 @@ class ExpenseAddViewModel @Inject constructor(
                 carId = intent.carId
             )
         }
+    }
+
+    private fun initDefaultType(applyToExpense: Boolean) {
+        val defaultType = getDefaultExpenseTypeUseCase.invoke()
+        _state.value = _state.value.copy(defaultType = defaultType)
+        if (applyToExpense && defaultType != null) changeInput(type = defaultType)
+    }
+
+    private fun setDefaultType(type: ExpenseType?) {
+        setDefaultExpenseTypeUseCase.invoke(type)
+        _state.value = _state.value.copy(defaultType = type)
+        if (type != null && _state.value.isAdd) changeInput(type = type)
     }
 
     private fun initExpenseByLateExpense(expenseId: Long, onError: (String) -> Unit) {
