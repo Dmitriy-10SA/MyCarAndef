@@ -9,7 +9,10 @@ import androidx.core.content.ContextCompat
 import com.andef.mycar.reminder.data.dao.ReminderDao
 import com.andef.mycar.reminder.data.mapper.ReminderMapper
 import com.andef.mycar.reminder.domain.entities.Reminder
+import com.andef.mycar.reminder.domain.entities.ReminderRepeatType
 import com.andef.mycar.reminder.domain.repository.ReminderRepository
+import com.andef.mycar.reminder.domain.utils.nextOccurrenceDate
+import com.andef.mycar.reminder.domain.utils.occurrencesBetween
 import com.andef.mycar.reminder.presentation.ReminderReceiver
 import com.andef.mycarandef.utils.toInt
 import kotlinx.coroutines.flow.Flow
@@ -26,9 +29,28 @@ class ReminderRepositoryImpl @Inject constructor(
 ) : ReminderRepository {
     private val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    private fun addNotification(id: Long, text: String, time: Long) {
+    private fun addNotification(id: Long, reminder: Reminder) {
+        val now = java.time.ZonedDateTime.now(ZoneId.systemDefault())
+        val fromDate = if (reminder.time > now.toLocalTime()) {
+            now.toLocalDate()
+        } else {
+            now.toLocalDate().plusDays(1)
+        }
+        val triggerDate = nextOccurrenceDate(
+            date = reminder.date,
+            repeatType = reminder.repeatType,
+            fromDate = fromDate
+        ) ?: return
         try {
-            val intent = ReminderReceiver.newIntent(application, id.toInt(), text)
+            val intent = ReminderReceiver.newIntent(
+                context = application,
+                id = id.toInt(),
+                text = "${reminder.text}\nМашина: ${reminder.carName}",
+                repeatType = reminder.repeatType,
+                startDate = reminder.date,
+                hour = reminder.time.hour,
+                minute = reminder.time.minute
+            )
             val pendingIntent = PendingIntent.getBroadcast(
                 application,
                 id.toInt(),
@@ -37,7 +59,7 @@ class ReminderRepositoryImpl @Inject constructor(
             )
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
-                time,
+                toEpochMillis(triggerDate, reminder.time),
                 pendingIntent
             )
         } finally {
@@ -64,9 +86,9 @@ class ReminderRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun changeNotification(id: Long, text: String, time: Long) {
+    private fun changeNotification(id: Long, reminder: Reminder) {
         cancelNotification(id)
-        addNotification(id, text, time)
+        addNotification(id, reminder)
     }
 
     override suspend fun getAllRemindersAsList(): List<Reminder> {
@@ -77,22 +99,20 @@ class ReminderRepositoryImpl @Inject constructor(
 
     override suspend fun addReminder(reminder: Reminder): Long {
         val id = reminderDao.addReminder(reminderMapper.map(reminder))
-        addNotification(
-            id = id,
-            text = "${reminder.text}\nМашина: ${reminder.carName}",
-            time = toEpochMillis(reminder.date, reminder.time)
-        )
+        addNotification(id = id, reminder = reminder)
         return id
     }
 
-    override suspend fun changeReminder(id: Long, text: String, date: LocalDate, time: LocalTime) {
-        reminderDao.changeReminder(id, text, date.toInt(), time.toInt())
+    override suspend fun changeReminder(
+        id: Long,
+        text: String,
+        date: LocalDate,
+        time: LocalTime,
+        repeatType: ReminderRepeatType?
+    ) {
+        reminderDao.changeReminder(id, text, date.toInt(), time.toInt(), repeatType?.title)
         val reminder = getReminder(id)
-        changeNotification(
-            id = id,
-            text = "${text}\nМашина: ${reminder.carName}",
-            time = toEpochMillis(date, time)
-        )
+        changeNotification(id = id, reminder = reminder)
     }
 
     override suspend fun getReminder(id: Long): Reminder {
@@ -102,6 +122,12 @@ class ReminderRepositoryImpl @Inject constructor(
     override suspend fun removeReminder(id: Long) {
         reminderDao.removeReminder(id)
         cancelNotification(id)
+    }
+
+    override suspend fun restoreReminders() {
+        getAllRemindersAsList().forEach { reminder ->
+            addNotification(id = reminder.id, reminder = reminder)
+        }
     }
 
     override fun getRemindersByCarId(
@@ -114,9 +140,9 @@ class ReminderRepositoryImpl @Inject constructor(
             startDate.toInt(),
             endDate.toInt()
         ).map { remindersDbo ->
-            remindersDbo.map { reminderDbo ->
-                reminderMapper.map(reminderDbo)
-            }
+            remindersDbo.flatMap { reminderDbo ->
+                reminderMapper.map(reminderDbo).occurrencesBetween(startDate, endDate)
+            }.sortedWith(compareBy<Reminder> { it.date }.thenBy { it.time })
         }
     }
 

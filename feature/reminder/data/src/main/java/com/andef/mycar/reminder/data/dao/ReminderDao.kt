@@ -18,11 +18,17 @@ interface ReminderDao {
     @Query(
         """
         UPDATE reminder
-        SET text = :text, date = :date, time = :time
+        SET text = :text, date = :date, time = :time, repeat_type = :repeatType
         WHERE id = :id
         """
     )
-    suspend fun changeReminder(id: Long, text: String, date: Int, time: Int)
+    suspend fun changeReminder(
+        id: Long,
+        text: String,
+        date: Int,
+        time: Int,
+        repeatType: String?
+    )
 
     @Query("DELETE FROM reminder WHERE id = :id")
     suspend fun removeReminder(id: Long)
@@ -33,7 +39,10 @@ interface ReminderDao {
     @Query(
         """
         SELECT * FROM reminder 
-        WHERE date >= :startDate AND date <= :endDate AND car_id = :carId 
+        WHERE (
+            (repeat_type IS NULL AND date >= :startDate AND date <= :endDate)
+            OR (repeat_type IS NOT NULL AND date <= :endDate)
+        ) AND car_id = :carId
         ORDER BY time ASC, date ASC
         """
     )

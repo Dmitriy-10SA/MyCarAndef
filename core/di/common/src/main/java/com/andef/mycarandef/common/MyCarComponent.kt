@@ -6,6 +6,7 @@ import com.andef.mycar.backup.di.BackupViewModelModule
 import com.andef.mycar.reminder.di.ReminderDaoModule
 import com.andef.mycar.reminder.di.ReminderRepositoryModule
 import com.andef.mycar.reminder.di.ReminderViewModelModule
+import com.andef.mycar.reminder.domain.usecases.RestoreRemindersUseCase
 import com.andef.mycarandef.car.di.CarDaoModule
 import com.andef.mycarandef.car.di.CarRepositoryModule
 import com.andef.mycarandef.car.di.CarViewModelModule
@@ -102,6 +103,7 @@ interface MyCarComponent {
     val setCurrentCarIdUseCase: SetCurrentCarIdUseCase
     val setCurrentCarImageUriUseCase: SetCurrentCarImageUriUseCase
     val setCurrentCarNameUseCase: SetCurrentCarNameUseCase
+    val restoreRemindersUseCase: RestoreRemindersUseCase
 
     @Component.Factory
     interface Factory {

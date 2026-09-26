@@ -9,5 +9,6 @@ data class Reminder(
     val date: LocalDate,
     val time: LocalTime,
     val carId: Long,
-    val carName: String
+    val carName: String,
+    val repeatType: ReminderRepeatType? = null
 )

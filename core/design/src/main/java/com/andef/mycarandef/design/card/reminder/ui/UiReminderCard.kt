@@ -70,14 +70,17 @@ fun UiReminderCard(
                     fontSize = 16.sp,
                     color = blackOrWhiteColor(isLightTheme)
                 )
-                Text(
-                    text = if (reminder.date > LocalDate.now()) {
+                val repeatType = reminder.repeatType
+                val status = repeatType?.titleForUser
+                    ?: if (reminder.date > LocalDate.now()) {
                         "Ожидается"
                     } else if (reminder.date == LocalDate.now() && reminder.time > LocalTime.now()) {
                         "Ожидается"
                     } else {
                         "Завершено"
-                    },
+                    }
+                Text(
+                    text = status,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 16.sp,
