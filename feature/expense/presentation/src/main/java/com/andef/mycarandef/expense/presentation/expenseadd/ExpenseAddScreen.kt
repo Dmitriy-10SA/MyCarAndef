@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,10 +19,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,10 +66,12 @@ import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.GreenColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
+import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
 import com.andef.mycarandef.expense.domain.entities.Expense
+import com.andef.mycarandef.expense.domain.entities.ExpenseType
 import com.andef.mycarandef.utils.formatAmountForEdit
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.utils.normalizeAmountInput
@@ -92,7 +99,10 @@ fun ExpenseAddScreen(
     val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
-        expenseId?.let {
+        viewModel.send(
+            ExpenseAddIntent.InitDefaultType(applyToExpense = expenseId == null)
+        )
+        if (expenseId != null) {
             viewModel.send(
                 ExpenseAddIntent.InitExpenseByLateExpense(
                     expenseId = expenseId,
@@ -190,6 +200,7 @@ private fun ColumnScope.MainContent(
         }
     }
     var typeExpanded by remember { mutableStateOf(false) }
+    var defaultTypeExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .weight(1f)
@@ -241,32 +252,75 @@ private fun ColumnScope.MainContent(
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
-        UiMenu(
-            items = Expense.allExpenseTypes,
-            modifier = Modifier.fillMaxWidth(),
-            itemToString = { item -> item.title },
-            itemToLeadingIcon = { item ->
-                Image(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                    painter = getImageForExpense(item),
-                    contentDescription = "Значок для типа траты"
+        Box(modifier = Modifier.fillMaxWidth()) {
+            UiMenu(
+                items = Expense.allExpenseTypes,
+                modifier = Modifier.fillMaxWidth(),
+                itemToString = { item -> item.title },
+                itemToLeadingIcon = { item -> ExpenseTypeIcon(item) },
+                isLightTheme = isLightTheme,
+                value = state.value.type?.title ?: "",
+                placeholderText = "Тип",
+                textFieldLeadingIcon = painterResource(R.drawable.my_car_more_horiz),
+                textFieldLeadingIconContentDescription = "Три горизонтальные точки",
+                onItemClick = { item ->
+                    typeExpanded = false
+                    viewModel.send(ExpenseAddIntent.ChangeType(item))
+                },
+                onExpandedChange = { typeExpanded = it },
+                expanded = typeExpanded,
+                onLongClick = {
+                    typeExpanded = false
+                    defaultTypeExpanded = true
+                }
+            )
+            DropdownMenu(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, grayColor(isLightTheme), shape = RoundedCornerShape(16.dp)),
+                expanded = defaultTypeExpanded,
+                onDismissRequest = { defaultTypeExpanded = false },
+                containerColor = darkGrayOrWhiteColor(isLightTheme)
+            ) {
+                Text(
+                    text = "Тип расхода по умолчанию",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    color = blackOrWhiteColor(isLightTheme),
+                    fontSize = 16.sp
                 )
-            },
-            isLightTheme = isLightTheme,
-            value = state.value.type?.title ?: "",
-            placeholderText = "Тип",
-            textFieldLeadingIcon = painterResource(R.drawable.my_car_more_horiz),
-            textFieldLeadingIconContentDescription = "Три горизонтальные точки",
-            onItemClick = { item ->
-                typeExpanded = false
-                viewModel.send(ExpenseAddIntent.ChangeType(item))
-            },
-            onExpandedChange = { typeExpanded = it },
-            expanded = typeExpanded,
-        )
+                HorizontalDivider(color = grayColor(isLightTheme).copy(alpha = 0.3f))
+                DefaultTypeMenuItem(
+                    title = "Не выбирать автоматически",
+                    selected = state.value.defaultType == null,
+                    isLightTheme = isLightTheme,
+                    onClick = {
+                        defaultTypeExpanded = false
+                        viewModel.send(ExpenseAddIntent.SetDefaultType(null))
+                    }
+                )
+                Expense.allExpenseTypes.forEach { type ->
+                    DefaultTypeMenuItem(
+                        title = type.title,
+                        selected = state.value.defaultType == type,
+                        isLightTheme = isLightTheme,
+                        leadingIcon = { ExpenseTypeIcon(type) },
+                        onClick = {
+                            defaultTypeExpanded = false
+                            viewModel.send(ExpenseAddIntent.SetDefaultType(type))
+                        }
+                    )
+                }
+            }
+        }
+        state.value.defaultType?.let { defaultType ->
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "По умолчанию: ${defaultType.title}",
+                modifier = Modifier.fillMaxWidth(),
+                color = grayColor(isLightTheme),
+                fontSize = 13.sp
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         UiChooser(
             isLightTheme = isLightTheme,
@@ -303,6 +357,43 @@ private fun ColumnScope.MainContent(
         )
         Spacer(modifier = Modifier.height(6.dp))
     }
+}
+
+@Composable
+private fun ExpenseTypeIcon(type: ExpenseType) {
+    Image(
+        modifier = Modifier
+            .size(24.dp)
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop,
+        painter = getImageForExpense(type),
+        contentDescription = "Значок типа траты ${type.title}"
+    )
+}
+
+@Composable
+private fun DefaultTypeMenuItem(
+    title: String,
+    selected: Boolean,
+    isLightTheme: Boolean,
+    onClick: () -> Unit,
+    leadingIcon: (@Composable () -> Unit)? = null
+) {
+    DropdownMenuItem(
+        text = { Text(text = title, fontSize = 16.sp) },
+        onClick = onClick,
+        leadingIcon = leadingIcon,
+        trailingIcon = if (selected) {
+            { Text(text = "✓", color = GreenColor, fontSize = 18.sp) }
+        } else {
+            null
+        },
+        colors = MenuDefaults.itemColors(
+            textColor = grayColor(isLightTheme),
+            leadingIconColor = grayColor(isLightTheme),
+            trailingIconColor = GreenColor
+        )
+    )
 }
 
 @Composable

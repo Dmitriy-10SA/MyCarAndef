@@ -1,5 +1,7 @@
 package com.andef.mycarandef.expense.data.repository
 
+import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.andef.mycarandef.expense.data.dao.ExpenseDao
 import com.andef.mycarandef.expense.data.mapper.ExpenseMapper
 import com.andef.mycarandef.expense.domain.entities.Expense
@@ -13,8 +15,21 @@ import javax.inject.Inject
 
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseMapper: ExpenseMapper,
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val sharedPreferences: SharedPreferences
 ) : ExpenseRepository {
+    override fun getDefaultExpenseType(): ExpenseType? {
+        val savedType = sharedPreferences.getString(DEFAULT_EXPENSE_TYPE, null)
+        return ExpenseType.entries.find { it.name == savedType }
+    }
+
+    override fun setDefaultExpenseType(type: ExpenseType?) {
+        sharedPreferences.edit {
+            if (type == null) remove(DEFAULT_EXPENSE_TYPE)
+            else putString(DEFAULT_EXPENSE_TYPE, type.name)
+        }
+    }
+
     override suspend fun getAllExpensesAsList(): List<Expense> {
         return expenseDao.getAllExpensesAsList().map { expenseDbo -> expenseMapper.map(expenseDbo) }
     }
@@ -58,5 +73,9 @@ class ExpenseRepositoryImpl @Inject constructor(
                     expenseMapper.map(expenseDbo)
                 }
             }
+    }
+
+    private companion object {
+        const val DEFAULT_EXPENSE_TYPE = "default-expense-type"
     }
 }

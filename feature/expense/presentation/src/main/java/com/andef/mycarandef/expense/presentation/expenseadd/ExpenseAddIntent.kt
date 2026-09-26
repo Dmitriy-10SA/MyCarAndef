@@ -6,6 +6,8 @@ import java.time.LocalDate
 sealed class ExpenseAddIntent {
     data class ChangeAmount(val amount: Long?) : ExpenseAddIntent()
     data class ChangeType(val type: ExpenseType) : ExpenseAddIntent()
+    data class InitDefaultType(val applyToExpense: Boolean) : ExpenseAddIntent()
+    data class SetDefaultType(val type: ExpenseType?) : ExpenseAddIntent()
     data class ChangeNote(val note: String?) : ExpenseAddIntent()
     data class ChangeDate(val date: LocalDate) : ExpenseAddIntent()
     data class ChangeDatePickerVisible(val isVisible: Boolean) : ExpenseAddIntent()
