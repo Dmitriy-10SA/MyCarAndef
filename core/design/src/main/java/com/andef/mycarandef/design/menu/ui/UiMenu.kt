@@ -1,8 +1,6 @@
 package com.andef.mycarandef.design.menu.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.DropdownMenuItem
@@ -17,7 +15,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -44,94 +41,71 @@ fun <T> UiMenu(
     textFieldLeadingIconContentDescription: String,
     onItemClick: (T) -> Unit,
     expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    onLongClick: (() -> Unit)? = null
+    onExpandedChange: (Boolean) -> Unit
 ) {
-    Box(modifier = modifier) {
-        ExposedDropdownMenuBox(
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
+        OutlinedTextField(
+            modifier = modifier.menuAnchor(PrimaryNotEditable),
+            value = value,
+            onValueChange = {},
+            placeholder = {
+                Text(
+                    text = placeholderText,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    painter = textFieldLeadingIcon,
+                    contentDescription = textFieldLeadingIconContentDescription
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    painter = if (expanded) painterResource(R.drawable.my_car_arrow_drop_up)
+                    else painterResource(R.drawable.my_car_arrow_drop_down),
+                    contentDescription = "Открытие закрытие меню"
+                )
+            },
+            singleLine = true,
+            readOnly = true,
+            shape = shape,
+            colors = colors(value = value, isLightTheme = isLightTheme),
+            textStyle = TextStyle(color = blackOrWhiteColor(isLightTheme), fontSize = 16.sp)
+        )
+        ExposedDropdownMenu(
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = grayColor(isLightTheme),
+                shape = shape
+            ),
             expanded = expanded,
-            onExpandedChange = {
-                if (onLongClick == null) {
-                    onExpandedChange(it)
-                }
-            }
+            onDismissRequest = { onExpandedChange(false) },
+            shape = shape,
+            containerColor = darkGrayOrWhiteColor(isLightTheme)
         ) {
-            OutlinedTextField(
-                modifier = modifier.menuAnchor(PrimaryNotEditable),
-                value = value,
-                onValueChange = {},
-                placeholder = {
-                    Text(
-                        text = placeholderText,
-                        fontSize = 16.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = textFieldLeadingIcon,
-                        contentDescription = textFieldLeadingIconContentDescription
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        painter = if (expanded) painterResource(R.drawable.my_car_arrow_drop_up)
-                        else painterResource(R.drawable.my_car_arrow_drop_down),
-                        contentDescription = "Открытие закрытие меню"
-                    )
-                },
-                singleLine = true,
-                readOnly = true,
-                shape = shape,
-                colors = colors(value = value, isLightTheme = isLightTheme),
-                textStyle = TextStyle(color = blackOrWhiteColor(isLightTheme), fontSize = 16.sp)
-            )
-            ExposedDropdownMenu(
-                modifier = Modifier.border(
-                    width = 1.dp,
-                    color = grayColor(isLightTheme),
-                    shape = shape
-                ),
-                expanded = expanded,
-                onDismissRequest = {},
-                shape = shape,
-                containerColor = darkGrayOrWhiteColor(isLightTheme)
-            ) {
-                items.forEach { item ->
-                    DropdownMenuItem(
-                        onClick = { onItemClick(item) },
-                        text = {
-                            Text(text = itemToString(item), fontSize = 16.sp)
-                        },
-                        leadingIcon = if (itemToLeadingIcon != null) {
-                            {
-                                itemToLeadingIcon(item)
-                            }
-                        } else {
-                            null
-                        },
-                        colors = MenuDefaults.itemColors(
-                            textColor = grayColor(isLightTheme),
-                            leadingIconColor = grayColor(isLightTheme)
-                        ),
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                }
-            }
-        }
-        if (onLongClick != null) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(shape)
-                    .combinedClickable(
-                        onLongClick = onLongClick,
-                        onClick = {
-                            onExpandedChange(!expanded)
+            items.forEach { item ->
+                DropdownMenuItem(
+                    onClick = { onItemClick(item) },
+                    text = {
+                        Text(text = itemToString(item), fontSize = 16.sp)
+                    },
+                    leadingIcon = if (itemToLeadingIcon != null) {
+                        {
+                            itemToLeadingIcon(item)
                         }
+                    } else {
+                        null
+                    },
+                    colors = MenuDefaults.itemColors(
+                        textColor = grayColor(isLightTheme),
+                        leadingIconColor = grayColor(isLightTheme)
                     ),
-            )
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
         }
     }
 }

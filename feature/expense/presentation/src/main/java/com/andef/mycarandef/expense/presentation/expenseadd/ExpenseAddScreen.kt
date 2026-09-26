@@ -5,8 +5,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -261,38 +261,35 @@ private fun ColumnScope.MainContent(
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            UiMenu(
-                items = Expense.allExpenseTypes,
-                modifier = Modifier.fillMaxWidth(),
-                itemToString = { item -> item.title },
-                itemToLeadingIcon = { item -> ExpenseTypeIcon(item) },
-                isLightTheme = isLightTheme,
-                value = state.value.type?.title ?: "",
-                placeholderText = "Тип",
-                textFieldLeadingIcon = painterResource(R.drawable.my_car_more_horiz),
-                textFieldLeadingIconContentDescription = "Три горизонтальные точки",
-                onItemClick = { item ->
-                    typeExpanded = false
-                    viewModel.send(ExpenseAddIntent.ChangeType(item))
-                },
-                onExpandedChange = { typeExpanded = it },
-                expanded = typeExpanded,
-                onLongClick = {
-                    typeExpanded = false
-                    defaultTypeSheetVisible = true
-                }
-            )
-        }
-        state.value.defaultType?.let { defaultType ->
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "По умолчанию: ${defaultType.title}",
-                modifier = Modifier.fillMaxWidth(),
-                color = grayColor(isLightTheme),
-                fontSize = 13.sp
-            )
-        }
+        UiMenu(
+            items = Expense.allExpenseTypes,
+            modifier = Modifier.fillMaxWidth(),
+            itemToString = { item -> item.title },
+            itemToLeadingIcon = { item -> ExpenseTypeIcon(item) },
+            isLightTheme = isLightTheme,
+            value = state.value.type?.title ?: "",
+            placeholderText = "Тип",
+            textFieldLeadingIcon = painterResource(R.drawable.my_car_more_horiz),
+            textFieldLeadingIconContentDescription = "Три горизонтальные точки",
+            onItemClick = { item ->
+                typeExpanded = false
+                viewModel.send(ExpenseAddIntent.ChangeType(item))
+            },
+            onExpandedChange = { typeExpanded = it },
+            expanded = typeExpanded
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = state.value.defaultType?.let { defaultType ->
+                "По умолчанию: ${defaultType.title}. Нажмите, чтобы изменить"
+            } ?: "Нажмите для выбора типа по умолчанию",
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { defaultTypeSheetVisible = true },
+            color = grayColor(isLightTheme),
+            fontSize = 13.sp
+        )
         Spacer(modifier = Modifier.height(16.dp))
         UiChooser(
             isLightTheme = isLightTheme,
