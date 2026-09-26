@@ -75,6 +75,13 @@ import com.andef.mycarandef.routes.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+private const val FITNESS_SDK_URL =
+    "https://www.rustore.ru/catalog/app/com.fitnesssdk.kmpfit.android"
+private const val FITNESS_SDK_APP_ID = "com.fitnesssdk.kmpfit.android"
+
+private const val MY_FINANCE_URL = "https://www.rustore.ru/catalog/app/com.andef.myfinance"
+private const val MY_FINANCE_APP_ID = "com.andef.myfinance"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainModalDrawerSheetContent(
@@ -377,6 +384,23 @@ private fun InnerContent(
                             }
                         }
                     )
+                    InnerContentItem(
+                        isLightTheme = isLightTheme,
+                        icon = painterResource(
+                            com.andef.mycarandef.design.R.drawable.fitnesssdk_app_icon
+                        ),
+                        iconContentDescription = "Иконка FitnessSDK",
+                        itemText = "FitnessSDK",
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                context.openAppOrLink(
+                                    appId = FITNESS_SDK_APP_ID,
+                                    fallbackUrl = FITNESS_SDK_URL
+                                )
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -401,9 +425,6 @@ private fun Context.openAppOrLink(appId: String, fallbackUrl: String) {
     runCatching { startActivity(launchIntent) }
         .onFailure { startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri())) }
 }
-
-private const val MY_FINANCE_URL = "https://www.rustore.ru/catalog/app/com.andef.myfinance"
-private const val MY_FINANCE_APP_ID = "com.andef.myfinance"
 
 @Composable
 private fun InnerContentItem(
