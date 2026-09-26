@@ -33,6 +33,9 @@ class AllRemindersViewModel @Inject constructor(
         when (intent) {
             is AllRemindersIntent.CurrentCarChoose -> currentCarChoose(car = intent.car)
             is AllRemindersIntent.DateSelected -> dateSelected(intent.date)
+            is AllRemindersIntent.CalendarVisibleChange -> {
+                _state.value = _state.value.copy(calendarVisible = intent.isVisible)
+            }
             is AllRemindersIntent.SubscribeToReminders -> subscribeToReminders(carId = intent.carId)
             is AllRemindersIntent.ReminderBottomSheetVisibleChange -> {
                 _state.value = _state.value.copy(
@@ -70,17 +73,10 @@ class AllRemindersViewModel @Inject constructor(
     }
 
     private fun dateSelected(date: LocalDate) {
-        viewModelScope.launch {
-            val reminders = _state.value.reminders
-            _state.value = _state.value.copy(currentDate = date, isLoading = true)
-            val remindersForScreenAsList = withContext(Dispatchers.IO) {
-                reminders.filter { it.date == _state.value.currentDate }
-            }
-            _state.value = _state.value.copy(
-                remindersForScreenAsList = remindersForScreenAsList,
-                isLoading = false
-            )
-        }
+        _state.value = _state.value.copy(
+            currentDate = date,
+            remindersForScreenAsList = _state.value.reminders.filter { it.date == date }
+        )
     }
 
     private var lastCurrentCarId: Long? = null
@@ -92,7 +88,7 @@ class AllRemindersViewModel @Inject constructor(
             job = viewModelScope.launch {
                 val today = LocalDate.now()
                 val previousMonday = today.minusWeeks(1).with(java.time.DayOfWeek.MONDAY)
-                val endSunday = today.plusWeeks(3).with(java.time.DayOfWeek.SUNDAY)
+                val endSunday = today.plusYears(2).with(java.time.DayOfWeek.SUNDAY)
                 getRemindersByCarIdUseCase.invoke(carId, previousMonday, endSunday)
                     .onStart {
                         _state.value = _state.value.copy(isLoading = true, isError = false)

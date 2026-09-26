@@ -15,6 +15,7 @@ data class AllRemindersState(
     val reminderTimeInBottomSheet: LocalTime? = null,
     val reminderRepeatTypeInBottomSheet: ReminderRepeatType? = null,
     val reminderSheetVisible: Boolean = false,
+    val calendarVisible: Boolean = false,
     val currentDate: LocalDate = LocalDate.now(),
     val deleteDialogVisible: Boolean = false,
     val isLoading: Boolean = false,

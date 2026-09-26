@@ -3,11 +3,10 @@ package com.andef.mycarandef.expense.presentation.expenseanalysis
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,8 +29,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -65,14 +63,15 @@ import com.andef.mycarandef.car.domain.entities.Car
 import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.bottomsheet.ui.UiModalBottomSheet
 import com.andef.mycarandef.design.card.car.ui.UiCarInBottomSheetCard
-import com.andef.mycarandef.design.datepicker.ui.UiRangeDatePickerDialog
 import com.andef.mycarandef.design.datepicker.ui.UiMonthPickerDialog
+import com.andef.mycarandef.design.datepicker.ui.UiRangeDatePickerDialog
 import com.andef.mycarandef.design.datepicker.ui.UiYearPickerDialog
 import com.andef.mycarandef.design.error.ui.UiError
 import com.andef.mycarandef.design.loading.ui.UiLoading
 import com.andef.mycarandef.design.scaffold.ui.UiScaffold
 import com.andef.mycarandef.design.theme.GreenColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
+import com.andef.mycarandef.design.theme.darkGrayOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarTab
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
@@ -133,24 +132,13 @@ fun ExpenseAnalysisScreen(
                     if (!state.value.isLoading) navHostController.popBackStack()
                 },
                 actions = {
-                    CarPhoto(
+                    CarChooserActionButton(
                         currentCarImageUri = currentCarImageUri,
+                        currentCarName = currentCarName.value,
                         isLightTheme = isLightTheme,
-                        context = context
-                    )
-                    IconButton(
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = blackOrWhiteColor(isLightTheme)
-                        ),
+                        context = context,
                         onClick = { sheetVisible.value = true }
-                    ) {
-                        Icon(
-                            tint = blackOrWhiteColor(isLightTheme),
-                            painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
-                            contentDescription = "Выбор машины"
-                        )
-                    }
+                    )
                 }
             )
         }
@@ -317,6 +305,96 @@ fun ExpenseAnalysisScreen(
         context = context,
         viewModel = viewModel
     )
+}
+
+@Composable
+private fun CarChooserActionButton(
+    currentCarImageUri: State<String?>,
+    currentCarName: String,
+    isLightTheme: Boolean,
+    context: Context,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(modifier = Modifier.size(40.dp)) {
+            CarPhoto(
+                modifier = Modifier.align(Alignment.Center),
+                currentCarImageUri = currentCarImageUri,
+                isLightTheme = isLightTheme,
+                context = context
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = (-1).dp, y = (-1).dp)
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .background(darkGrayOrWhiteColor(isLightTheme))
+                    .border(
+                        width = 1.dp,
+                        color = grayColor(isLightTheme).copy(alpha = 0.35f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(12.dp),
+                    tint = blackOrWhiteColor(isLightTheme),
+                    painter = painterResource(R.drawable.my_car_keyboard_arrow_down),
+                    contentDescription = "Выбор машины: $currentCarName"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CarPhoto(
+    modifier: Modifier = Modifier,
+    currentCarImageUri: State<String?>,
+    isLightTheme: Boolean,
+    context: Context
+) {
+    if (!currentCarImageUri.value.isNullOrBlank()) {
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(currentCarImageUri.value)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(R.drawable.my_car_car_wo_photo),
+            error = painterResource(R.drawable.my_car_car_wo_photo),
+            modifier = modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .border(
+                    shape = CircleShape,
+                    width = 1.dp,
+                    color = grayColor(isLightTheme).copy(alpha = 0.3f)
+                ),
+            contentScale = ContentScale.Crop,
+            contentDescription = "Фото машины"
+        )
+    } else {
+        Image(
+            modifier = modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .border(
+                    shape = CircleShape,
+                    width = 1.dp,
+                    color = grayColor(isLightTheme).copy(alpha = 0.3f)
+                ),
+            contentScale = ContentScale.Crop,
+            painter = painterResource(R.drawable.my_car_car_wo_photo),
+            contentDescription = "Иконка машины"
+        )
+    }
 }
 
 private fun onDateTabClick(viewModel: ExpenseAnalysisViewModel, tab: UiTopBarTab) {

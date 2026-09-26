@@ -10,14 +10,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,12 +32,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.andef.mycarandef.design.R
 import com.andef.mycarandef.design.auto.resize.text.ui.AutoResizeText
 import com.andef.mycarandef.design.dialog.container.ui.UiDialogContainer
 import com.andef.mycarandef.design.theme.GreenColor
@@ -60,10 +67,18 @@ fun UiDatePickerDialog(
 ) {
     if (isVisible) {
         var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+        var scrollToSelectedRequest by remember { mutableIntStateOf(0) }
 
         UiDialogContainer(isLightTheme = isLightTheme, onDismissRequest = onDismissRequest) {
             Column {
-                Header(isLightTheme = isLightTheme, selectedDate = selectedDate)
+                Header(
+                    isLightTheme = isLightTheme,
+                    selectedDate = selectedDate,
+                    onTodayClick = {
+                        selectedDate = LocalDate.now()
+                        scrollToSelectedRequest++
+                    }
+                )
                 DaysRow(isLightTheme = isLightTheme)
                 Spacer(modifier = Modifier.height(4.dp))
                 HorizontalDivider(
@@ -74,7 +89,8 @@ fun UiDatePickerDialog(
                 Calendar(
                     isLightTheme = isLightTheme,
                     onDayClick = { date -> selectedDate = date },
-                    selectedDate = selectedDate
+                    selectedDate = selectedDate,
+                    scrollToSelectedRequest = scrollToSelectedRequest
                 )
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
@@ -153,18 +169,25 @@ private fun Calendar(
     isLightTheme: Boolean,
     onDayClick: (LocalDate) -> Unit,
     selectedDate: LocalDate?,
+    scrollToSelectedRequest: Int
 ) {
     val startDateForState = LocalDate.now().minusYears(2)
     val endDateForState = LocalDate.now().plusYears(2)
+    val calendarState = rememberCalendarState(
+        firstVisibleMonth = YearMonth.now(),
+        firstDayOfWeek = DayOfWeek.MONDAY,
+        startMonth = YearMonth.of(startDateForState.year, startDateForState.month.value),
+        endMonth = YearMonth.of(endDateForState.year, endDateForState.month.value),
+        outDateStyle = OutDateStyle.EndOfRow
+    )
+    LaunchedEffect(selectedDate, scrollToSelectedRequest) {
+        selectedDate?.let {
+            calendarState.animateScrollToMonth(YearMonth.of(it.year, it.month.value))
+        }
+    }
     VerticalCalendar(
         modifier = Modifier.height(300.dp),
-        state = rememberCalendarState(
-            firstVisibleMonth = YearMonth.now(),
-            firstDayOfWeek = DayOfWeek.MONDAY,
-            startMonth = YearMonth.of(startDateForState.year, startDateForState.month.value),
-            endMonth = YearMonth.of(endDateForState.year, endDateForState.month.value),
-            outDateStyle = OutDateStyle.EndOfRow
-        ),
+        state = calendarState,
         monthHeader = { month ->
             Spacer(modifier = Modifier.height(14.dp))
             Text(
@@ -292,18 +315,40 @@ private fun getMonthName(month: Month): String = when (month) {
 }
 
 @Composable
-private fun Header(isLightTheme: Boolean, selectedDate: LocalDate?) {
-    AutoResizeText(
+private fun Header(
+    isLightTheme: Boolean,
+    selectedDate: LocalDate?,
+    onTodayClick: () -> Unit
+) {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 12.dp)
-            .padding(horizontal = 6.dp),
-        text = selectedDate?.let { s ->
-            formatLocalDate(s)
-        } ?: "Выбор даты",
-        color = blackOrWhiteColor(isLightTheme),
-        maxFontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
-    )
+            .padding(vertical = 8.dp)
+            .padding(horizontal = 12.dp)
+    ) {
+        AutoResizeText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 48.dp)
+                .align(Alignment.Center),
+            text = selectedDate?.let(::formatLocalDate) ?: "Выбор даты",
+            color = blackOrWhiteColor(isLightTheme),
+            maxFontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        IconButton(
+            modifier = Modifier
+                .size(40.dp)
+                .align(Alignment.CenterEnd),
+            onClick = onTodayClick
+        ) {
+            Icon(
+                modifier = Modifier.size(22.dp),
+                painter = painterResource(R.drawable.my_car_today),
+                tint = blackOrWhiteColor(isLightTheme),
+                contentDescription = "Перейти к сегодняшней дате"
+            )
+        }
+    }
 }
