@@ -1,5 +1,7 @@
 package com.andef.mycarandef.routes
 
+import java.util.Base64
+
 sealed class Screen(val route: String) {
     data object StartScreens : Screen(START_SCREENS) {
         data object UsernameInputScreen : Screen(USERNAME_INPUT_SCREEN)
@@ -30,7 +32,27 @@ sealed class Screen(val route: String) {
 
     data object WorkAddScreen : Screen(WORK_ADD_SCREEN)
 
-    data object ExpenseAddScreen : Screen(EXPENSE_ADD_SCREEN)
+    data object ExpenseAddScreen : Screen(EXPENSE_ADD_SCREEN) {
+        val routeWithArguments =
+            "$EXPENSE_ADD_SCREEN?$FROM_WORK_PARAM={$FROM_WORK_PARAM}" +
+                    "&$INITIAL_NOTE_PARAM={$INITIAL_NOTE_PARAM}" +
+                    "&$INITIAL_DATE_PARAM={$INITIAL_DATE_PARAM}"
+
+        fun fromWork(workTitle: String, workDate: String): String {
+            val encodedNote = Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(workTitle.toByteArray(Charsets.UTF_8))
+            return "$EXPENSE_ADD_SCREEN?$FROM_WORK_PARAM=true" +
+                    "&$INITIAL_NOTE_PARAM=$encodedNote&$INITIAL_DATE_PARAM=$workDate"
+        }
+
+        fun decodeInitialNote(encodedNote: String?): String? {
+            if (encodedNote == null) return null
+            return runCatching {
+                String(Base64.getUrlDecoder().decode(encodedNote), Charsets.UTF_8)
+            }.getOrNull()
+        }
+    }
 
     data object CarAddScreen : Screen(CAR_ADD_SCREEN)
 
@@ -78,5 +100,8 @@ sealed class Screen(val route: String) {
 
         const val ID_PARAM = "id-param"
         const val CAR_ID_PARAM = "car-id-param"
+        const val FROM_WORK_PARAM = "from-work-param"
+        const val INITIAL_NOTE_PARAM = "initial-note-param"
+        const val INITIAL_DATE_PARAM = "initial-date-param"
     }
 }
