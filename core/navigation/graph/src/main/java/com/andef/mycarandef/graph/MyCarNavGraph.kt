@@ -123,7 +123,23 @@ fun MyCarNavGraph(
             )
         }
         composable(
-            route = Screen.ExpenseAddScreen.route,
+            route = Screen.ExpenseAddScreen.routeWithArguments,
+            arguments = listOf(
+                navArgument(Screen.FROM_WORK_PARAM) {
+                    type = NavType.BoolType
+                    defaultValue = false
+                },
+                navArgument(Screen.INITIAL_NOTE_PARAM) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument(Screen.INITIAL_DATE_PARAM) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            ),
             enterTransition = { fadeIn(tween(400, easing = FastOutSlowInEasing)) },
             exitTransition = { fadeOut(tween(400, easing = FastOutSlowInEasing)) }) {
             ExpenseAddScreen(
@@ -132,7 +148,14 @@ fun MyCarNavGraph(
                 viewModelFactory = viewModelFactory,
                 paddingValues = paddingValues,
                 isLightTheme = isLightTheme,
-                carId = currentCarId
+                carId = currentCarId,
+                isWorkExpense = it.arguments?.getBoolean(Screen.FROM_WORK_PARAM) == true,
+                initialNote = Screen.ExpenseAddScreen.decodeInitialNote(
+                    it.arguments?.getString(Screen.INITIAL_NOTE_PARAM)
+                ),
+                initialDate = it.arguments?.getString(Screen.INITIAL_DATE_PARAM)?.let { date ->
+                    runCatching { LocalDate.parse(date) }.getOrNull()
+                }
             )
         }
         composable(

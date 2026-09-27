@@ -87,6 +87,7 @@ import com.andef.mycarandef.utils.parseAmountToKopecks
 import com.andef.mycarandef.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +97,10 @@ fun ExpenseAddScreen(
     viewModelFactory: ViewModelFactory,
     paddingValues: PaddingValues,
     isLightTheme: Boolean,
-    carId: Long
+    carId: Long,
+    isWorkExpense: Boolean = false,
+    initialNote: String? = null,
+    initialDate: LocalDate? = null
 ) {
     val viewModel: ExpenseAddViewModel = viewModel(factory = viewModelFactory)
     val state = viewModel.state.collectAsState()
@@ -108,8 +112,19 @@ fun ExpenseAddScreen(
 
     LaunchedEffect(Unit) {
         viewModel.send(
-            ExpenseAddIntent.InitDefaultType(applyToExpense = expenseId == null)
+            ExpenseAddIntent.InitDefaultType(
+                applyToExpense = expenseId == null && !isWorkExpense
+            )
         )
+        if (expenseId == null && isWorkExpense) {
+            viewModel.send(ExpenseAddIntent.ChangeType(ExpenseType.WORKS))
+            initialNote?.let { note ->
+                viewModel.send(ExpenseAddIntent.ChangeNote(note))
+            }
+            initialDate?.let { date ->
+                viewModel.send(ExpenseAddIntent.ChangeDate(date))
+            }
+        }
         if (expenseId != null) {
             viewModel.send(
                 ExpenseAddIntent.InitExpenseByLateExpense(

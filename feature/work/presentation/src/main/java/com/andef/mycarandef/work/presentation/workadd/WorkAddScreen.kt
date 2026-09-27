@@ -28,8 +28,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.andef.mycarandef.design.R
+import com.andef.mycarandef.design.alertdialog.ui.UiAlertDialog
 import com.andef.mycarandef.design.button.ui.UiButton
 import com.andef.mycarandef.design.chooser.ui.UiChooser
 import com.andef.mycarandef.design.datepicker.ui.UiDatePickerDialog
@@ -54,14 +59,15 @@ import com.andef.mycarandef.design.snackbar.type.UiSnackbarType
 import com.andef.mycarandef.design.snackbar.ui.UiSnackbar
 import com.andef.mycarandef.design.textfield.ui.UiTextField
 import com.andef.mycarandef.design.theme.GreenColor
+import com.andef.mycarandef.design.theme.RedColor
 import com.andef.mycarandef.design.theme.blackOrWhiteColor
 import com.andef.mycarandef.design.theme.grayColor
 import com.andef.mycarandef.design.topbar.type.UiTopBarType
 import com.andef.mycarandef.design.topbar.ui.UiTopBar
+import com.andef.mycarandef.routes.Screen
 import com.andef.mycarandef.utils.MileageVisualTransformation
 import com.andef.mycarandef.utils.formatLocalDate
 import com.andef.mycarandef.viewmodel.ViewModelFactory
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +87,7 @@ fun WorkAddScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
+    var createExpenseDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         workId?.let {
@@ -141,12 +148,8 @@ fun WorkAddScreen(
             DownButton(
                 isLightTheme = isLightTheme,
                 keyboard = keyboard,
-                viewModel = viewModel,
                 state = state,
-                navHostController = navHostController,
-                scope = scope,
-                snackbarHostState = snackbarHostState,
-                carId = carId
+                onClick = { createExpenseDialogVisible = true }
             )
         }
     }
@@ -158,6 +161,66 @@ fun WorkAddScreen(
         onOkClick = { date ->
             viewModel.send(WorkAddIntent.ChangeDate(date))
             viewModel.send(WorkAddIntent.ChangeDatePickerVisible(false))
+        }
+    )
+    UiAlertDialog(
+        isLightTheme = isLightTheme,
+        isVisible = createExpenseDialogVisible,
+        title = "Создать трату?",
+        subtitle = "Добавить стоимость выполненной работы в траты автомобиля?",
+        yesTitle = "Да",
+        yesTitleColor = GreenColor,
+        cancelTitle = "Нет",
+        cancelTitleColor = RedColor,
+        onDismissRequest = { createExpenseDialogVisible = false },
+        onYesClick = {
+            createExpenseDialogVisible = false
+            val workDate = requireNotNull(state.value.date)
+            viewModel.send(
+                WorkAddIntent.SaveClick(
+                    onSuccess = {
+                        val workDestinationId = navHostController.currentDestination?.id
+                        navHostController.navigate(
+                            Screen.ExpenseAddScreen.fromWork(
+                                workTitle = state.value.workTitle,
+                                workDate = workDate.toString()
+                            )
+                        ) {
+                            workDestinationId?.let { destinationId ->
+                                popUpTo(destinationId) { inclusive = true }
+                            }
+                        }
+                    },
+                    onError = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true
+                            )
+                        }
+                    },
+                    carId = carId
+                )
+            )
+        },
+        onCancelClick = {
+            createExpenseDialogVisible = false
+            viewModel.send(
+                WorkAddIntent.SaveClick(
+                    onSuccess = navHostController::popBackStack,
+                    onError = { msg ->
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = msg,
+                                withDismissAction = true
+                            )
+                        }
+                    },
+                    carId = carId
+                )
+            )
         }
     )
     BackHandler { if (!state.value.isLoading) navHostController.popBackStack() }
@@ -279,12 +342,8 @@ private fun ColumnScope.MainContent(
 private fun ColumnScope.DownButton(
     isLightTheme: Boolean,
     keyboard: SoftwareKeyboardController?,
-    viewModel: WorkAddViewModel,
-    navHostController: NavHostController,
-    scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
     state: State<WorkAddState>,
-    carId: Long
+    onClick: () -> Unit
 ) {
     Column {
         HorizontalDivider(
@@ -297,21 +356,7 @@ private fun ColumnScope.DownButton(
             text = "Сохранить",
             onClick = {
                 keyboard?.hide()
-                viewModel.send(
-                    WorkAddIntent.SaveClick(
-                        onSuccess = navHostController::popBackStack,
-                        onError = { msg ->
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar(
-                                    message = msg,
-                                    withDismissAction = true
-                                )
-                            }
-                        },
-                        carId = carId
-                    )
-                )
+                onClick()
             },
             modifier = Modifier
                 .fillMaxWidth()
